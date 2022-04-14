@@ -1,0 +1,1142 @@
+Intel(R) Advisor can now assist with vectorization and show optimization
+  report messages with your source code.
+See "https://software.intel.com/en-us/intel-advisor-xe" for details.
+
+Intel(R) C++ Intel(R) 64 Compiler for applications running on Intel(R) 64, Version 17.0.0.098 Build 20160721
+
+Compiler options: -O2 -qopenmp --std=c++11 -qopt-report=5 -o main
+
+    Report from: Interprocedural optimizations [ipo]
+
+  WHOLE PROGRAM (SAFE) [EITHER METHOD]: false
+  WHOLE PROGRAM (SEEN) [TABLE METHOD]: false
+  WHOLE PROGRAM (READ) [OBJECT READER METHOD]: false
+
+INLINING OPTION VALUES:
+  -inline-factor: 100
+  -inline-min-size: 30
+  -inline-max-size: 230
+  -inline-max-total-size: 2000
+  -inline-max-per-routine: 10000
+  -inline-max-per-compile: 500000
+
+In the inlining report below:
+   "sz" refers to the "size" of the routine. The smaller a routine's size,
+      the more likely it is to be inlined.
+   "isz" refers to the "inlined size" of the routine. This is the amount
+      the calling routine will grow if the called routine is inlined into it.
+      The compiler generally limits the amount a routine can grow by having
+      routines inlined into it.
+
+Begin optimization report for: main(int, char **)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (main(int, char **)) [1/57=1.8%] main.cpp(14,31)
+  -> DELETED: (16,23) std::allocator<real_t>::~allocator(std::allocator<real_t> *) (isz = 0) (sz = 3)
+  -> (16,25) std::vector<real_t, std::allocator<real_t>>::~vector(std::vector<real_t, std::allocator<real_t>> *) (isz = 40) (sz = 45)
+     [[ Callee not marked with inlining pragma  <1>]]
+  -> DELETED: (16,25) std::allocator<real_t>::~allocator(std::allocator<real_t> *) (isz = 0) (sz = 3)
+  -> INLINE (MANUAL): (16,25) std::vector<real_t, std::allocator<real_t>>::vector(std::vector<real_t, std::allocator<real_t>> *, std::vector<real_t, std::allocator<real_t>>::size_type, const std::vector<real_t, std::allocator<real_t>>::allocator_type &) (isz = 89) (sz = 98)
+    -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h:(278,20) std::_Vector_base<real_t, std::allocator<real_t>>::_Vector_base(std::_Vector_base<real_t, std::allocator<real_t>> *const, std::size_t, const std::_Vector_base<real_t, std::allocator<real_t>>::allocator_type &) (isz = 44) (sz = 53)
+      -> INLINE (MANUAL): (134,7) std::_Vector_base<real_t, std::allocator<real_t>>::_Vector_base(std::_Vector_base<real_t, std::allocator<real_t>> *, std::size_t, const std::_Vector_base<real_t, std::allocator<real_t>>::allocator_type &) (isz = 44) (sz = 53)
+        -> INLINE (MANUAL): (135,17) std::_Vector_base<real_t, std::allocator<real_t>>::_Vector_impl::_Vector_impl(std::_Vector_base<real_t, std::allocator<real_t>>::_Vector_impl *, const std::_Vector_base<real_t, std::allocator<real_t>>::_Tp_alloc_type &) (isz = 13) (sz = 20)
+          -> INLINE (MANUAL): (91,19) std::allocator<real_t>::allocator(std::allocator<real_t> *const, const std::allocator<real_t> &) (isz = 5) (sz = 12)
+            -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/allocator.h:(115,7) std::allocator<real_t>::allocator(std::allocator<real_t> *, const std::allocator<real_t> &) (isz = 5) (sz = 12)
+              -> DELETED: (116,31) __gnu_cxx::new_allocator<real_t>::new_allocator(__gnu_cxx::new_allocator<real_t> *const, const __gnu_cxx::new_allocator<real_t> &) (isz = 0) (sz = 7)
+              -> EXTERN: (116,36) __cxa_call_unexpected
+        -> INLINE (MANUAL): (136,9) std::_Vector_base<real_t, std::allocator<real_t>>::_M_create_storage(std::_Vector_base<real_t, std::allocator<real_t>> *, std::size_t) (isz = 27) (sz = 34)
+          -> INLINE (MANUAL): (185,33) std::_Vector_base<real_t, std::allocator<real_t>>::_M_allocate(std::_Vector_base<real_t, std::allocator<real_t>> *, std::size_t) (isz = 16) (sz = 25)
+            -> INLINE (MANUAL): (170,20) std::allocator_traits<std::allocator<real_t>>::allocate(std::allocator<real_t> &, std::allocator_traits<std::allocator<real_t>>::size_type) (isz = 9) (sz = 18)
+              -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/alloc_traits.h:(357,20) __gnu_cxx::new_allocator<real_t>::allocate(__gnu_cxx::new_allocator<real_t> *, __gnu_cxx::new_allocator<real_t>::size_type, const void *) (isz = 7) (sz = 18)
+                -> DELETED: /opt/apps/gcc/4.9.3/include/c++/4.9.3/ext/new_allocator.h:(101,18) __gnu_cxx::new_allocator<real_t>::max_size(const __gnu_cxx::new_allocator<real_t> *) const (isz = 0) (sz = 5)
+                -> EXTERN: /opt/apps/gcc/4.9.3/include/c++/4.9.3/ext/new_allocator.h:(102,4) std::__throw_bad_alloc()
+                -> EXTERN: /opt/apps/gcc/4.9.3/include/c++/4.9.3/ext/new_allocator.h:(104,27) operator new(std::size_t)
+    -> /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h:(278,20) std::_Vector_base<real_t, std::allocator<real_t>>::~_Vector_base(std::_Vector_base<real_t, std::allocator<real_t>> *const) (isz = 18) (sz = 23)
+       [[ Callee not marked with inlining pragma  <1>]]
+    -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h:(279,9) std::vector<real_t, std::allocator<real_t>>::_M_default_initialize(std::vector<real_t, std::allocator<real_t>> *, std::vector<real_t, std::allocator<real_t>>::size_type) (isz = 34) (sz = 41)
+      -> INLINE (MANUAL): (1310,2) std::__uninitialized_default_n_a<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type, real_t>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type, std::allocator<real_t> &) (isz = 24) (sz = 33)
+        -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_uninitialized.h:(632,7) std::__uninitialized_default_n<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type) (isz = 25) (sz = 32)
+          -> INLINE (MANUAL): (569,7) std::__uninitialized_default_n_1<true>::__uninit_default_n<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type) (isz = 24) (sz = 31)
+            -> INLINE (MANUAL): (536,4) std::fill_n<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type, std::iterator_traits<std::_Vector_base<real_t, std::allocator<real_t>>::pointer>::value_type>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type, const std::iterator_traits<std::_Vector_base<real_t, std::allocator<real_t>>::pointer>::value_type &) (isz = 20) (sz = 31)
+              -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_algobase.h:(797,18) std::__fill_n_a<std::_Iter_base<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, false>::iterator_type, std::vector<real_t, std::allocator<real_t>>::size_type, std::iterator_traits<std::_Vector_base<real_t, std::allocator<real_t>>::pointer>::value_type>(std::_Iter_base<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, false>::iterator_type, std::vector<real_t, std::allocator<real_t>>::size_type, const std::iterator_traits<std::_Vector_base<real_t, std::allocator<real_t>>::pointer>::value_type &) (isz = 15) (sz = 26)
+              -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_algobase.h:(797,34) std::__niter_base<std::_Vector_base<real_t, std::allocator<real_t>>::pointer>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer) (isz = 1) (sz = 8)
+                -> INLINE (MANUAL): (279,14) std::_Iter_base<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, false>::_S_base(std::_Vector_base<real_t, std::allocator<real_t>>::pointer) (isz = 0) (sz = 5)
+      -> INLINE (MANUAL): (1311,7) std::_Vector_base<real_t, std::allocator<real_t>>::_M_get_Tp_allocator(std::_Vector_base<real_t, std::allocator<real_t>> *) (isz = 1) (sz = 8)
+  -> INLINE (MANUAL): (16,25) std::allocator<real_t>::allocator(std::allocator<real_t> *) (isz = 5) (sz = 10)
+    -> DELETED: /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/allocator.h:(113,7) __gnu_cxx::new_allocator<real_t>::new_allocator(__gnu_cxx::new_allocator<real_t> *const) (isz = 0) (sz = 5)
+    -> EXTERN: /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/allocator.h:(113,27) __cxa_call_unexpected
+  -> DELETED: (16,28) std::allocator<real_t>::~allocator(std::allocator<real_t> *) (isz = 0) (sz = 3)
+  -> (16,30) std::vector<real_t, std::allocator<real_t>>::~vector(std::vector<real_t, std::allocator<real_t>> *) (isz = 40) (sz = 45)
+     [[ Callee not marked with inlining pragma  <1>]]
+  -> DELETED: (16,30) std::allocator<real_t>::~allocator(std::allocator<real_t> *) (isz = 0) (sz = 3)
+  -> INLINE (MANUAL): (16,30) std::vector<real_t, std::allocator<real_t>>::vector(std::vector<real_t, std::allocator<real_t>> *, std::vector<real_t, std::allocator<real_t>>::size_type, const std::vector<real_t, std::allocator<real_t>>::allocator_type &) (isz = 89) (sz = 98)
+    -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h:(278,20) std::_Vector_base<real_t, std::allocator<real_t>>::_Vector_base(std::_Vector_base<real_t, std::allocator<real_t>> *const, std::size_t, const std::_Vector_base<real_t, std::allocator<real_t>>::allocator_type &) (isz = 44) (sz = 53)
+      -> INLINE (MANUAL): (134,7) std::_Vector_base<real_t, std::allocator<real_t>>::_Vector_base(std::_Vector_base<real_t, std::allocator<real_t>> *, std::size_t, const std::_Vector_base<real_t, std::allocator<real_t>>::allocator_type &) (isz = 44) (sz = 53)
+        -> INLINE (MANUAL): (135,17) std::_Vector_base<real_t, std::allocator<real_t>>::_Vector_impl::_Vector_impl(std::_Vector_base<real_t, std::allocator<real_t>>::_Vector_impl *, const std::_Vector_base<real_t, std::allocator<real_t>>::_Tp_alloc_type &) (isz = 13) (sz = 20)
+          -> INLINE (MANUAL): (91,19) std::allocator<real_t>::allocator(std::allocator<real_t> *const, const std::allocator<real_t> &) (isz = 5) (sz = 12)
+            -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/allocator.h:(115,7) std::allocator<real_t>::allocator(std::allocator<real_t> *, const std::allocator<real_t> &) (isz = 5) (sz = 12)
+              -> DELETED: (116,31) __gnu_cxx::new_allocator<real_t>::new_allocator(__gnu_cxx::new_allocator<real_t> *const, const __gnu_cxx::new_allocator<real_t> &) (isz = 0) (sz = 7)
+              -> EXTERN: (116,36) __cxa_call_unexpected
+        -> INLINE (MANUAL): (136,9) std::_Vector_base<real_t, std::allocator<real_t>>::_M_create_storage(std::_Vector_base<real_t, std::allocator<real_t>> *, std::size_t) (isz = 27) (sz = 34)
+          -> INLINE (MANUAL): (185,33) std::_Vector_base<real_t, std::allocator<real_t>>::_M_allocate(std::_Vector_base<real_t, std::allocator<real_t>> *, std::size_t) (isz = 16) (sz = 25)
+            -> INLINE (MANUAL): (170,20) std::allocator_traits<std::allocator<real_t>>::allocate(std::allocator<real_t> &, std::allocator_traits<std::allocator<real_t>>::size_type) (isz = 9) (sz = 18)
+              -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/alloc_traits.h:(357,20) __gnu_cxx::new_allocator<real_t>::allocate(__gnu_cxx::new_allocator<real_t> *, __gnu_cxx::new_allocator<real_t>::size_type, const void *) (isz = 7) (sz = 18)
+                -> DELETED: /opt/apps/gcc/4.9.3/include/c++/4.9.3/ext/new_allocator.h:(101,18) __gnu_cxx::new_allocator<real_t>::max_size(const __gnu_cxx::new_allocator<real_t> *) const (isz = 0) (sz = 5)
+                -> EXTERN: /opt/apps/gcc/4.9.3/include/c++/4.9.3/ext/new_allocator.h:(102,4) std::__throw_bad_alloc()
+                -> EXTERN: /opt/apps/gcc/4.9.3/include/c++/4.9.3/ext/new_allocator.h:(104,27) operator new(std::size_t)
+    -> /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h:(278,20) std::_Vector_base<real_t, std::allocator<real_t>>::~_Vector_base(std::_Vector_base<real_t, std::allocator<real_t>> *const) (isz = 18) (sz = 23)
+       [[ Callee not marked with inlining pragma  <1>]]
+    -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h:(279,9) std::vector<real_t, std::allocator<real_t>>::_M_default_initialize(std::vector<real_t, std::allocator<real_t>> *, std::vector<real_t, std::allocator<real_t>>::size_type) (isz = 34) (sz = 41)
+      -> INLINE (MANUAL): (1310,2) std::__uninitialized_default_n_a<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type, real_t>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type, std::allocator<real_t> &) (isz = 24) (sz = 33)
+        -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_uninitialized.h:(632,7) std::__uninitialized_default_n<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type) (isz = 25) (sz = 32)
+          -> INLINE (MANUAL): (569,7) std::__uninitialized_default_n_1<true>::__uninit_default_n<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type) (isz = 24) (sz = 31)
+            -> INLINE (MANUAL): (536,4) std::fill_n<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type, std::iterator_traits<std::_Vector_base<real_t, std::allocator<real_t>>::pointer>::value_type>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type, const std::iterator_traits<std::_Vector_base<real_t, std::allocator<real_t>>::pointer>::value_type &) (isz = 20) (sz = 31)
+              -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_algobase.h:(797,18) std::__fill_n_a<std::_Iter_base<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, false>::iterator_type, std::vector<real_t, std::allocator<real_t>>::size_type, std::iterator_traits<std::_Vector_base<real_t, std::allocator<real_t>>::pointer>::value_type>(std::_Iter_base<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, false>::iterator_type, std::vector<real_t, std::allocator<real_t>>::size_type, const std::iterator_traits<std::_Vector_base<real_t, std::allocator<real_t>>::pointer>::value_type &) (isz = 15) (sz = 26)
+              -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_algobase.h:(797,34) std::__niter_base<std::_Vector_base<real_t, std::allocator<real_t>>::pointer>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer) (isz = 1) (sz = 8)
+                -> INLINE (MANUAL): (279,14) std::_Iter_base<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, false>::_S_base(std::_Vector_base<real_t, std::allocator<real_t>>::pointer) (isz = 0) (sz = 5)
+      -> INLINE (MANUAL): (1311,7) std::_Vector_base<real_t, std::allocator<real_t>>::_M_get_Tp_allocator(std::_Vector_base<real_t, std::allocator<real_t>> *) (isz = 1) (sz = 8)
+  -> INLINE (MANUAL): (16,30) std::allocator<real_t>::allocator(std::allocator<real_t> *) (isz = 5) (sz = 10)
+    -> DELETED: /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/allocator.h:(113,7) __gnu_cxx::new_allocator<real_t>::new_allocator(__gnu_cxx::new_allocator<real_t> *const) (isz = 0) (sz = 5)
+    -> EXTERN: /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/allocator.h:(113,27) __cxa_call_unexpected
+  -> DELETED: (16,33) std::allocator<real_t>::~allocator(std::allocator<real_t> *) (isz = 0) (sz = 3)
+  -> DELETED: (16,35) std::allocator<real_t>::~allocator(std::allocator<real_t> *) (isz = 0) (sz = 3)
+  -> INLINE (MANUAL): (16,35) std::allocator<real_t>::allocator(std::allocator<real_t> *) (isz = 5) (sz = 10)
+    -> DELETED: /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/allocator.h:(113,7) __gnu_cxx::new_allocator<real_t>::new_allocator(__gnu_cxx::new_allocator<real_t> *const) (isz = 0) (sz = 5)
+    -> EXTERN: /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/allocator.h:(113,27) __cxa_call_unexpected
+  -> INLINE (MANUAL): (16,35) std::vector<real_t, std::allocator<real_t>>::vector(std::vector<real_t, std::allocator<real_t>> *, std::vector<real_t, std::allocator<real_t>>::size_type, const std::vector<real_t, std::allocator<real_t>>::allocator_type &) (isz = 89) (sz = 98)
+    -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h:(278,20) std::_Vector_base<real_t, std::allocator<real_t>>::_Vector_base(std::_Vector_base<real_t, std::allocator<real_t>> *const, std::size_t, const std::_Vector_base<real_t, std::allocator<real_t>>::allocator_type &) (isz = 44) (sz = 53)
+      -> INLINE (MANUAL): (134,7) std::_Vector_base<real_t, std::allocator<real_t>>::_Vector_base(std::_Vector_base<real_t, std::allocator<real_t>> *, std::size_t, const std::_Vector_base<real_t, std::allocator<real_t>>::allocator_type &) (isz = 44) (sz = 53)
+        -> INLINE (MANUAL): (135,17) std::_Vector_base<real_t, std::allocator<real_t>>::_Vector_impl::_Vector_impl(std::_Vector_base<real_t, std::allocator<real_t>>::_Vector_impl *, const std::_Vector_base<real_t, std::allocator<real_t>>::_Tp_alloc_type &) (isz = 13) (sz = 20)
+          -> INLINE (MANUAL): (91,19) std::allocator<real_t>::allocator(std::allocator<real_t> *const, const std::allocator<real_t> &) (isz = 5) (sz = 12)
+            -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/allocator.h:(115,7) std::allocator<real_t>::allocator(std::allocator<real_t> *, const std::allocator<real_t> &) (isz = 5) (sz = 12)
+              -> DELETED: (116,31) __gnu_cxx::new_allocator<real_t>::new_allocator(__gnu_cxx::new_allocator<real_t> *const, const __gnu_cxx::new_allocator<real_t> &) (isz = 0) (sz = 7)
+              -> EXTERN: (116,36) __cxa_call_unexpected
+        -> INLINE (MANUAL): (136,9) std::_Vector_base<real_t, std::allocator<real_t>>::_M_create_storage(std::_Vector_base<real_t, std::allocator<real_t>> *, std::size_t) (isz = 27) (sz = 34)
+          -> INLINE (MANUAL): (185,33) std::_Vector_base<real_t, std::allocator<real_t>>::_M_allocate(std::_Vector_base<real_t, std::allocator<real_t>> *, std::size_t) (isz = 16) (sz = 25)
+            -> INLINE (MANUAL): (170,20) std::allocator_traits<std::allocator<real_t>>::allocate(std::allocator<real_t> &, std::allocator_traits<std::allocator<real_t>>::size_type) (isz = 9) (sz = 18)
+              -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/alloc_traits.h:(357,20) __gnu_cxx::new_allocator<real_t>::allocate(__gnu_cxx::new_allocator<real_t> *, __gnu_cxx::new_allocator<real_t>::size_type, const void *) (isz = 7) (sz = 18)
+                -> DELETED: /opt/apps/gcc/4.9.3/include/c++/4.9.3/ext/new_allocator.h:(101,18) __gnu_cxx::new_allocator<real_t>::max_size(const __gnu_cxx::new_allocator<real_t> *) const (isz = 0) (sz = 5)
+                -> EXTERN: /opt/apps/gcc/4.9.3/include/c++/4.9.3/ext/new_allocator.h:(102,4) std::__throw_bad_alloc()
+                -> EXTERN: /opt/apps/gcc/4.9.3/include/c++/4.9.3/ext/new_allocator.h:(104,27) operator new(std::size_t)
+    -> /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h:(278,20) std::_Vector_base<real_t, std::allocator<real_t>>::~_Vector_base(std::_Vector_base<real_t, std::allocator<real_t>> *const) (isz = 18) (sz = 23)
+       [[ Callee not marked with inlining pragma  <1>]]
+    -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h:(279,9) std::vector<real_t, std::allocator<real_t>>::_M_default_initialize(std::vector<real_t, std::allocator<real_t>> *, std::vector<real_t, std::allocator<real_t>>::size_type) (isz = 34) (sz = 41)
+      -> INLINE (MANUAL): (1310,2) std::__uninitialized_default_n_a<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type, real_t>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type, std::allocator<real_t> &) (isz = 24) (sz = 33)
+        -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_uninitialized.h:(632,7) std::__uninitialized_default_n<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type) (isz = 25) (sz = 32)
+          -> INLINE (MANUAL): (569,7) std::__uninitialized_default_n_1<true>::__uninit_default_n<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type) (isz = 24) (sz = 31)
+            -> INLINE (MANUAL): (536,4) std::fill_n<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type, std::iterator_traits<std::_Vector_base<real_t, std::allocator<real_t>>::pointer>::value_type>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type, const std::iterator_traits<std::_Vector_base<real_t, std::allocator<real_t>>::pointer>::value_type &) (isz = 20) (sz = 31)
+              -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_algobase.h:(797,18) std::__fill_n_a<std::_Iter_base<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, false>::iterator_type, std::vector<real_t, std::allocator<real_t>>::size_type, std::iterator_traits<std::_Vector_base<real_t, std::allocator<real_t>>::pointer>::value_type>(std::_Iter_base<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, false>::iterator_type, std::vector<real_t, std::allocator<real_t>>::size_type, const std::iterator_traits<std::_Vector_base<real_t, std::allocator<real_t>>::pointer>::value_type &) (isz = 15) (sz = 26)
+              -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_algobase.h:(797,34) std::__niter_base<std::_Vector_base<real_t, std::allocator<real_t>>::pointer>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer) (isz = 1) (sz = 8)
+                -> INLINE (MANUAL): (279,14) std::_Iter_base<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, false>::_S_base(std::_Vector_base<real_t, std::allocator<real_t>>::pointer) (isz = 0) (sz = 5)
+      -> INLINE (MANUAL): (1311,7) std::_Vector_base<real_t, std::allocator<real_t>>::_M_get_Tp_allocator(std::_Vector_base<real_t, std::allocator<real_t>> *) (isz = 1) (sz = 8)
+  -> (16,35) std::vector<real_t, std::allocator<real_t>>::~vector(std::vector<real_t, std::allocator<real_t>> *) (isz = 40) (sz = 45)
+     [[ Callee not marked with inlining pragma  <1>]]
+  -> INLINE: (17,3) fill(std::vector<real_t, std::allocator<real_t>> &, std::vector<real_t, std::allocator<real_t>> &, std::vector<real_t, std::allocator<real_t>> &) (isz = 42) (sz = 51)
+    -> INLINE (MANUAL): (51,14) std::vector<real_t, std::allocator<real_t>>::size(const std::vector<real_t, std::allocator<real_t>> *) const (isz = 5) (sz = 12)
+    -> INLINE (MANUAL): (53,8) std::vector<real_t, std::allocator<real_t>>::operator[](std::vector<real_t, std::allocator<real_t>> *, std::vector<real_t, std::allocator<real_t>>::size_type) (isz = 1) (sz = 10)
+    -> INLINE (MANUAL): (54,8) std::vector<real_t, std::allocator<real_t>>::operator[](std::vector<real_t, std::allocator<real_t>> *, std::vector<real_t, std::allocator<real_t>>::size_type) (isz = 1) (sz = 10)
+    -> INLINE (MANUAL): (55,8) std::vector<real_t, std::allocator<real_t>>::operator[](std::vector<real_t, std::allocator<real_t>> *, std::vector<real_t, std::allocator<real_t>>::size_type) (isz = 1) (sz = 10)
+  -> INLINE: (19,3) add(std::vector<real_t, std::allocator<real_t>> &, const std::vector<real_t, std::allocator<real_t>> &, const std::vector<real_t, std::allocator<real_t>> &) (isz = 39) (sz = 48)
+    -> INLINE (MANUAL): (44,14) std::vector<real_t, std::allocator<real_t>>::size(const std::vector<real_t, std::allocator<real_t>> *) const (isz = 5) (sz = 12)
+    -> INLINE (MANUAL): (46,8) std::vector<real_t, std::allocator<real_t>>::operator[](std::vector<real_t, std::allocator<real_t>> *, std::vector<real_t, std::allocator<real_t>>::size_type) (isz = 1) (sz = 10)
+    -> INLINE (MANUAL): (46,15) std::vector<real_t, std::allocator<real_t>>::operator[](const std::vector<real_t, std::allocator<real_t>> *, std::vector<real_t, std::allocator<real_t>>::size_type) const (isz = 1) (sz = 10)
+    -> INLINE (MANUAL): (46,22) std::vector<real_t, std::allocator<real_t>>::operator[](const std::vector<real_t, std::allocator<real_t>> *, std::vector<real_t, std::allocator<real_t>>::size_type) const (isz = 1) (sz = 10)
+  -> EXTERN: (22,14) std::chrono::_V2::steady_clock::now()
+  -> (25,5) add(std::vector<real_t, std::allocator<real_t>> &, const std::vector<real_t, std::allocator<real_t>> &, const std::vector<real_t, std::allocator<real_t>> &) (isz = 39) (sz = 48)
+     [[ Call site marked with noinline pragma  <2>]]
+  -> EXTERN: (27,13) std::chrono::_V2::steady_clock::now()
+  -> INLINE (MANUAL): (35,79) std::chrono::duration_cast<std::chrono::duration<double, std::ratio<1L, 1L>>, int64_t, std::nano>(const std::chrono::duration<int64_t, std::nano> &) (isz = 10) (sz = 17)
+    -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/chrono:(203,22) std::chrono::__duration_cast_impl<std::chrono::duration<double, std::ratio<1L, 1L>>, std::ratio_divide<std::nano, std::chrono::duration<int64_t, std::ratio<1L, 1L>>::period>, std::__success_type<double>::type, true, false>::__cast<int64_t, std::nano>(const std::chrono::duration<int64_t, std::nano> &) (isz = 9) (sz = 16)
+      -> INLINE (MANUAL): (162,20) std::chrono::duration<double, std::ratio<1L, 1L>>::duration<std::chrono::duration<double, std::ratio<1L, 1L>>::rep, void>(std::chrono::duration<double, std::ratio<1L, 1L>> *, const std::chrono::duration<double, std::ratio<1L, 1L>>::rep &) (isz = 0) (sz = 7)
+      -> INLINE (MANUAL): (163,29) std::chrono::duration<int64_t, std::nano>::count(const std::chrono::duration<int64_t, std::nano> *) const (isz = 0) (sz = 6)
+  -> INLINE (MANUAL): (35,79) std::chrono::operator-<std::chrono::_V2::steady_clock, std::chrono::_V2::steady_clock::duration, std::chrono::_V2::steady_clock::duration>(const std::chrono::time_point<std::chrono::_V2::steady_clock, std::chrono::_V2::steady_clock::duration> &, const std::chrono::time_point<std::chrono::_V2::steady_clock, std::chrono::_V2::steady_clock::duration> &) (isz = 32) (sz = 41)
+    -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/chrono:(652,16) std::chrono::time_point<std::chrono::_V2::steady_clock, std::chrono::_V2::steady_clock::duration>::time_since_epoch(const std::chrono::time_point<std::chrono::_V2::steady_clock, std::chrono::_V2::steady_clock::duration> *) const (isz = 2) (sz = 8)
+    -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/chrono:(652,43) std::chrono::time_point<std::chrono::_V2::steady_clock, std::chrono::_V2::steady_clock::duration>::time_since_epoch(const std::chrono::time_point<std::chrono::_V2::steady_clock, std::chrono::_V2::steady_clock::duration> *) const (isz = 2) (sz = 8)
+    -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/chrono:(652,43) std::chrono::operator-<int64_t, std::nano, int64_t, std::nano>(const std::chrono::duration<int64_t, std::nano> &, const std::chrono::duration<int64_t, std::nano> &) (isz = 19) (sz = 28)
+      -> INLINE (MANUAL): (399,14) std::chrono::duration<int64_t, std::nano>::duration<std::chrono::duration<int64_t, std::nano>::rep, void>(std::chrono::duration<int64_t, std::nano> *, const std::chrono::duration<int64_t, std::nano>::rep &) (isz = 0) (sz = 7)
+      -> INLINE (MANUAL): (399,26) std::chrono::duration<int64_t, std::nano>::count(const std::chrono::duration<int64_t, std::nano> *) const (isz = 0) (sz = 6)
+      -> INLINE (MANUAL): (399,48) std::chrono::duration<int64_t, std::nano>::count(const std::chrono::duration<int64_t, std::nano> *) const (isz = 0) (sz = 6)
+  -> INLINE (MANUAL): (35,86) std::chrono::duration<double, std::ratio<1L, 1L>>::count(const std::chrono::duration<double, std::ratio<1L, 1L>> *) const (isz = 0) (sz = 6)
+  -> (36,13) std::operator<<<std::char_traits<char>>(std::basic_ostream<char, std::char_traits<char>> &, const char *) (isz = 15) (sz = 24)
+     [[ Called routine is noinline  <3>]]
+  -> (36,33) std::basic_ostream<char, std::char_traits<char>>::operator<<(std::basic_ostream<char, std::char_traits<char>> *, double) (isz = 1) (sz = 10)
+     [[ Called routine is noinline  <3>]]
+  -> (36,44) std::operator<<<std::char_traits<char>>(std::basic_ostream<char, std::char_traits<char>> &, const char *) (isz = 15) (sz = 24)
+     [[ Called routine is noinline  <3>]]
+  -> (37,13) std::operator<<<std::char_traits<char>>(std::basic_ostream<char, std::char_traits<char>> &, const char *) (isz = 15) (sz = 24)
+     [[ Called routine is noinline  <3>]]
+  -> (37,33) std::basic_ostream<char, std::char_traits<char>>::operator<<(std::basic_ostream<char, std::char_traits<char>> *, double) (isz = 1) (sz = 10)
+     [[ Called routine is noinline  <3>]]
+  -> (37,44) std::operator<<<std::char_traits<char>>(std::basic_ostream<char, std::char_traits<char>> &, const char *) (isz = 15) (sz = 24)
+     [[ Called routine is noinline  <3>]]
+  -> (38,13) std::operator<<<std::char_traits<char>>(std::basic_ostream<char, std::char_traits<char>> &, const char *) (isz = 15) (sz = 24)
+     [[ Called routine is noinline  <3>]]
+  -> (38,33) std::basic_ostream<char, std::char_traits<char>>::operator<<(std::basic_ostream<char, std::char_traits<char>> *, double) (isz = 1) (sz = 10)
+     [[ Called routine is noinline  <3>]]
+  -> (38,51) std::operator<<<std::char_traits<char>>(std::basic_ostream<char, std::char_traits<char>> &, const char *) (isz = 15) (sz = 24)
+     [[ Called routine is noinline  <3>]]
+  -> INLINE (MANUAL): (39,3) std::vector<real_t, std::allocator<real_t>>::~vector(std::vector<real_t, std::allocator<real_t>> *) (isz = 40) (sz = 45)
+    -> /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h:(424,7) std::_Vector_base<real_t, std::allocator<real_t>>::~_Vector_base(std::_Vector_base<real_t, std::allocator<real_t>> *const) (isz = 18) (sz = 23)
+       [[ Callee not marked with inlining pragma  <1>]]
+    -> EXTERN: /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h:(424,7) __cxa_call_unexpected
+    -> DELETED: /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h:(424,9) std::_Destroy<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, real_t>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::allocator<real_t> &) (isz = 0) (sz = 8)
+    -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h:(425,9) std::_Vector_base<real_t, std::allocator<real_t>>::_M_get_Tp_allocator(std::_Vector_base<real_t, std::allocator<real_t>> *) (isz = 1) (sz = 8)
+    -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h:(425,33) std::_Vector_base<real_t, std::allocator<real_t>>::~_Vector_base(std::_Vector_base<real_t, std::allocator<real_t>> *const) (isz = 18) (sz = 23)
+      -> INLINE (MANUAL): (159,7) std::_Vector_base<real_t, std::allocator<real_t>>::~_Vector_base(std::_Vector_base<real_t, std::allocator<real_t>> *) (isz = 18) (sz = 23)
+        -> EXTERN: (160,7) __cxa_call_unexpected
+        -> INLINE (MANUAL): (160,9) std::_Vector_base<real_t, std::allocator<real_t>>::_M_deallocate(std::_Vector_base<real_t, std::allocator<real_t>> *, std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::size_t) (isz = 4) (sz = 13)
+          -> INLINE (MANUAL): (178,4) std::allocator_traits<std::allocator<real_t>>::deallocate(std::allocator<real_t> &, std::allocator_traits<std::allocator<real_t>>::pointer, std::allocator_traits<std::allocator<real_t>>::size_type) (isz = 0) (sz = 9)
+            -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/alloc_traits.h:(383,13) __gnu_cxx::new_allocator<real_t>::deallocate(__gnu_cxx::new_allocator<real_t> *, __gnu_cxx::new_allocator<real_t>::pointer, __gnu_cxx::new_allocator<real_t>::size_type) (isz = 0) (sz = 7)
+              -> EXTERN: /opt/apps/gcc/4.9.3/include/c++/4.9.3/ext/new_allocator.h:(110,9) operator delete(void *)
+  -> INLINE (MANUAL): (39,3) std::vector<real_t, std::allocator<real_t>>::~vector(std::vector<real_t, std::allocator<real_t>> *) (isz = 40) (sz = 45)
+    -> /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h:(424,7) std::_Vector_base<real_t, std::allocator<real_t>>::~_Vector_base(std::_Vector_base<real_t, std::allocator<real_t>> *const) (isz = 18) (sz = 23)
+       [[ Callee not marked with inlining pragma  <1>]]
+    -> EXTERN: /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h:(424,7) __cxa_call_unexpected
+    -> DELETED: /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h:(424,9) std::_Destroy<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, real_t>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::allocator<real_t> &) (isz = 0) (sz = 8)
+    -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h:(425,9) std::_Vector_base<real_t, std::allocator<real_t>>::_M_get_Tp_allocator(std::_Vector_base<real_t, std::allocator<real_t>> *) (isz = 1) (sz = 8)
+    -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h:(425,33) std::_Vector_base<real_t, std::allocator<real_t>>::~_Vector_base(std::_Vector_base<real_t, std::allocator<real_t>> *const) (isz = 18) (sz = 23)
+      -> INLINE (MANUAL): (159,7) std::_Vector_base<real_t, std::allocator<real_t>>::~_Vector_base(std::_Vector_base<real_t, std::allocator<real_t>> *) (isz = 18) (sz = 23)
+        -> EXTERN: (160,7) __cxa_call_unexpected
+        -> INLINE (MANUAL): (160,9) std::_Vector_base<real_t, std::allocator<real_t>>::_M_deallocate(std::_Vector_base<real_t, std::allocator<real_t>> *, std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::size_t) (isz = 4) (sz = 13)
+          -> INLINE (MANUAL): (178,4) std::allocator_traits<std::allocator<real_t>>::deallocate(std::allocator<real_t> &, std::allocator_traits<std::allocator<real_t>>::pointer, std::allocator_traits<std::allocator<real_t>>::size_type) (isz = 0) (sz = 9)
+            -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/alloc_traits.h:(383,13) __gnu_cxx::new_allocator<real_t>::deallocate(__gnu_cxx::new_allocator<real_t> *, __gnu_cxx::new_allocator<real_t>::pointer, __gnu_cxx::new_allocator<real_t>::size_type) (isz = 0) (sz = 7)
+              -> EXTERN: /opt/apps/gcc/4.9.3/include/c++/4.9.3/ext/new_allocator.h:(110,9) operator delete(void *)
+  -> INLINE (MANUAL): (39,3) std::vector<real_t, std::allocator<real_t>>::~vector(std::vector<real_t, std::allocator<real_t>> *) (isz = 40) (sz = 45)
+    -> /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h:(424,7) std::_Vector_base<real_t, std::allocator<real_t>>::~_Vector_base(std::_Vector_base<real_t, std::allocator<real_t>> *const) (isz = 18) (sz = 23)
+       [[ Callee not marked with inlining pragma  <1>]]
+    -> EXTERN: /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h:(424,7) __cxa_call_unexpected
+    -> DELETED: /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h:(424,9) std::_Destroy<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, real_t>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::allocator<real_t> &) (isz = 0) (sz = 8)
+    -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h:(425,9) std::_Vector_base<real_t, std::allocator<real_t>>::_M_get_Tp_allocator(std::_Vector_base<real_t, std::allocator<real_t>> *) (isz = 1) (sz = 8)
+    -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h:(425,33) std::_Vector_base<real_t, std::allocator<real_t>>::~_Vector_base(std::_Vector_base<real_t, std::allocator<real_t>> *const) (isz = 18) (sz = 23)
+      -> INLINE (MANUAL): (159,7) std::_Vector_base<real_t, std::allocator<real_t>>::~_Vector_base(std::_Vector_base<real_t, std::allocator<real_t>> *) (isz = 18) (sz = 23)
+        -> EXTERN: (160,7) __cxa_call_unexpected
+        -> INLINE (MANUAL): (160,9) std::_Vector_base<real_t, std::allocator<real_t>>::_M_deallocate(std::_Vector_base<real_t, std::allocator<real_t>> *, std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::size_t) (isz = 4) (sz = 13)
+          -> INLINE (MANUAL): (178,4) std::allocator_traits<std::allocator<real_t>>::deallocate(std::allocator<real_t> &, std::allocator_traits<std::allocator<real_t>>::pointer, std::allocator_traits<std::allocator<real_t>>::size_type) (isz = 0) (sz = 9)
+            -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/alloc_traits.h:(383,13) __gnu_cxx::new_allocator<real_t>::deallocate(__gnu_cxx::new_allocator<real_t> *, __gnu_cxx::new_allocator<real_t>::pointer, __gnu_cxx::new_allocator<real_t>::size_type) (isz = 0) (sz = 7)
+              -> EXTERN: /opt/apps/gcc/4.9.3/include/c++/4.9.3/ext/new_allocator.h:(110,9) operator delete(void *)
+
+
+    Report from: Loop nest, Vector & Auto-parallelization optimizations [loop, vec, par]
+
+
+LOOP BEGIN at /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_algobase.h(760,7) inlined into main.cpp(16,25)
+<Peeled loop for vectorization>
+   remark #25015: Estimate of max trip count of loop=1
+LOOP END
+
+LOOP BEGIN at /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_algobase.h(760,7) inlined into main.cpp(16,25)
+   remark #15388: vectorization support: reference *__first has aligned access   [ /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_algobase.h(762,3) ]
+   remark #15412: vectorization support: streaming store was generated for *__first   [ /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_algobase.h(762,3) ]
+   remark #15305: vectorization support: vector length 2
+   remark #15309: vectorization support: normalized vectorization overhead 3.333
+   remark #15300: LOOP WAS VECTORIZED
+   remark #15442: entire loop may be executed in remainder
+   remark #15449: unmasked aligned unit stride stores: 1 
+   remark #15467: unmasked aligned streaming stores: 1 
+   remark #15475: --- begin vector cost summary ---
+   remark #15476: scalar cost: 3 
+   remark #15477: vector cost: 1.500 
+   remark #15478: estimated potential speedup: 1.990 
+   remark #15488: --- end vector cost summary ---
+   remark #25015: Estimate of max trip count of loop=250000000
+LOOP END
+
+LOOP BEGIN at /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_algobase.h(760,7) inlined into main.cpp(16,25)
+<Remainder loop for vectorization>
+LOOP END
+
+LOOP BEGIN at /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_algobase.h(760,7) inlined into main.cpp(16,30)
+<Peeled loop for vectorization>
+   remark #25015: Estimate of max trip count of loop=1
+LOOP END
+
+LOOP BEGIN at /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_algobase.h(760,7) inlined into main.cpp(16,30)
+   remark #15388: vectorization support: reference *__first has aligned access   [ /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_algobase.h(762,3) ]
+   remark #15412: vectorization support: streaming store was generated for *__first   [ /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_algobase.h(762,3) ]
+   remark #15305: vectorization support: vector length 2
+   remark #15309: vectorization support: normalized vectorization overhead 3.333
+   remark #15300: LOOP WAS VECTORIZED
+   remark #15442: entire loop may be executed in remainder
+   remark #15449: unmasked aligned unit stride stores: 1 
+   remark #15467: unmasked aligned streaming stores: 1 
+   remark #15475: --- begin vector cost summary ---
+   remark #15476: scalar cost: 3 
+   remark #15477: vector cost: 1.500 
+   remark #15478: estimated potential speedup: 1.990 
+   remark #15488: --- end vector cost summary ---
+   remark #25015: Estimate of max trip count of loop=250000000
+LOOP END
+
+LOOP BEGIN at /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_algobase.h(760,7) inlined into main.cpp(16,30)
+<Remainder loop for vectorization>
+LOOP END
+
+LOOP BEGIN at /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_algobase.h(760,7) inlined into main.cpp(16,35)
+<Peeled loop for vectorization>
+   remark #25015: Estimate of max trip count of loop=1
+LOOP END
+
+LOOP BEGIN at /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_algobase.h(760,7) inlined into main.cpp(16,35)
+   remark #15388: vectorization support: reference *__first has aligned access   [ /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_algobase.h(762,3) ]
+   remark #15412: vectorization support: streaming store was generated for *__first   [ /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_algobase.h(762,3) ]
+   remark #15305: vectorization support: vector length 2
+   remark #15309: vectorization support: normalized vectorization overhead 3.333
+   remark #15300: LOOP WAS VECTORIZED
+   remark #15442: entire loop may be executed in remainder
+   remark #15449: unmasked aligned unit stride stores: 1 
+   remark #15467: unmasked aligned streaming stores: 1 
+   remark #15475: --- begin vector cost summary ---
+   remark #15476: scalar cost: 3 
+   remark #15477: vector cost: 1.500 
+   remark #15478: estimated potential speedup: 1.990 
+   remark #15488: --- end vector cost summary ---
+   remark #25015: Estimate of max trip count of loop=250000000
+LOOP END
+
+LOOP BEGIN at /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_algobase.h(760,7) inlined into main.cpp(16,35)
+<Remainder loop for vectorization>
+LOOP END
+
+LOOP BEGIN at main.cpp(52,3) inlined into main.cpp(17,3)
+<Peeled loop for vectorization>
+   remark #25015: Estimate of max trip count of loop=1
+LOOP END
+
+LOOP BEGIN at main.cpp(52,3) inlined into main.cpp(17,3)
+   remark #25427: Loop Statements Reordered
+   remark #15389: vectorization support: reference z.__b_St12_Vector_baseIdSaIdEE._M_impl._M_start[i] has unaligned access   [ main.cpp(53,8) ]
+   remark #15388: vectorization support: reference at (55:8) has aligned access   [ main.cpp(55,8) ]
+   remark #15388: vectorization support: reference x.__b_St12_Vector_baseIdSaIdEE._M_impl._M_start[i] has aligned access   [ main.cpp(54,8) ]
+   remark #15381: vectorization support: unaligned access used inside loop body
+   remark #15305: vectorization support: vector length 2
+   remark #15399: vectorization support: unroll factor set to 4
+   remark #15309: vectorization support: normalized vectorization overhead 0.386
+   remark #15300: LOOP WAS VECTORIZED
+   remark #15442: entire loop may be executed in remainder
+   remark #15449: unmasked aligned unit stride stores: 2 
+   remark #15451: unmasked unaligned unit stride stores: 1 
+   remark #15475: --- begin vector cost summary ---
+   remark #15476: scalar cost: 12 
+   remark #15477: vector cost: 5.500 
+   remark #15478: estimated potential speedup: 2.120 
+   remark #15488: --- end vector cost summary ---
+LOOP END
+
+LOOP BEGIN at main.cpp(52,3) inlined into main.cpp(17,3)
+<Alternate Alignment Vectorized Loop>
+LOOP END
+
+LOOP BEGIN at main.cpp(52,3) inlined into main.cpp(17,3)
+<Remainder loop for vectorization>
+   remark #15389: vectorization support: reference z.__b_St12_Vector_baseIdSaIdEE._M_impl._M_start[i] has unaligned access   [ main.cpp(53,8) ]
+   remark #15389: vectorization support: reference at (55:8) has unaligned access   [ main.cpp(55,8) ]
+   remark #15388: vectorization support: reference x.__b_St12_Vector_baseIdSaIdEE._M_impl._M_start[i] has aligned access   [ main.cpp(54,8) ]
+   remark #15381: vectorization support: unaligned access used inside loop body
+   remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   remark #15305: vectorization support: vector length 2
+   remark #15309: vectorization support: normalized vectorization overhead 0.842
+LOOP END
+
+LOOP BEGIN at main.cpp(45,3) inlined into main.cpp(19,3)
+<Peeled loop for vectorization>
+   remark #25015: Estimate of max trip count of loop=1
+LOOP END
+
+LOOP BEGIN at main.cpp(45,3) inlined into main.cpp(19,3)
+   remark #15388: vectorization support: reference z.__b_St12_Vector_baseIdSaIdEE._M_impl._M_start[i] has aligned access   [ main.cpp(46,8) ]
+   remark #15389: vectorization support: reference x.__b_St12_Vector_baseIdSaIdEE._M_impl._M_start[i] has unaligned access   [ main.cpp(46,15) ]
+   remark #15388: vectorization support: reference at (46:22) has aligned access   [ main.cpp(46,22) ]
+   remark #15381: vectorization support: unaligned access used inside loop body
+   remark #15305: vectorization support: vector length 2
+   remark #15399: vectorization support: unroll factor set to 4
+   remark #15309: vectorization support: normalized vectorization overhead 0.708
+   remark #15300: LOOP WAS VECTORIZED
+   remark #15442: entire loop may be executed in remainder
+   remark #15448: unmasked aligned unit stride loads: 1 
+   remark #15449: unmasked aligned unit stride stores: 1 
+   remark #15450: unmasked unaligned unit stride loads: 1 
+   remark #15475: --- begin vector cost summary ---
+   remark #15476: scalar cost: 8 
+   remark #15477: vector cost: 3.000 
+   remark #15478: estimated potential speedup: 2.560 
+   remark #15488: --- end vector cost summary ---
+LOOP END
+
+LOOP BEGIN at main.cpp(45,3) inlined into main.cpp(19,3)
+<Alternate Alignment Vectorized Loop>
+LOOP END
+
+LOOP BEGIN at main.cpp(45,3) inlined into main.cpp(19,3)
+<Remainder loop for vectorization>
+   remark #15388: vectorization support: reference z.__b_St12_Vector_baseIdSaIdEE._M_impl._M_start[i] has aligned access   [ main.cpp(46,8) ]
+   remark #15389: vectorization support: reference x.__b_St12_Vector_baseIdSaIdEE._M_impl._M_start[i] has unaligned access   [ main.cpp(46,15) ]
+   remark #15389: vectorization support: reference at (46:22) has unaligned access   [ main.cpp(46,22) ]
+   remark #15381: vectorization support: unaligned access used inside loop body
+   remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   remark #15305: vectorization support: vector length 2
+   remark #15309: vectorization support: normalized vectorization overhead 1.231
+LOOP END
+
+
+Non-optimizable loops:
+
+
+LOOP BEGIN at main.cpp(23,3)
+   remark #15543: loop was not vectorized: loop with function call not considered an optimization candidate.
+LOOP END
+
+    Report from: Code generation optimizations [cg]
+
+main.cpp(14,31):remark #34051: REGISTER ALLOCATION : [main] main.cpp:14
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   39[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm15]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :   19[ rax rdx rcx rsi rdi r8-r12 r15 zmm0-zmm7]
+        
+    Routine temporaries
+        Total         :     208
+            Global    :      77
+            Local     :     131
+        Regenerable   :      51
+        Spilled       :       4
+        
+    Routine stack
+        Variables     :      92 bytes*
+            Reads     :      12 [7.60e+00 ~ 0.9%]
+            Writes    :      31 [1.19e+01 ~ 1.3%]
+        Spills        :      16 bytes*
+            Reads     :       3 [3.00e+00 ~ 0.3%]
+            Writes    :       2 [2.00e+00 ~ 0.2%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: add(std::vector<real_t, std::allocator<real_t>> &, const std::vector<real_t, std::allocator<real_t>> &, const std::vector<real_t, std::allocator<real_t>> &)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (add(std::vector<real_t, std::allocator<real_t>> &, const std::vector<real_t, std::allocator<real_t>> &, const std::vector<real_t, std::allocator<real_t>> &)) [2/57=3.5%] main.cpp(43,97)
+  -> INLINE (MANUAL): (44,14) std::vector<real_t, std::allocator<real_t>>::size(const std::vector<real_t, std::allocator<real_t>> *) const (isz = 5) (sz = 12)
+  -> INLINE (MANUAL): (46,8) std::vector<real_t, std::allocator<real_t>>::operator[](std::vector<real_t, std::allocator<real_t>> *, std::vector<real_t, std::allocator<real_t>>::size_type) (isz = 1) (sz = 10)
+  -> INLINE (MANUAL): (46,15) std::vector<real_t, std::allocator<real_t>>::operator[](const std::vector<real_t, std::allocator<real_t>> *, std::vector<real_t, std::allocator<real_t>>::size_type) const (isz = 1) (sz = 10)
+  -> INLINE (MANUAL): (46,22) std::vector<real_t, std::allocator<real_t>>::operator[](const std::vector<real_t, std::allocator<real_t>> *, std::vector<real_t, std::allocator<real_t>>::size_type) const (isz = 1) (sz = 10)
+
+
+    Report from: Loop nest, Vector & Auto-parallelization optimizations [loop, vec, par]
+
+
+LOOP BEGIN at main.cpp(45,3)
+<Peeled loop for vectorization, Multiversioned v1>
+   remark #25015: Estimate of max trip count of loop=1
+LOOP END
+
+LOOP BEGIN at main.cpp(45,3)
+<Multiversioned v1>
+   remark #25228: Loop multiversioned for Data Dependence
+   remark #15388: vectorization support: reference n[i] has aligned access   [ main.cpp(46,8) ]
+   remark #15389: vectorization support: reference in1->_M_start[i] has unaligned access   [ main.cpp(46,15) ]
+   remark #15388: vectorization support: reference in2->_M_start[i] has aligned access   [ main.cpp(46,22) ]
+   remark #15381: vectorization support: unaligned access used inside loop body
+   remark #15305: vectorization support: vector length 2
+   remark #15399: vectorization support: unroll factor set to 4
+   remark #15309: vectorization support: normalized vectorization overhead 0.708
+   remark #15300: LOOP WAS VECTORIZED
+   remark #15442: entire loop may be executed in remainder
+   remark #15448: unmasked aligned unit stride loads: 1 
+   remark #15449: unmasked aligned unit stride stores: 1 
+   remark #15450: unmasked unaligned unit stride loads: 1 
+   remark #15475: --- begin vector cost summary ---
+   remark #15476: scalar cost: 8 
+   remark #15477: vector cost: 3.000 
+   remark #15478: estimated potential speedup: 2.560 
+   remark #15488: --- end vector cost summary ---
+LOOP END
+
+LOOP BEGIN at main.cpp(45,3)
+<Alternate Alignment Vectorized Loop, Multiversioned v1>
+LOOP END
+
+LOOP BEGIN at main.cpp(45,3)
+<Remainder loop for vectorization, Multiversioned v1>
+   remark #15388: vectorization support: reference n[i] has aligned access   [ main.cpp(46,8) ]
+   remark #15389: vectorization support: reference in1->_M_start[i] has unaligned access   [ main.cpp(46,15) ]
+   remark #15389: vectorization support: reference in2->_M_start[i] has unaligned access   [ main.cpp(46,22) ]
+   remark #15381: vectorization support: unaligned access used inside loop body
+   remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   remark #15305: vectorization support: vector length 2
+   remark #15309: vectorization support: normalized vectorization overhead 1.231
+LOOP END
+
+LOOP BEGIN at main.cpp(45,3)
+<Multiversioned v2>
+   remark #15304: loop was not vectorized: non-vectorizable loop instance from multiversioning
+   remark #25439: unrolled with remainder by 2  
+LOOP END
+
+LOOP BEGIN at main.cpp(45,3)
+<Remainder, Multiversioned v2>
+LOOP END
+
+    Report from: Code generation optimizations [cg]
+
+main.cpp(43,97):remark #34051: REGISTER ALLOCATION : [_Z3addRSt6vectorIdSaIdEERKS1_S4_] main.cpp:43
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   39[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm15]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :   16[ rax rdx rcx rsi rdi r8-r10 zmm0-zmm7]
+        
+    Routine temporaries
+        Total         :      86
+            Global    :      30
+            Local     :      56
+        Regenerable   :       2
+        Spilled       :       0
+        
+    Routine stack
+        Variables     :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: std::_Vector_base<real_t, std::allocator<real_t>>::~_Vector_base(std::_Vector_base<real_t, std::allocator<real_t>> *const)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (std::_Vector_base<real_t, std::allocator<real_t>>::~_Vector_base(std::_Vector_base<real_t, std::allocator<real_t>> *const)) [3/57=5.3%] /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h(159,7)
+  -> INLINE (MANUAL): (159,7) std::_Vector_base<real_t, std::allocator<real_t>>::~_Vector_base(std::_Vector_base<real_t, std::allocator<real_t>> *) (isz = 18) (sz = 23)
+    -> EXTERN: (160,7) __cxa_call_unexpected
+    -> INLINE (MANUAL): (160,9) std::_Vector_base<real_t, std::allocator<real_t>>::_M_deallocate(std::_Vector_base<real_t, std::allocator<real_t>> *, std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::size_t) (isz = 4) (sz = 13)
+      -> INLINE (MANUAL): (178,4) std::allocator_traits<std::allocator<real_t>>::deallocate(std::allocator<real_t> &, std::allocator_traits<std::allocator<real_t>>::pointer, std::allocator_traits<std::allocator<real_t>>::size_type) (isz = 0) (sz = 9)
+        -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/alloc_traits.h:(383,13) __gnu_cxx::new_allocator<real_t>::deallocate(__gnu_cxx::new_allocator<real_t> *, __gnu_cxx::new_allocator<real_t>::pointer, __gnu_cxx::new_allocator<real_t>::size_type) (isz = 0) (sz = 7)
+          -> EXTERN: /opt/apps/gcc/4.9.3/include/c++/4.9.3/ext/new_allocator.h:(110,9) operator delete(void *)
+
+
+    Report from: Code generation optimizations [cg]
+
+/opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h(159,7):remark #34051: REGISTER ALLOCATION : [_ZNSt12_Vector_baseIdSaIdEED2Ev] /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h:159
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   39[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm15]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :    1[ rdi]
+        
+    Routine temporaries
+        Total         :      10
+            Global    :       7
+            Local     :       3
+        Regenerable   :       0
+        Spilled       :       0
+        
+    Routine stack
+        Variables     :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: std::_Destroy<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, real_t>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::allocator<real_t> &)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::_Destroy<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, real_t>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::allocator<real_t> &)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_construct.h(150,5)
+
+===========================================================================
+
+Begin optimization report for: std::char_traits<char>::length(const std::char_traits<char>::char_type *)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (std::char_traits<char>::length(const std::char_traits<char>::char_type *)) [8/57=14.0%] /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/char_traits.h(263,7)
+  -> EXTERN: (263,16) __builtin_strlen(const char *)
+
+
+    Report from: Code generation optimizations [cg]
+
+/opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/char_traits.h(263,7):remark #34051: REGISTER ALLOCATION : [_ZNSt11char_traitsIcE6lengthEPKc] /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/char_traits.h:263
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   39[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm15]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :    3[ rax rdx rdi]
+        
+    Routine temporaries
+        Total         :      12
+            Global    :       7
+            Local     :       5
+        Regenerable   :       0
+        Spilled       :       0
+        
+    Routine stack
+        Variables     :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: std::vector<real_t, std::allocator<real_t>>::~vector(std::vector<real_t, std::allocator<real_t>> *)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (std::vector<real_t, std::allocator<real_t>>::~vector(std::vector<real_t, std::allocator<real_t>> *)) [9/57=15.8%] /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h(424,7)
+  -> EXTERN: (424,7) __cxa_call_unexpected
+  -> (424,7) std::_Vector_base<real_t, std::allocator<real_t>>::~_Vector_base(std::_Vector_base<real_t, std::allocator<real_t>> *const) (isz = 18) (sz = 23)
+     [[ Callee not marked with inlining pragma  <1>]]
+  -> DELETED: (424,9) std::_Destroy<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, real_t>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::allocator<real_t> &) (isz = 0) (sz = 8)
+  -> INLINE (MANUAL): (425,9) std::_Vector_base<real_t, std::allocator<real_t>>::_M_get_Tp_allocator(std::_Vector_base<real_t, std::allocator<real_t>> *) (isz = 1) (sz = 8)
+  -> INLINE (MANUAL): (425,33) std::_Vector_base<real_t, std::allocator<real_t>>::~_Vector_base(std::_Vector_base<real_t, std::allocator<real_t>> *const) (isz = 18) (sz = 23)
+    -> INLINE (MANUAL): (159,7) std::_Vector_base<real_t, std::allocator<real_t>>::~_Vector_base(std::_Vector_base<real_t, std::allocator<real_t>> *) (isz = 18) (sz = 23)
+      -> EXTERN: (160,7) __cxa_call_unexpected
+      -> INLINE (MANUAL): (160,9) std::_Vector_base<real_t, std::allocator<real_t>>::_M_deallocate(std::_Vector_base<real_t, std::allocator<real_t>> *, std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::size_t) (isz = 4) (sz = 13)
+        -> INLINE (MANUAL): (178,4) std::allocator_traits<std::allocator<real_t>>::deallocate(std::allocator<real_t> &, std::allocator_traits<std::allocator<real_t>>::pointer, std::allocator_traits<std::allocator<real_t>>::size_type) (isz = 0) (sz = 9)
+          -> INLINE (MANUAL): /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/alloc_traits.h:(383,13) __gnu_cxx::new_allocator<real_t>::deallocate(__gnu_cxx::new_allocator<real_t> *, __gnu_cxx::new_allocator<real_t>::pointer, __gnu_cxx::new_allocator<real_t>::size_type) (isz = 0) (sz = 7)
+            -> EXTERN: /opt/apps/gcc/4.9.3/include/c++/4.9.3/ext/new_allocator.h:(110,9) operator delete(void *)
+
+
+    Report from: Code generation optimizations [cg]
+
+/opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h(424,7):remark #34051: REGISTER ALLOCATION : [_ZNSt6vectorIdSaIdEED1Ev] /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h:424
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   39[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm15]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :    1[ rdi]
+        
+    Routine temporaries
+        Total         :      10
+            Global    :       7
+            Local     :       3
+        Regenerable   :       0
+        Spilled       :       0
+        
+    Routine stack
+        Variables     :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: __gnu_cxx::new_allocator<real_t>::new_allocator(__gnu_cxx::new_allocator<real_t> *const, const __gnu_cxx::new_allocator<real_t> &)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (__gnu_cxx::new_allocator<real_t>::new_allocator(__gnu_cxx::new_allocator<real_t> *const, const __gnu_cxx::new_allocator<real_t> &)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/ext/new_allocator.h(81,7)
+
+===========================================================================
+
+Begin optimization report for: __gnu_cxx::new_allocator<real_t>::max_size(const __gnu_cxx::new_allocator<real_t> *) const
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (__gnu_cxx::new_allocator<real_t>::max_size(const __gnu_cxx::new_allocator<real_t> *) const) /opt/apps/gcc/4.9.3/include/c++/4.9.3/ext/new_allocator.h(114,7)
+
+===========================================================================
+
+Begin optimization report for: __gnu_cxx::new_allocator<real_t>::new_allocator(__gnu_cxx::new_allocator<real_t> *const)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (__gnu_cxx::new_allocator<real_t>::new_allocator(__gnu_cxx::new_allocator<real_t> *const)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/ext/new_allocator.h(79,7)
+
+===========================================================================
+
+Begin optimization report for: std::allocator<real_t>::~allocator(std::allocator<real_t> *)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::allocator<real_t>::~allocator(std::allocator<real_t> *)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/allocator.h(121,28)
+
+===========================================================================
+
+Begin optimization report for: fill(std::vector<real_t, std::allocator<real_t>> &, std::vector<real_t, std::allocator<real_t>> &, std::vector<real_t, std::allocator<real_t>> &)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (fill(std::vector<real_t, std::allocator<real_t>> &, std::vector<real_t, std::allocator<real_t>> &, std::vector<real_t, std::allocator<real_t>> &)) [14/57=24.6%] main.cpp(50,98)
+  -> INLINE (MANUAL): (51,14) std::vector<real_t, std::allocator<real_t>>::size(const std::vector<real_t, std::allocator<real_t>> *) const (isz = 5) (sz = 12)
+  -> INLINE (MANUAL): (53,8) std::vector<real_t, std::allocator<real_t>>::operator[](std::vector<real_t, std::allocator<real_t>> *, std::vector<real_t, std::allocator<real_t>>::size_type) (isz = 1) (sz = 10)
+  -> INLINE (MANUAL): (54,8) std::vector<real_t, std::allocator<real_t>>::operator[](std::vector<real_t, std::allocator<real_t>> *, std::vector<real_t, std::allocator<real_t>>::size_type) (isz = 1) (sz = 10)
+  -> INLINE (MANUAL): (55,8) std::vector<real_t, std::allocator<real_t>>::operator[](std::vector<real_t, std::allocator<real_t>> *, std::vector<real_t, std::allocator<real_t>>::size_type) (isz = 1) (sz = 10)
+
+
+    Report from: Loop nest, Vector & Auto-parallelization optimizations [loop, vec, par]
+
+
+LOOP BEGIN at main.cpp(52,3)
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed OUTPUT dependence between n[i] (53:8) and in2->_M_start[i] (55:8)
+   remark #15346: vector dependence: assumed OUTPUT dependence between in2->_M_start[i] (55:8) and n[i] (53:8)
+   remark #25439: unrolled with remainder by 2  
+LOOP END
+
+LOOP BEGIN at main.cpp(52,3)
+<Remainder>
+LOOP END
+
+    Report from: Code generation optimizations [cg]
+
+main.cpp(50,98):remark #34051: REGISTER ALLOCATION : [_Z4fillRSt6vectorIdSaIdEES2_S2_] main.cpp:50
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   39[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm15]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :    9[ rax rdx rcx rsi rdi r8-r11]
+        
+    Routine temporaries
+        Total         :      31
+            Global    :      18
+            Local     :      13
+        Regenerable   :       3
+        Spilled       :       0
+        
+    Routine stack
+        Variables     :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: std::_Destroy_aux<true>::__destroy<std::_Vector_base<real_t, std::allocator<real_t>>::pointer>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::_Vector_base<real_t, std::allocator<real_t>>::pointer)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::_Destroy_aux<true>::__destroy<std::_Vector_base<real_t, std::allocator<real_t>>::pointer>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::_Vector_base<real_t, std::allocator<real_t>>::pointer)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_construct.h(112,55)
+
+===========================================================================
+
+Begin optimization report for: std::allocator<real_t>::allocator(std::allocator<real_t> *)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::allocator<real_t>::allocator(std::allocator<real_t> *)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/allocator.h(113,27)
+
+===========================================================================
+
+Begin optimization report for: std::allocator<real_t>::allocator(std::allocator<real_t> *, const std::allocator<real_t> &)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::allocator<real_t>::allocator(std::allocator<real_t> *, const std::allocator<real_t> &)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/allocator.h(116,36)
+
+===========================================================================
+
+Begin optimization report for: std::allocator<real_t>::allocator(std::allocator<real_t> *const, const std::allocator<real_t> &)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::allocator<real_t>::allocator(std::allocator<real_t> *const, const std::allocator<real_t> &)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/allocator.h(115,7)
+
+===========================================================================
+
+Begin optimization report for: std::allocator_traits<std::allocator<real_t>>::allocate(std::allocator<real_t> &, std::allocator_traits<std::allocator<real_t>>::size_type)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::allocator_traits<std::allocator<real_t>>::allocate(std::allocator<real_t> &, std::allocator_traits<std::allocator<real_t>>::size_type)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/alloc_traits.h(357,7)
+
+===========================================================================
+
+Begin optimization report for: std::allocator_traits<std::allocator<real_t>>::deallocate(std::allocator<real_t> &, std::allocator_traits<std::allocator<real_t>>::pointer, std::allocator_traits<std::allocator<real_t>>::size_type)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::allocator_traits<std::allocator<real_t>>::deallocate(std::allocator<real_t> &, std::allocator_traits<std::allocator<real_t>>::pointer, std::allocator_traits<std::allocator<real_t>>::size_type)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/alloc_traits.h(383,7)
+
+===========================================================================
+
+Begin optimization report for: std::_Vector_base<real_t, std::allocator<real_t>>::_M_get_Tp_allocator(std::_Vector_base<real_t, std::allocator<real_t>> *)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::_Vector_base<real_t, std::allocator<real_t>>::_M_get_Tp_allocator(std::_Vector_base<real_t, std::allocator<real_t>> *)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h(114,7)
+
+===========================================================================
+
+Begin optimization report for: std::_Vector_base<real_t, std::allocator<real_t>>::_Vector_base(std::_Vector_base<real_t, std::allocator<real_t>> *, std::size_t, const std::_Vector_base<real_t, std::allocator<real_t>>::allocator_type &)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::_Vector_base<real_t, std::allocator<real_t>>::_Vector_base(std::_Vector_base<real_t, std::allocator<real_t>> *, std::size_t, const std::_Vector_base<real_t, std::allocator<real_t>>::allocator_type &)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h(136,7)
+
+===========================================================================
+
+Begin optimization report for: std::_Vector_base<real_t, std::allocator<real_t>>::_Vector_base(std::_Vector_base<real_t, std::allocator<real_t>> *const, std::size_t, const std::_Vector_base<real_t, std::allocator<real_t>>::allocator_type &)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::_Vector_base<real_t, std::allocator<real_t>>::_Vector_base(std::_Vector_base<real_t, std::allocator<real_t>> *const, std::size_t, const std::_Vector_base<real_t, std::allocator<real_t>>::allocator_type &)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h(134,7)
+
+===========================================================================
+
+Begin optimization report for: std::_Vector_base<real_t, std::allocator<real_t>>::~_Vector_base(std::_Vector_base<real_t, std::allocator<real_t>> *)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::_Vector_base<real_t, std::allocator<real_t>>::~_Vector_base(std::_Vector_base<real_t, std::allocator<real_t>> *)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h(160,7)
+
+===========================================================================
+
+Begin optimization report for: std::_Vector_base<real_t, std::allocator<real_t>>::_M_allocate(std::_Vector_base<real_t, std::allocator<real_t>> *, std::size_t)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::_Vector_base<real_t, std::allocator<real_t>>::_M_allocate(std::_Vector_base<real_t, std::allocator<real_t>> *, std::size_t)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h(168,7)
+
+===========================================================================
+
+Begin optimization report for: std::_Vector_base<real_t, std::allocator<real_t>>::_M_deallocate(std::_Vector_base<real_t, std::allocator<real_t>> *, std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::size_t)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::_Vector_base<real_t, std::allocator<real_t>>::_M_deallocate(std::_Vector_base<real_t, std::allocator<real_t>> *, std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::size_t)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h(175,7)
+
+===========================================================================
+
+Begin optimization report for: std::_Vector_base<real_t, std::allocator<real_t>>::_M_create_storage(std::_Vector_base<real_t, std::allocator<real_t>> *, std::size_t)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::_Vector_base<real_t, std::allocator<real_t>>::_M_create_storage(std::_Vector_base<real_t, std::allocator<real_t>> *, std::size_t)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h(184,7)
+
+===========================================================================
+
+Begin optimization report for: std::_Vector_base<real_t, std::allocator<real_t>>::_Vector_impl::_Vector_impl(std::_Vector_base<real_t, std::allocator<real_t>>::_Vector_impl *, const std::_Vector_base<real_t, std::allocator<real_t>>::_Tp_alloc_type &)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::_Vector_base<real_t, std::allocator<real_t>>::_Vector_impl::_Vector_impl(std::_Vector_base<real_t, std::allocator<real_t>>::_Vector_impl *, const std::_Vector_base<real_t, std::allocator<real_t>>::_Tp_alloc_type &)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h(92,2)
+
+===========================================================================
+
+Begin optimization report for: std::vector<real_t, std::allocator<real_t>>::vector(std::vector<real_t, std::allocator<real_t>> *, std::vector<real_t, std::allocator<real_t>>::size_type, const std::vector<real_t, std::allocator<real_t>>::allocator_type &)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::vector<real_t, std::allocator<real_t>>::vector(std::vector<real_t, std::allocator<real_t>> *, std::vector<real_t, std::allocator<real_t>>::size_type, const std::vector<real_t, std::allocator<real_t>>::allocator_type &)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h(279,7)
+
+===========================================================================
+
+Begin optimization report for: std::vector<real_t, std::allocator<real_t>>::size(const std::vector<real_t, std::allocator<real_t>> *) const
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::vector<real_t, std::allocator<real_t>>::size(const std::vector<real_t, std::allocator<real_t>> *) const) /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h(655,7)
+
+===========================================================================
+
+Begin optimization report for: std::vector<real_t, std::allocator<real_t>>::operator[](std::vector<real_t, std::allocator<real_t>> *, std::vector<real_t, std::allocator<real_t>>::size_type)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::vector<real_t, std::allocator<real_t>>::operator[](std::vector<real_t, std::allocator<real_t>> *, std::vector<real_t, std::allocator<real_t>>::size_type)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h(780,7)
+
+===========================================================================
+
+Begin optimization report for: std::vector<real_t, std::allocator<real_t>>::operator[](const std::vector<real_t, std::allocator<real_t>> *, std::vector<real_t, std::allocator<real_t>>::size_type) const
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::vector<real_t, std::allocator<real_t>>::operator[](const std::vector<real_t, std::allocator<real_t>> *, std::vector<real_t, std::allocator<real_t>>::size_type) const) /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h(795,7)
+
+===========================================================================
+
+Begin optimization report for: std::_Iter_base<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, false>::_S_base(std::_Vector_base<real_t, std::allocator<real_t>>::pointer)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::_Iter_base<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, false>::_S_base(std::_Vector_base<real_t, std::allocator<real_t>>::pointer)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_iterator_base_types.h(213,7)
+
+===========================================================================
+
+Begin optimization report for: std::chrono::duration<int64_t, std::nano>::count(const std::chrono::duration<int64_t, std::nano> *) const
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::chrono::duration<int64_t, std::nano>::count(const std::chrono::duration<int64_t, std::nano> *) const) /opt/apps/gcc/4.9.3/include/c++/4.9.3/chrono(279,2)
+
+===========================================================================
+
+Begin optimization report for: std::chrono::duration<int64_t, std::nano>::duration<std::chrono::duration<int64_t, std::nano>::rep, void>(std::chrono::duration<int64_t, std::nano> *, const std::chrono::duration<int64_t, std::nano>::rep &)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::chrono::duration<int64_t, std::nano>::duration<std::chrono::duration<int64_t, std::nano>::rep, void>(std::chrono::duration<int64_t, std::nano> *, const std::chrono::duration<int64_t, std::nano>::rep &)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/chrono(264,35)
+
+===========================================================================
+
+Begin optimization report for: std::chrono::time_point<std::chrono::_V2::steady_clock, std::chrono::_V2::steady_clock::duration>::time_since_epoch(const std::chrono::time_point<std::chrono::_V2::steady_clock, std::chrono::_V2::steady_clock::duration> *) const
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::chrono::time_point<std::chrono::_V2::steady_clock, std::chrono::_V2::steady_clock::duration>::time_since_epoch(const std::chrono::time_point<std::chrono::_V2::steady_clock, std::chrono::_V2::steady_clock::duration> *) const) /opt/apps/gcc/4.9.3/include/c++/4.9.3/chrono(569,2)
+
+===========================================================================
+
+Begin optimization report for: std::chrono::duration<double, std::ratio<1L, 1L>>::count(const std::chrono::duration<double, std::ratio<1L, 1L>> *) const
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::chrono::duration<double, std::ratio<1L, 1L>>::count(const std::chrono::duration<double, std::ratio<1L, 1L>> *) const) /opt/apps/gcc/4.9.3/include/c++/4.9.3/chrono(279,2)
+
+===========================================================================
+
+Begin optimization report for: std::chrono::duration<double, std::ratio<1L, 1L>>::duration<std::chrono::duration<double, std::ratio<1L, 1L>>::rep, void>(std::chrono::duration<double, std::ratio<1L, 1L>> *, const std::chrono::duration<double, std::ratio<1L, 1L>>::rep &)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::chrono::duration<double, std::ratio<1L, 1L>>::duration<std::chrono::duration<double, std::ratio<1L, 1L>>::rep, void>(std::chrono::duration<double, std::ratio<1L, 1L>> *, const std::chrono::duration<double, std::ratio<1L, 1L>>::rep &)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/chrono(264,35)
+
+===========================================================================
+
+Begin optimization report for: std::chrono::__duration_cast_impl<std::chrono::duration<double, std::ratio<1L, 1L>>, std::ratio_divide<std::nano, std::chrono::duration<int64_t, std::ratio<1L, 1L>>::period>, std::__success_type<double>::type, true, false>::__cast<int64_t, std::nano>(const std::chrono::duration<int64_t, std::nano> &)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::chrono::__duration_cast_impl<std::chrono::duration<double, std::ratio<1L, 1L>>, std::ratio_divide<std::nano, std::chrono::duration<int64_t, std::ratio<1L, 1L>>::period>, std::__success_type<double>::type, true, false>::__cast<int64_t, std::nano>(const std::chrono::duration<int64_t, std::nano> &)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/chrono(160,4)
+
+===========================================================================
+
+Begin optimization report for: __gnu_cxx::new_allocator<real_t>::new_allocator(__gnu_cxx::new_allocator<real_t> *)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (__gnu_cxx::new_allocator<real_t>::new_allocator(__gnu_cxx::new_allocator<real_t> *)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/ext/new_allocator.h(79,45)
+
+===========================================================================
+
+Begin optimization report for: __gnu_cxx::new_allocator<real_t>::new_allocator(__gnu_cxx::new_allocator<real_t> *, const __gnu_cxx::new_allocator<real_t> &)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (__gnu_cxx::new_allocator<real_t>::new_allocator(__gnu_cxx::new_allocator<real_t> *, const __gnu_cxx::new_allocator<real_t> &)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/ext/new_allocator.h(81,65)
+
+===========================================================================
+
+Begin optimization report for: __gnu_cxx::new_allocator<real_t>::allocate(__gnu_cxx::new_allocator<real_t> *, __gnu_cxx::new_allocator<real_t>::size_type, const void *)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (__gnu_cxx::new_allocator<real_t>::allocate(__gnu_cxx::new_allocator<real_t> *, __gnu_cxx::new_allocator<real_t>::size_type, const void *)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/ext/new_allocator.h(100,7)
+
+===========================================================================
+
+Begin optimization report for: __gnu_cxx::new_allocator<real_t>::deallocate(__gnu_cxx::new_allocator<real_t> *, __gnu_cxx::new_allocator<real_t>::pointer, __gnu_cxx::new_allocator<real_t>::size_type)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (__gnu_cxx::new_allocator<real_t>::deallocate(__gnu_cxx::new_allocator<real_t> *, __gnu_cxx::new_allocator<real_t>::pointer, __gnu_cxx::new_allocator<real_t>::size_type)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/ext/new_allocator.h(110,7)
+
+===========================================================================
+
+Begin optimization report for: std::chrono::operator-<std::chrono::_V2::steady_clock, std::chrono::_V2::steady_clock::duration, std::chrono::_V2::steady_clock::duration>(const std::chrono::time_point<std::chrono::_V2::steady_clock, std::chrono::_V2::steady_clock::duration> &, const std::chrono::time_point<std::chrono::_V2::steady_clock, std::chrono::_V2::steady_clock::duration> &)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::chrono::operator-<std::chrono::_V2::steady_clock, std::chrono::_V2::steady_clock::duration, std::chrono::_V2::steady_clock::duration>(const std::chrono::time_point<std::chrono::_V2::steady_clock, std::chrono::_V2::steady_clock::duration> &, const std::chrono::time_point<std::chrono::_V2::steady_clock, std::chrono::_V2::steady_clock::duration> &)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/chrono(652,7)
+
+===========================================================================
+
+Begin optimization report for: std::chrono::operator-<int64_t, std::nano, int64_t, std::nano>(const std::chrono::duration<int64_t, std::nano> &, const std::chrono::duration<int64_t, std::nano> &)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::chrono::operator-<int64_t, std::nano, int64_t, std::nano>(const std::chrono::duration<int64_t, std::nano> &, const std::chrono::duration<int64_t, std::nano> &)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/chrono(395,7)
+
+===========================================================================
+
+Begin optimization report for: std::chrono::duration_cast<std::chrono::duration<double, std::ratio<1L, 1L>>, int64_t, std::nano>(const std::chrono::duration<int64_t, std::nano> &)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::chrono::duration_cast<std::chrono::duration<double, std::ratio<1L, 1L>>, int64_t, std::nano>(const std::chrono::duration<int64_t, std::nano> &)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/chrono(195,7)
+
+===========================================================================
+
+Begin optimization report for: std::operator|(std::_Ios_Iostate, std::_Ios_Iostate)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::operator|(std::_Ios_Iostate, std::_Ios_Iostate)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/ios_base.h(158,3)
+
+===========================================================================
+
+Begin optimization report for: std::fill_n<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type, std::iterator_traits<std::_Vector_base<real_t, std::allocator<real_t>>::pointer>::value_type>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type, const std::iterator_traits<std::_Vector_base<real_t, std::allocator<real_t>>::pointer>::value_type &)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::fill_n<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type, std::iterator_traits<std::_Vector_base<real_t, std::allocator<real_t>>::pointer>::value_type>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type, const std::iterator_traits<std::_Vector_base<real_t, std::allocator<real_t>>::pointer>::value_type &)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_algobase.h(793,5)
+
+===========================================================================
+
+Begin optimization report for: std::__niter_base<std::_Vector_base<real_t, std::allocator<real_t>>::pointer>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::__niter_base<std::_Vector_base<real_t, std::allocator<real_t>>::pointer>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_algobase.h(279,5)
+
+===========================================================================
+
+Begin optimization report for: std::__fill_n_a<std::_Iter_base<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, false>::iterator_type, std::vector<real_t, std::allocator<real_t>>::size_type, std::iterator_traits<std::_Vector_base<real_t, std::allocator<real_t>>::pointer>::value_type>(std::_Iter_base<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, false>::iterator_type, std::vector<real_t, std::allocator<real_t>>::size_type, const std::iterator_traits<std::_Vector_base<real_t, std::allocator<real_t>>::pointer>::value_type &)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::__fill_n_a<std::_Iter_base<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, false>::iterator_type, std::vector<real_t, std::allocator<real_t>>::size_type, std::iterator_traits<std::_Vector_base<real_t, std::allocator<real_t>>::pointer>::value_type>(std::_Iter_base<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, false>::iterator_type, std::vector<real_t, std::allocator<real_t>>::size_type, const std::iterator_traits<std::_Vector_base<real_t, std::allocator<real_t>>::pointer>::value_type &)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_algobase.h(758,5)
+
+===========================================================================
+
+Begin optimization report for: std::_Destroy<std::_Vector_base<real_t, std::allocator<real_t>>::pointer>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::_Vector_base<real_t, std::allocator<real_t>>::pointer)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::_Destroy<std::_Vector_base<real_t, std::allocator<real_t>>::pointer>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::_Vector_base<real_t, std::allocator<real_t>>::pointer)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_construct.h(123,5)
+
+===========================================================================
+
+Begin optimization report for: __sti__$E()
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (__sti__$E()) [53/57=93.0%] <compiler generated>
+  -> EXTERN: /opt/apps/gcc/4.9.3/include/c++/4.9.3/iostream:(74,25) __cxa_atexit()
+  -> EXTERN: /opt/apps/gcc/4.9.3/include/c++/4.9.3/iostream:(74,25) std::ios_base::Init::Init(std::ios_base::Init *)
+
+
+    Report from: Code generation optimizations [cg]
+
+<compiler generated>:remark #34051: REGISTER ALLOCATION : [__sti__$E] (null):0
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   39[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm15]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :    3[ rdx rsi rdi]
+        
+    Routine temporaries
+        Total         :      13
+            Global    :       7
+            Local     :       6
+        Regenerable   :       7
+        Spilled       :       0
+        
+    Routine stack
+        Variables     :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: std::__uninitialized_default_n<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::__uninitialized_default_n<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_uninitialized.h(563,5)
+
+===========================================================================
+
+Begin optimization report for: std::__uninitialized_default_n_a<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type, real_t>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type, std::allocator<real_t> &)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::__uninitialized_default_n_a<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type, real_t>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type, std::allocator<real_t> &)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_uninitialized.h(632,5)
+
+===========================================================================
+
+Begin optimization report for: std::vector<real_t, std::allocator<real_t>>::_M_default_initialize(std::vector<real_t, std::allocator<real_t>> *, std::vector<real_t, std::allocator<real_t>>::size_type)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::vector<real_t, std::allocator<real_t>>::_M_default_initialize(std::vector<real_t, std::allocator<real_t>> *, std::vector<real_t, std::allocator<real_t>>::size_type)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_vector.h(1309,7)
+
+===========================================================================
+
+Begin optimization report for: std::__uninitialized_default_n_1<true>::__uninit_default_n<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (std::__uninitialized_default_n_1<true>::__uninit_default_n<std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type>(std::_Vector_base<real_t, std::allocator<real_t>>::pointer, std::vector<real_t, std::allocator<real_t>>::size_type)) /opt/apps/gcc/4.9.3/include/c++/4.9.3/bits/stl_uninitialized.h(532,9)
+
+===========================================================================
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINING FOOTNOTES:
+
+<1> The compiler's heuristics indicate that the function is not profitable to 
+    inline.  Override this decision by adding "inline 
+    __attribute__((always_inline))" to the declaration of the called function, 
+    or add "#pragma forceinline" before the call site.
+
+<2> The routine declaration is annotated with "#pragma noinline".  Remove this 
+   pragma to permit the compiler to inline this routine.
+
+<3> The routine declaration is annotated with "__attribute__((noinline))".  
+    Remove this annotation to permit the compiler to inline this routine.
+

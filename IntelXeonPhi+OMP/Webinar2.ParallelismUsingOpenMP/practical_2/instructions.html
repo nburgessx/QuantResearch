@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<h1 id="using-openmp-for-parallelism">Using OpenMP for parallelism</h1>
+<h1 id="instructions">Instructions</h1>
+<p>In this directory you will find a function which computes a Chebyshev expansion for an input function f.</p>
+<p>The expansion is computed such that the resulting error is within numerical roundoff, which is confirmed by computing the norm of the error.</p>
+<p>There is a C and fortran in the C and fortran directories respectively. You can build the unoptimized code by running</p>
+<pre><code>&gt;&gt;&gt; make
+&gt;&gt;&gt; ./cheby.exe 5000</code></pre>
+<p>The runtime of this example is quadratic, so increasing the input argument can significantly increase runtime.</p>
+<p>In order to make the most meaningful comparisons and see if your code changes indeed improved performance, it is highly advised you make any changes in a fresh directory with all the original files in it. The original files are contained in the &quot;original.&quot; There are accompanying solutions as well</p>
+<p>The overview of steps are as follows:</p>
+<ol style="list-style-type: decimal">
+<li>Compile and run the code on the host and record the times reported for find_Tcoeffs and evaluate_Tpoly.</li>
+<li>Parallelise the loop in gen_data using OpenMP. Use an omp for pragma with a static schedule.</li>
+<li>Parallelise the loop in the main function which is used to evaluate the norm of the errors. Use a reduction to get the final value of var.</li>
+<li>Parallelise the loops in find_Tcoeffs and evaluate_Tpoly. How does each function scale, going from 1 to 288 threads in suitable steps?
+<ol style="list-style-type: decimal">
+<li>You can change number of threads with environment variable OMP_NUM_THREADS, which you can set in a shell script that executes the code</li>
+<li>(Optional) Try changing the schedules between dynamic, static, auto, to see if it makes a difference</li>
+</ol></li>
+</ol>
+<h1 id="step-5-optional-more-practice">Step 5: (Optional) – More Practice</h1>
+<p>in order to practise more of the OpenMP introduced in the talk.) So far we have created a new parallel region for each parallel loop. Instead, starting from the original serial code, create a single parallel region at the start of the program as follows:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="ot">#pragma omp parallel default(none) \</span>
+<span class="ot">private(i,j,dif,t1,t2) \</span>
+<span class="ot">shared(argc,argv,n1,xbar) \</span>
+<span class="ot">shared(fr,coeffs,fe,var) \</span>
+<span class="ot">shared(macheps,nrm2,tol,stderr)</span>
+<span class="kw">for</span> (i=<span class="dv">1</span>; i&lt;argc; i++)
+<span class="co">//…</span></code></pre></div>
+<p>The existing omp for directives should become orphaned directives. Ensure that the master thread is the only thread capable of printing. 1. Ensure that only a single thread allocates and frees the pointers. 2. Note that t1 and t2 are private. This time we want to print the cumulative time taken by all threads. Sum the time taken by each thread into a new shared variable tall. Make sure you protect access to tall. Reset tall to zero after it has been used to print the cumulative time taken by find_Tcoeffs and reuse it to time evaluate_Tpoly in the same way. 3. You could also declare t1 and t2 as shared pointers and allocate them at the start of the program, outside of the parallel region (i.e. use t1[i] to record the time for thread i). Which OpenMP runtime function would you use to ensure that t1 and t2 each point to an area of memory large enough to record the time for all threads in the team?</p>
+</body>
+</html>

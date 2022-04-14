@@ -1,0 +1,20 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<h1 id="vectorizing-code-with-openmp">Vectorizing Code with OpenMP</h1>
+<p>This exercise demonstrates an example of making code modifications that enable the utilization of vector instructions effectively.</p>
+<p>This directory contains an OpenMP version of the Chebyshev program used in Exercise 2. As in the previous exercise: make a new directory as a clean copy of the original before making changes so that you have a good point of comparison.</p>
+<h2 id="part-1-bilding-with-different-options">Part 1: Bilding with Different Options</h2>
+<p>The Makefile is set up to compile an executable at –O3. Verify that when compiled at –O2 the program is slower. Use a problem size of 500000 (i.e. 10x that used in Practical 2). Inspect the compiler output when using the –qopt-report=5 -qopt-report-phase=vec flags.</p>
+<h2 id="part-2-enabling-vectorization">Part 2: Enabling vectorization</h2>
+<p>enable vectorisation inside evaluate_Tpoly and find_Tcoeffs using OpenMP simd directives discussed.</p>
+<p>Experiment with different OpenMP parallel schedules to see how they interact with vectorization.</p>
+</body>
+</html>

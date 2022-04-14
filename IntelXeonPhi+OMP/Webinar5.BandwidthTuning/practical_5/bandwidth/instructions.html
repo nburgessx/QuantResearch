@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<h1 id="developing-understanding-of-high-bandwidth-memory-mcdram">Developing Understanding of High Bandwidth Memory (MCDRAM)</h1>
+<p>MCDRAM is One of the biggest conceptual differences which challenge existing HPC programmers on the new Knights Landing architecture.</p>
+<p>What makes MCDRAM unique compared to memory for normal CPUs is that it resides on the Knights Landing chip itself separate from any existing RAM that may also be on the system. Another novelty of MCDRAM is the exceptionally high bandwidth it offers applications, provided it is used correctly (this is why the term &quot;High Bandwidth Memory&quot; is often used).</p>
+<p>Yet another difficulty in understanding MCDRAM comes from exactly how programmers can use it. Since MCDRAM is separate from RAM, the programmer must generally take extra steps to use it effectively. What steps the programmer must take depends on what &quot;memory mode&quot; the Knights Landing chip is in. Knights landing can operate in one of three modes:</p>
+<ul>
+<li>Cache</li>
+<li>Flat</li>
+<li>Hybrid</li>
+</ul>
+<p>In Cache mode the MCDRAM is used as a last-level cache and so its use is completely transparent to the programmer (but special programming strategies may be employed to improve its performance).</p>
+<p>In Flat mode the MCDRAM is enabled as a separate NUMA node which the programmer must <em>explicitly</em> indicate to use in code.</p>
+<p>Hybrid mode takes some fixed percentage of MCDRAM to act as cache and leaves the remaining to be explicitly programmable.</p>
+<p>Generally speaking if an application can run in Flat mode it will achieve the best bandwidth, but this requires extra programming effort. On the other hand cache mode will still achieve respectable bandwidth with minimal programming effort and so it is often recommended that applications start in cache mode and move into flat mode as an additional tuning step.</p>
+<p>Here we will investigate the impact of MCDRAM both in cache and in flat mode on a memory bound application. First to get a baseline we will run the STREAM benchmark authored by John D. McCalphin, Ph.D and is hosted at the website: https://www.cs.virginia.edu/stream/. For simplicity I have already copied the relevant files and made appropriate changes to the makefile.</p>
+<h2 id="mcdram-mode-cache">MCDRAM Mode: Cache</h2>
+<p>The TACC KNL machines are by default given in Cache mode, but it is possible to request flat mode machines as well. We will begin with the default.</p>
+<h3 id="running-the-stream-benchmark">Running the Stream Benchmark</h3>
+<p>Go into the <code>stream</code> directory and type <code>make</code>. Next run <code>sh runstream.sh</code> This will give you some numbers which we will use as a baseline going forward. Here is an example output from my own run:</p>
+<pre><code>-------------------------------------------------------------
+Function    Best Rate MB/s  Avg time     Min time     Max time
+Copy:          259320.3     0.004972     0.004936     0.005014
+Scale:         261174.8     0.004958     0.004901     0.005013
+Add:           286443.2     0.007568     0.006703     0.008066
+Triad:         317312.1     0.006104     0.006051     0.006166
+-------------------------------------------------------------
+Solution Validates: avg error less than 1.000000e-13 on all three arrays
+-------------------------------------------------------------</code></pre>
+<p>We will be especially interested in the vector add case, as we have used that example a lot throughout these exercises and lectures.</p>
+<h3 id="preparing-our-own-stream-benchmark">Preparing Our Own Stream Benchmark</h3>
+<p>Here we will compute our own vector add and see what steps it takes to achieve a decent fraction of peak bandwidth from MCDRAM. As we are currently in Cache mode this will not require very much work yet, but it will be a good point of comparison for when we move into flat mode.</p>
+<h4 id="step-1-parallelizing-vectorizing-the-vector-add-example">Step 1 Parallelizing + Vectorizing the vector add example</h4>
+<p>At this point you should be fairly comfortable with OpenMP. Find the vector add code in either main.cpp or main.f90 and add the appropriate OpenMP directives to parallelize and vectorize this code. Don't forget to add <code>num_threads(68)</code>.</p>
+<p>This code should already contain timing logic and logic to compute the effective bandwidth of this code, assuming that the cost of arithmetic can be ignored. Run this code. It may not match exactly with the STREAM benchmark result for a variety of reasons, but we should be able to get at least 200 GB/s.</p>
+<h2 id="mcdram-mode-flat">MCDRAM mode: Flat</h2>
+<p>Now we will investigate flat mode as a way to improve performance of bandwidth-limited code. Note that in order to request a flat-mode KNL on TACC you must issue the following modified <code>idev</code> command:</p>
+<pre class="shell"><code>idev -p Flat-Quadrant</code></pre>
+<h3 id="running-stream">Running STREAM</h3>
+<p>In this mode we will actually need to run stream twice to get two bandwidth values, one running purely with RAM and the other running purely with MCDRAM. This can be achieved with <code>numactl</code> as follows:</p>
+<p>Pure RAM run:</p>
+<pre><code>sh run_stream.sh</code></pre>
+<p>The peak bandwidth from this on flat mode should be around 90 or 100 GB/s.</p>
+<p>Pure MCDRAM run:</p>
+<pre><code>numactl -m1 sh run_stream.sh</code></pre>
+<p>The peak bandwidth from this on flat mode should be around 400 GB/s.</p>
+<h3 id="writing-our-own-stream">Writing our own STREAM</h3>
+<p>The files for this are located under the C or Fortran directories.</p>
+<h4 id="step-1-parallelvectorizing">Step 1: Parallel+Vectorizing</h4>
+<p>With this step we can use the code already written for Cache mode and run it twice. Again as in the STREAM case we use numactl to indicate which memory we want.</p>
+<p>Pure RAM:</p>
+<pre><code>./main</code></pre>
+<p>Pure MCDRAM:</p>
+<pre><code>numactl -m1 ./main</code></pre>
+<h4 id="step-2-using-libmemkind">Step 2: Using Libmemkind</h4>
+<p>Using numactl -m1 to bind all memory allocations to MCDRAM will work fine if the required memory does not exceed its capacity (16GB), but this is not a realistic assumption for many applications. The way to get the benefit of flat mode while mixing both MCDRAM and RAM allocations is to use libmemkind. The way libmemkind is used differs on C++ and Fortran, so I will start by explaining how it is done in C++ and then follow with Fortran.</p>
+<p>For C++ the libmemkind library gives a special allocator to indicate which memory a C++ container should use. A short example is given below:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="ot">#include &lt;vector&gt;</span>
+<span class="ot">#include &lt;hbw_allocator.h&gt;</span>
+
+std::vector&lt;<span class="dt">float</span>,hbw::allocator&lt;<span class="dt">float</span>&gt; &gt; x(<span class="dv">500</span>); <span class="co">// Allocate 500 floats on MCDRAM</span>
+std::vector&lt;<span class="dt">float</span>                       &gt; y(<span class="dv">500</span>); <span class="co">// Allocate 500 floats on normal RAM</span></code></pre></div>
+<p>It will also be necessary to link libmemkind. An example (minimal) build command is given below</p>
+<pre><code>icpc --std=c++11 main.cpp -o main -lmemkind</code></pre>
+<p>Since Fortran does not have the same notion of allocators as C++, memory must be targeted differently.</p>
+<pre><code>real, allocatable :: x (:)
+real, allocatable :: y (:)
+!dir$ attributes fastmem :: x
+
+allocate (x(500)) !allocate 500 reals in MCDRAM
+allocate (y(500)) !allocate 500 reals in normal RAM</code></pre>
+<p>again it is necessary to link libmemkind here, which I show by example:</p>
+<pre class="shell"><code>ifort main.f90 -o main -lmemkind</code></pre>
+<p>In our vector add example, simply replace all major allocations (the three arrays) with allocations that specifically target MCDRAM with libmemkind. Run and record the result.</p>
+<h1 id="troubleshooting">Troubleshooting</h1>
+<p>You can tell whch memory mode you are in by running the following command:</p>
+<pre class="shell"><code>numactl -H</code></pre>
+<p>Note that we have not discussed <em>cluster</em> modes yet, but that will also impact the output of numactl -H. For now we are assuming that all the KNL machines are in <em>quadrant</em> mode.</p>
+<h2 id="cachequadrant-mode-output-of-numactl--h">Cache+Quadrant Mode Output of Numactl -H</h2>
+<pre><code>available: 1 nodes (0)
+node 0 cpus: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108 109 110 111 112 113 114 115 116 117 118 119 120 121 122 123 124 125 126 127 128 129 130 131 132 133 134 135 136 137 138 139 140 141 142 143 144 145 146 147 148 149 150 151 152 153 154 155 156 157 158 159 160 161 162 163 164 165 166 167 168 169 170 171 172 173 174 175 176 177 178 179 180 181 182 183 184 185 186 187 188 189 190 191 192 193 194 195 196 197 198 199 200 201 202 203 204 205 206 207 208 209 210 211 212 213 214 215 216 217 218 219 220 221 222 223 224 225 226 227 228 229 230 231 232 233 234 235 236 237 238 239 240 241 242 243 244 245 246 247 248 249 250 251 252 253 254 255 256 257 258 259 260 261 262 263 264 265 266 267 268 269 270 271
+node 0 size: 98207 MB
+node 0 free: 89768 MB
+node distances:
+node   0
+  0:  10</code></pre>
+<h2 id="flatquadrant-mode-output-of-numactl--h">Flat+Quadrant Mode Output of Numactl -H</h2>
+<pre><code>available: 2 nodes (0-1)
+node 0 cpus: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108 109 110 111 112 113 114 115 116 117 118 119 120 121 122 123 124 125 126 127 128 129 130 131 132 133 134 135 136 137 138 139 140 141 142 143 144 145 146 147 148 149 150 151 152 153 154 155 156 157 158 159 160 161 162 163 164 165 166 167 168 169 170 171 172 173 174 175 176 177 178 179 180 181 182 183 184 185 186 187 188 189 190 191 192 193 194 195 196 197 198 199 200 201 202 203 204 205 206 207 208 209 210 211 212 213 214 215 216 217 218 219 220 221 222 223 224 225 226 227 228 229 230 231 232 233 234 235 236 237 238 239 240 241 242 243 244 245 246 247 248 249 250 251 252 253 254 255 256 257 258 259 260 261 262 263 264 265 266 267 268 269 270 271
+node 0 size: 98207 MB
+node 0 free: 90456 MB
+node 1 cpus:
+node 1 size: 16384 MB
+node 1 free: 15758 MB
+node distances:
+node   0   1
+  0:  10  31
+  1:  31  10</code></pre>
+<p>Note the main change here is that now there are <em>two</em> NUMA memory nodes instead of just one.</p>
+</body>
+</html>

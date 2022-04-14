@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+</head>
+<body>
+<h1 id="optimizing-a-ray-tracing-code">Optimizing a Ray Tracing code</h1>
+<p>Ray tracing in inhomogeneous media is a high-frequency approximation to the acoustic wave equation. Moving to high frequencies effectively eliminates complex wave features such as diffraction, which from the point of view of programming means that each of the rays may be treated independently and therefore are easy to parallelize. For this reason it is a popular approximation in areas requiring the simulation of waves, but where full PDE simulation can be prohibitively expensive.</p>
+<p>Ray tracing exercises many of the optimizations seen from the accompanying lecture. A ray for example can be described using its three position coordinates (i.e. three floats) and its momentum vector (which is itself three floats). The simplest way of implementing ray tracing is to define a struct representing a single ray and then to make an array of these, or the &quot;array of structs&quot; approach.</p>
+<p>The array-of-structs approach may be found in the &quot;original&quot; directory which contains an unoptimized ray-tracer. The first step will be to transform this to struct-of-arrays for better data access patterns.</p>
+<h2 id="step-1-intel-sdlt">Step 1: Intel SDLT</h2>
+<p>(solution found in &quot;step1&quot; directory)</p>
+<p>For step 1, take the provided code and use Intel SDLT to abstract away the data layout. Try both struct-of-array as well as array-of-structs and determine their relative performance.</p>
+<p>An example usage of intel SDLT can be as follows</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="ot">#include &lt;sdlt/sdlt.h&gt;</span>
+<span class="kw">class</span> point_t{
+  <span class="kw">public</span>:
+    <span class="dt">float</span> x,y;
+};
+SDLT_PRIMITIVE(point_t,x,y);
+<span class="co">//typedef sdlt::aos1d_container&lt;point_t&gt; Container;</span>
+<span class="kw">typedef</span> sdlt::soa1d_container&lt;point_t&gt; Container;
+<span class="dt">int</span> n=<span class="dv">50000</span>;
+Container points(n);
+<span class="ot">#pragma omp simd</span>
+<span class="kw">for</span>(<span class="dt">int</span> i=<span class="dv">0</span>;i&lt;n;i++){
+  <span class="ot">#pragma forceinline recursive</span>
+  do_something(points[i]);
+}</code></pre></div>
+<p>note the &quot;pragma forceinline recursive.&quot; This was not described in the lecture, but it is an intel-specific pragma that inlines function calls and any function calls inside them. This is not a strictly necessary step, but because of the way the sdlt library works (using templates) the maximum benefit comes from inlining functions.</p>
+<p>Test the performance of this code for varying numbers of rays compared to the unoptimized version.</p>
+<h2 id="step-2-blocking-for-cache">Step 2: Blocking for Cache</h2>
+<p>(solution found in &quot;step2&quot; directory)</p>
+<p>Another useful optimization for this code is to limit the number of rays that are stepped forward in time. That means find an optimal block size of rays that will fit in cache, and loop through the rays on increments of that block size.</p>
+<p>For example</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="kw">for</span>(<span class="dt">int</span> i=<span class="dv">0</span>;i&lt;n;i++){
+  <span class="kw">for</span>(<span class="dt">int</span> j=<span class="dv">0</span>;j&lt;n;j++){
+    do_something(i,j);
+  }
+}</code></pre></div>
+<p>could become something like</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="kw">for</span>(<span class="dt">int</span> i=<span class="dv">0</span>;i&lt;n;i+=BLOCKI){
+  <span class="dt">int</span> iend=MIN(n,i+BLOCKI);
+  <span class="kw">for</span>(<span class="dt">int</span> j=<span class="dv">0</span>;j&lt;n;j++){
+    <span class="kw">for</span>(<span class="dt">int</span> ii=i;ii&lt;iend;ii++)
+      do_something(ii,j);
+  }
+}</code></pre></div>
+<p>The trick with blocking is understanding which loops need to be blocked and how to permute the resulting nested loops. You have to think about how the data is being accessed to get this right and it may take some trial and error.</p>
+</body>
+</html>

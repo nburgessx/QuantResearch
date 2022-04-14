@@ -1,0 +1,410 @@
+Intel(R) Advisor can now assist with vectorization and show optimization
+  report messages with your source code.
+See "https://software.intel.com/en-us/intel-advisor-xe" for details.
+
+Intel(R) C++ Intel(R) 64 Compiler for applications running on Intel(R) 64, Version 17.0.0.098 Build 20160721
+
+Compiler options: -qopenmp -O2 --std=c++11 -xHOST -qopt-report=5 -qopt-report-phase=vec -o fd
+
+Begin optimization report for: main(int, char **)
+
+    Report from: Vector optimizations [vec]
+
+
+LOOP BEGIN at fd.cpp(189,5) inlined into fd.cpp(58,15)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at fd.cpp(190,7) inlined into fd.cpp(58,15)
+      remark #15542: loop was not vectorized: inner loop was already vectorized
+
+      LOOP BEGIN at fd.cpp(188,3) inlined into fd.cpp(58,15)
+         remark #15389: vectorization support: reference in.__b_St12_Vector_baseIfSaIfEE._M_impl._M_start[ix+512*(iy+512*iz)] has unaligned access   [ fd.cpp(194,12) ]
+         remark #15381: vectorization support: unaligned access used inside loop body
+         remark #15410: vectorization support: conversion from int to float will be emulated   [ fd.cpp(191,24) ]
+         remark #15305: vectorization support: vector length 32
+         remark #15309: vectorization support: normalized vectorization overhead 0.062
+         remark #15301: PERMUTED LOOP WAS VECTORIZED
+         remark #15451: unmasked unaligned unit stride stores: 1 
+         remark #15475: --- begin vector cost summary ---
+         remark #15476: scalar cost: 119 
+         remark #15477: vector cost: 6.000 
+         remark #15478: estimated potential speedup: 19.750 
+         remark #15482: vectorized math library calls: 1 
+         remark #15487: type converts: 1 
+         remark #15488: --- end vector cost summary ---
+      LOOP END
+   LOOP END
+LOOP END
+
+LOOP BEGIN at fd.cpp(166,3) inlined into fd.cpp(59,14)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at fd.cpp(167,5) inlined into fd.cpp(59,14)
+      remark #15542: loop was not vectorized: inner loop was already vectorized
+
+      LOOP BEGIN at fd.cpp(168,7) inlined into fd.cpp(59,14)
+         remark #15410: vectorization support: conversion from int to float will be emulated   [ fd.cpp(171,24) ]
+         remark #15416: vectorization support: non-unit strided store was generated for the variable <exact.__b_St12_Vector_baseIfSaIfEE._M_impl._M_start[ix+512*(iy+5>, stride is 262144   [ fd.cpp(175,12) ]
+         remark #15305: vectorization support: vector length 32
+         remark #15309: vectorization support: normalized vectorization overhead 0.015
+         remark #15417: vectorization support: number of FP up converts: single precision to double precision 1   [ fd.cpp(172,27) ]
+         remark #15417: vectorization support: number of FP up converts: single precision to double precision 1   [ fd.cpp(173,27) ]
+         remark #15417: vectorization support: number of FP up converts: single precision to double precision 1   [ fd.cpp(174,27) ]
+         remark #15418: vectorization support: number of FP down converts: double precision to single precision 3   [ fd.cpp(175,12) ]
+         remark #15300: LOOP WAS VECTORIZED
+         remark #15453: unmasked strided stores: 1 
+         remark #15475: --- begin vector cost summary ---
+         remark #15476: scalar cost: 340 
+         remark #15477: vector cost: 33.000 
+         remark #15478: estimated potential speedup: 10.290 
+         remark #15482: vectorized math library calls: 3 
+         remark #15487: type converts: 7 
+         remark #15488: --- end vector cost summary ---
+      LOOP END
+   LOOP END
+LOOP END
+
+LOOP BEGIN at fd.cpp(142,27) inlined into fd.cpp(67,30)
+<Peeled loop for vectorization>
+   remark #15389: vectorization support: reference U21_V.__b_St12_Vector_baseIfSaIfEE._M_impl._M_start[i] has unaligned access   [ fd.cpp(143,22) ]
+   remark #15389: vectorization support: reference U22_V.__b_St12_Vector_baseIfSaIfEE._M_impl._M_start[i] has unaligned access   [ fd.cpp(144,23) ]
+   remark #15389: vectorization support: reference U22_V.__b_St12_Vector_baseIfSaIfEE._M_impl._M_start[i] has unaligned access   [ fd.cpp(144,23) ]
+   remark #15381: vectorization support: unaligned access used inside loop body
+   remark #15305: vectorization support: vector length 8
+   remark #15309: vectorization support: normalized vectorization overhead 1.596
+   remark #15417: vectorization support: number of FP up converts: single precision to double precision 1   [ fd.cpp(143,16) ]
+   remark #15417: vectorization support: number of FP up converts: single precision to double precision 2   [ fd.cpp(140,3) ]
+   remark #15301: PEEL LOOP WAS VECTORIZED
+LOOP END
+
+LOOP BEGIN at fd.cpp(142,27) inlined into fd.cpp(67,30)
+   remark #15389: vectorization support: reference U21_V.__b_St12_Vector_baseIfSaIfEE._M_impl._M_start[i] has unaligned access   [ fd.cpp(143,22) ]
+   remark #15389: vectorization support: reference U22_V.__b_St12_Vector_baseIfSaIfEE._M_impl._M_start[i] has unaligned access   [ fd.cpp(144,23) ]
+   remark #15389: vectorization support: reference U22_V.__b_St12_Vector_baseIfSaIfEE._M_impl._M_start[i] has unaligned access   [ fd.cpp(144,23) ]
+   remark #15381: vectorization support: unaligned access used inside loop body
+   remark #15305: vectorization support: vector length 16
+   remark #15309: vectorization support: normalized vectorization overhead 1.490
+   remark #15417: vectorization support: number of FP up converts: single precision to double precision 1   [ fd.cpp(143,16) ]
+   remark #15417: vectorization support: number of FP up converts: single precision to double precision 2   [ fd.cpp(140,3) ]
+   remark #15300: LOOP WAS VECTORIZED
+   remark #15442: entire loop may be executed in remainder
+   remark #15450: unmasked unaligned unit stride loads: 2 
+   remark #15475: --- begin vector cost summary ---
+   remark #15476: scalar cost: 24 
+   remark #15477: vector cost: 3.060 
+   remark #15478: estimated potential speedup: 6.530 
+   remark #15487: type converts: 3 
+   remark #15488: --- end vector cost summary ---
+LOOP END
+
+LOOP BEGIN at fd.cpp(142,27) inlined into fd.cpp(67,30)
+<Remainder loop for vectorization>
+   remark #15389: vectorization support: reference U21_V.__b_St12_Vector_baseIfSaIfEE._M_impl._M_start[i] has unaligned access   [ fd.cpp(143,22) ]
+   remark #15389: vectorization support: reference U22_V.__b_St12_Vector_baseIfSaIfEE._M_impl._M_start[i] has unaligned access   [ fd.cpp(144,23) ]
+   remark #15389: vectorization support: reference U22_V.__b_St12_Vector_baseIfSaIfEE._M_impl._M_start[i] has unaligned access   [ fd.cpp(144,23) ]
+   remark #15381: vectorization support: unaligned access used inside loop body
+   remark #15305: vectorization support: vector length 8
+   remark #15309: vectorization support: normalized vectorization overhead 1.596
+   remark #15417: vectorization support: number of FP up converts: single precision to double precision 1   [ fd.cpp(143,16) ]
+   remark #15417: vectorization support: number of FP up converts: single precision to double precision 2   [ fd.cpp(140,3) ]
+   remark #15301: REMAINDER LOOP WAS VECTORIZED
+LOOP END
+
+LOOP BEGIN at fd.cpp(83,1) inlined into fd.cpp(63,3)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at fd.cpp(87,3) inlined into fd.cpp(63,3)
+      remark #15542: loop was not vectorized: inner loop was already vectorized
+
+      LOOP BEGIN at fd.cpp(88,5) inlined into fd.cpp(63,3)
+         remark #15542: loop was not vectorized: inner loop was already vectorized
+
+         LOOP BEGIN at fd.cpp(89,7) inlined into fd.cpp(63,3)
+            remark #15542: loop was not vectorized: inner loop was already vectorized
+
+            LOOP BEGIN at fd.cpp(100,9) inlined into fd.cpp(63,3)
+               remark #15389: vectorization support: reference coeffs[jx][i+jx] has unaligned access   [ fd.cpp(101,21) ]
+               remark #15389: vectorization support: reference in[ix+i+nx*(iy+ny*iz)] has unaligned access   [ fd.cpp(101,40) ]
+               remark #15381: vectorization support: unaligned access used inside loop body
+               remark #15305: vectorization support: vector length 4
+               remark #15399: vectorization support: unroll factor set to 3
+               remark #15389: vectorization support: reference coeffs[jx][i+jx] has unaligned access   [ fd.cpp(101,21) ]
+               remark #15389: vectorization support: reference in[ix+i+nx*(iy+ny*iz)] has unaligned access   [ fd.cpp(101,40) ]
+               remark #15381: vectorization support: unaligned access used inside loop body
+               remark #15305: vectorization support: vector length 16
+               remark #15427: loop was completely unrolled
+               remark #15309: vectorization support: normalized vectorization overhead 0.792
+               remark #15301: OpenMP SIMD LOOP WAS VECTORIZED
+               remark #15456: masked unaligned unit stride loads: 2 
+               remark #15475: --- begin vector cost summary ---
+               remark #15476: scalar cost: 36 
+               remark #15477: vector cost: 3.000 
+               remark #15478: estimated potential speedup: 5.440 
+               remark #15486: divides: 1 
+               remark #15488: --- end vector cost summary ---
+            LOOP END
+
+            LOOP BEGIN at fd.cpp(105,9) inlined into fd.cpp(63,3)
+               remark #15389: vectorization support: reference coeffs[jy][i+jy] has unaligned access   [ fd.cpp(106,21) ]
+               remark #15381: vectorization support: unaligned access used inside loop body
+               remark #15328: vectorization support: non-unit strided load was emulated for the variable <in[ix+nx*(iy+i+ny*iz)]>, stride is unknown to compiler   [ fd.cpp(106,40) ]
+               remark #15305: vectorization support: vector length 4
+               remark #15399: vectorization support: unroll factor set to 3
+               remark #15389: vectorization support: reference coeffs[jy][i+jy] has unaligned access   [ fd.cpp(106,21) ]
+               remark #15381: vectorization support: unaligned access used inside loop body
+               remark #15415: vectorization support: non-unit strided load was generated for the variable <in[ix+nx*(iy+i+ny*iz)]>, masked, stride is unknown to compiler   [ fd.cpp(106,40) ]
+               remark #15305: vectorization support: vector length 16
+               remark #15427: loop was completely unrolled
+               remark #15309: vectorization support: normalized vectorization overhead 0.515
+               remark #15301: OpenMP SIMD LOOP WAS VECTORIZED
+               remark #15456: masked unaligned unit stride loads: 1 
+               remark #15460: masked strided loads: 1 
+               remark #15475: --- begin vector cost summary ---
+               remark #15476: scalar cost: 36 
+               remark #15477: vector cost: 4.250 
+               remark #15478: estimated potential speedup: 4.540 
+               remark #15486: divides: 1 
+               remark #15488: --- end vector cost summary ---
+            LOOP END
+
+            LOOP BEGIN at fd.cpp(110,9) inlined into fd.cpp(63,3)
+               remark #15389: vectorization support: reference coeffs[jz][i+jz] has unaligned access   [ fd.cpp(111,21) ]
+               remark #15381: vectorization support: unaligned access used inside loop body
+               remark #15328: vectorization support: non-unit strided load was emulated for the variable <in[ix+nx*(iy+ny*(iz+i))]>, stride is unknown to compiler   [ fd.cpp(111,40) ]
+               remark #15305: vectorization support: vector length 4
+               remark #15399: vectorization support: unroll factor set to 3
+               remark #15389: vectorization support: reference coeffs[jz][i+jz] has unaligned access   [ fd.cpp(111,21) ]
+               remark #15381: vectorization support: unaligned access used inside loop body
+               remark #15415: vectorization support: non-unit strided load was generated for the variable <in[ix+nx*(iy+ny*(iz+i))]>, masked, stride is unknown to compiler   [ fd.cpp(111,40) ]
+               remark #15305: vectorization support: vector length 16
+               remark #15427: loop was completely unrolled
+               remark #15309: vectorization support: normalized vectorization overhead 0.515
+               remark #15301: OpenMP SIMD LOOP WAS VECTORIZED
+               remark #15456: masked unaligned unit stride loads: 1 
+               remark #15460: masked strided loads: 1 
+               remark #15475: --- begin vector cost summary ---
+               remark #15476: scalar cost: 36 
+               remark #15477: vector cost: 4.250 
+               remark #15478: estimated potential speedup: 4.540 
+               remark #15486: divides: 1 
+               remark #15488: --- end vector cost summary ---
+            LOOP END
+         LOOP END
+      LOOP END
+   LOOP END
+LOOP END
+===========================================================================
+
+Begin optimization report for: std::vector<float32_t, std::allocator<float32_t>>::vector(std::vector<float32_t, std::allocator<float32_t>> *, std::vector<float32_t, std::allocator<float32_t>>::size_type, const std::vector<float32_t, std::allocator<float32_t>>::value_type &, const std::vector<float32_t, std::allocator<float32_t>>::allocator_type &)
+
+    Report from: Vector optimizations [vec]
+
+
+LOOP BEGIN at /fserver/reida/external/gcc6/bin/../include/c++/6.1.0/bits/stl_algobase.h(752,7) inlined into /fserver/reida/external/gcc6/bin/../include/c++/6.1.0/bits/stl_vector.h(295,9)
+<Peeled loop for vectorization>
+   remark #15389: vectorization support: reference *__first has unaligned access   [ /fserver/reida/external/gcc6/bin/../include/c++/6.1.0/bits/stl_algobase.h(754,3) ]
+   remark #15381: vectorization support: unaligned access used inside loop body
+   remark #15305: vectorization support: vector length 16
+   remark #15309: vectorization support: normalized vectorization overhead 1.611
+   remark #15301: PEEL LOOP WAS VECTORIZED
+LOOP END
+
+LOOP BEGIN at /fserver/reida/external/gcc6/bin/../include/c++/6.1.0/bits/stl_algobase.h(752,7) inlined into /fserver/reida/external/gcc6/bin/../include/c++/6.1.0/bits/stl_vector.h(295,9)
+   remark #15389: vectorization support: reference *__first has unaligned access   [ /fserver/reida/external/gcc6/bin/../include/c++/6.1.0/bits/stl_algobase.h(754,3) ]
+   remark #15381: vectorization support: unaligned access used inside loop body
+   remark #15305: vectorization support: vector length 32
+   remark #15309: vectorization support: normalized vectorization overhead 1.857
+   remark #15300: LOOP WAS VECTORIZED
+   remark #15442: entire loop may be executed in remainder
+   remark #15451: unmasked unaligned unit stride stores: 1 
+   remark #15475: --- begin vector cost summary ---
+   remark #15476: scalar cost: 4 
+   remark #15477: vector cost: 0.210 
+   remark #15478: estimated potential speedup: 12.370 
+   remark #15488: --- end vector cost summary ---
+LOOP END
+
+LOOP BEGIN at /fserver/reida/external/gcc6/bin/../include/c++/6.1.0/bits/stl_algobase.h(752,7) inlined into /fserver/reida/external/gcc6/bin/../include/c++/6.1.0/bits/stl_vector.h(295,9)
+<Remainder loop for vectorization>
+   remark #15389: vectorization support: reference *__first has unaligned access   [ /fserver/reida/external/gcc6/bin/../include/c++/6.1.0/bits/stl_algobase.h(754,3) ]
+   remark #15381: vectorization support: unaligned access used inside loop body
+   remark #15305: vectorization support: vector length 16
+   remark #15309: vectorization support: normalized vectorization overhead 1.611
+   remark #15301: REMAINDER LOOP WAS VECTORIZED
+LOOP END
+===========================================================================
+
+Begin optimization report for: exact_laplacian(std::vector<float32_t, std::allocator<float32_t>> *, float32_t, float32_t, float32_t, float32_t, float32_t, float32_t, int64_t, int64_t, int64_t)
+
+    Report from: Vector optimizations [vec]
+
+
+LOOP BEGIN at fd.cpp(166,3)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at fd.cpp(167,5)
+      remark #15542: loop was not vectorized: inner loop was already vectorized
+
+      LOOP BEGIN at fd.cpp(168,7)
+         remark #15410: vectorization support: conversion from int to float will be emulated   [ fd.cpp(171,24) ]
+         remark #15416: vectorization support: non-unit strided store was generated for the variable <__p1->_M_start[ix+nx*(iy+ny*iz)]>, stride is unknown to compiler   [ fd.cpp(175,12) ]
+         remark #15305: vectorization support: vector length 16
+         remark #15309: vectorization support: normalized vectorization overhead 0.024
+         remark #15417: vectorization support: number of FP up converts: single precision to double precision 1   [ fd.cpp(172,27) ]
+         remark #15417: vectorization support: number of FP up converts: single precision to double precision 1   [ fd.cpp(173,27) ]
+         remark #15417: vectorization support: number of FP up converts: single precision to double precision 1   [ fd.cpp(174,27) ]
+         remark #15418: vectorization support: number of FP down converts: double precision to single precision 3   [ fd.cpp(175,12) ]
+         remark #15300: LOOP WAS VECTORIZED
+         remark #15453: unmasked strided stores: 1 
+         remark #15475: --- begin vector cost summary ---
+         remark #15476: scalar cost: 342 
+         remark #15477: vector cost: 33.310 
+         remark #15478: estimated potential speedup: 9.610 
+         remark #15482: vectorized math library calls: 3 
+         remark #15487: type converts: 7 
+         remark #15488: --- end vector cost summary ---
+      LOOP END
+
+      LOOP BEGIN at fd.cpp(168,7)
+      <Remainder loop for vectorization>
+         remark #15410: vectorization support: conversion from int to float will be emulated   [ fd.cpp(171,24) ]
+         remark #15305: vectorization support: vector length 16
+         remark #15309: vectorization support: normalized vectorization overhead 0.042
+         remark #15417: vectorization support: number of FP up converts: single precision to double precision 1   [ fd.cpp(172,27) ]
+         remark #15417: vectorization support: number of FP up converts: single precision to double precision 1   [ fd.cpp(173,27) ]
+         remark #15417: vectorization support: number of FP up converts: single precision to double precision 1   [ fd.cpp(174,27) ]
+         remark #15418: vectorization support: number of FP down converts: double precision to single precision 3   [ fd.cpp(175,12) ]
+         remark #15301: REMAINDER LOOP WAS VECTORIZED
+      LOOP END
+   LOOP END
+LOOP END
+===========================================================================
+
+Begin optimization report for: input(std::vector<float32_t, std::allocator<float32_t>> *, float32_t, float32_t, float32_t, float32_t, float32_t, float32_t, int64_t, int64_t, int64_t)
+
+    Report from: Vector optimizations [vec]
+
+
+LOOP BEGIN at fd.cpp(188,3)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at fd.cpp(189,5)
+      remark #15542: loop was not vectorized: inner loop was already vectorized
+
+      LOOP BEGIN at fd.cpp(190,7)
+         remark #15410: vectorization support: conversion from int to float will be emulated   [ fd.cpp(193,24) ]
+         remark #15416: vectorization support: non-unit strided store was generated for the variable <__p1->_M_start[ix+nx*(iy+ny*iz)]>, stride is unknown to compiler   [ fd.cpp(194,12) ]
+         remark #15305: vectorization support: vector length 16
+         remark #15309: vectorization support: normalized vectorization overhead 0.042
+         remark #15300: LOOP WAS VECTORIZED
+         remark #15453: unmasked strided stores: 1 
+         remark #15475: --- begin vector cost summary ---
+         remark #15476: scalar cost: 125 
+         remark #15477: vector cost: 7.430 
+         remark #15478: estimated potential speedup: 15.720 
+         remark #15482: vectorized math library calls: 1 
+         remark #15487: type converts: 1 
+         remark #15488: --- end vector cost summary ---
+      LOOP END
+
+      LOOP BEGIN at fd.cpp(190,7)
+      <Remainder loop for vectorization>
+         remark #15410: vectorization support: conversion from int to float will be emulated   [ fd.cpp(193,24) ]
+         remark #15305: vectorization support: vector length 16
+         remark #15309: vectorization support: normalized vectorization overhead 0.140
+         remark #15301: REMAINDER LOOP WAS VECTORIZED
+      LOOP END
+   LOOP END
+LOOP END
+===========================================================================
+
+Begin optimization report for: std::__fill_n_a<std::_Vector_base<float32_t, std::allocator<float32_t>>::pointer, std::vector<float32_t, std::allocator<float32_t>>::size_type, std::vector<float32_t, std::allocator<float32_t>>::value_type>(std::_Vector_base<float32_t, std::allocator<float32_t>>::pointer, std::vector<float32_t, std::allocator<float32_t>>::size_type, const std::vector<float32_t, std::allocator<float32_t>>::value_type &)
+
+    Report from: Vector optimizations [vec]
+
+
+LOOP BEGIN at /fserver/reida/external/gcc6/bin/../include/c++/6.1.0/bits/stl_algobase.h(752,7)
+<Peeled loop for vectorization>
+   remark #15389: vectorization support: reference *__first has unaligned access   [ /fserver/reida/external/gcc6/bin/../include/c++/6.1.0/bits/stl_algobase.h(754,3) ]
+   remark #15381: vectorization support: unaligned access used inside loop body
+   remark #15305: vectorization support: vector length 16
+   remark #15309: vectorization support: normalized vectorization overhead 1.611
+   remark #15301: PEEL LOOP WAS VECTORIZED
+LOOP END
+
+LOOP BEGIN at /fserver/reida/external/gcc6/bin/../include/c++/6.1.0/bits/stl_algobase.h(752,7)
+   remark #15389: vectorization support: reference *__first has unaligned access   [ /fserver/reida/external/gcc6/bin/../include/c++/6.1.0/bits/stl_algobase.h(754,3) ]
+   remark #15381: vectorization support: unaligned access used inside loop body
+   remark #15305: vectorization support: vector length 32
+   remark #15309: vectorization support: normalized vectorization overhead 1.857
+   remark #15300: LOOP WAS VECTORIZED
+   remark #15442: entire loop may be executed in remainder
+   remark #15451: unmasked unaligned unit stride stores: 1 
+   remark #15475: --- begin vector cost summary ---
+   remark #15476: scalar cost: 4 
+   remark #15477: vector cost: 0.210 
+   remark #15478: estimated potential speedup: 12.370 
+   remark #15488: --- end vector cost summary ---
+LOOP END
+
+LOOP BEGIN at /fserver/reida/external/gcc6/bin/../include/c++/6.1.0/bits/stl_algobase.h(752,7)
+<Remainder loop for vectorization>
+   remark #15389: vectorization support: reference *__first has unaligned access   [ /fserver/reida/external/gcc6/bin/../include/c++/6.1.0/bits/stl_algobase.h(754,3) ]
+   remark #15381: vectorization support: unaligned access used inside loop body
+   remark #15305: vectorization support: vector length 16
+   remark #15309: vectorization support: normalized vectorization overhead 1.611
+   remark #15301: REMAINDER LOOP WAS VECTORIZED
+LOOP END
+===========================================================================
+
+Begin optimization report for: compute_err(std::vector<float32_t, std::allocator<float32_t>> *, std::vector<float32_t, std::allocator<float32_t>> *)
+
+    Report from: Vector optimizations [vec]
+
+
+LOOP BEGIN at fd.cpp(142,27)
+<Peeled loop for vectorization>
+   remark #15389: vectorization support: reference exact->_M_start[i] has unaligned access   [ fd.cpp(143,22) ]
+   remark #15389: vectorization support: reference approx->_M_start[i] has unaligned access   [ fd.cpp(144,23) ]
+   remark #15389: vectorization support: reference approx->_M_start[i] has unaligned access   [ fd.cpp(144,23) ]
+   remark #15381: vectorization support: unaligned access used inside loop body
+   remark #15305: vectorization support: vector length 8
+   remark #15309: vectorization support: normalized vectorization overhead 1.596
+   remark #15417: vectorization support: number of FP up converts: single precision to double precision 1   [ fd.cpp(143,16) ]
+   remark #15417: vectorization support: number of FP up converts: single precision to double precision 2   [ fd.cpp(140,3) ]
+   remark #15301: PEEL LOOP WAS VECTORIZED
+LOOP END
+
+LOOP BEGIN at fd.cpp(142,27)
+   remark #15389: vectorization support: reference exact->_M_start[i] has unaligned access   [ fd.cpp(143,22) ]
+   remark #15389: vectorization support: reference approx->_M_start[i] has unaligned access   [ fd.cpp(144,23) ]
+   remark #15389: vectorization support: reference approx->_M_start[i] has unaligned access   [ fd.cpp(144,23) ]
+   remark #15381: vectorization support: unaligned access used inside loop body
+   remark #15305: vectorization support: vector length 16
+   remark #15309: vectorization support: normalized vectorization overhead 1.490
+   remark #15417: vectorization support: number of FP up converts: single precision to double precision 1   [ fd.cpp(143,16) ]
+   remark #15417: vectorization support: number of FP up converts: single precision to double precision 2   [ fd.cpp(140,3) ]
+   remark #15300: LOOP WAS VECTORIZED
+   remark #15442: entire loop may be executed in remainder
+   remark #15450: unmasked unaligned unit stride loads: 2 
+   remark #15475: --- begin vector cost summary ---
+   remark #15476: scalar cost: 24 
+   remark #15477: vector cost: 3.060 
+   remark #15478: estimated potential speedup: 6.530 
+   remark #15487: type converts: 3 
+   remark #15488: --- end vector cost summary ---
+LOOP END
+
+LOOP BEGIN at fd.cpp(142,27)
+<Remainder loop for vectorization>
+   remark #15389: vectorization support: reference exact->_M_start[i] has unaligned access   [ fd.cpp(143,22) ]
+   remark #15389: vectorization support: reference approx->_M_start[i] has unaligned access   [ fd.cpp(144,23) ]
+   remark #15389: vectorization support: reference approx->_M_start[i] has unaligned access   [ fd.cpp(144,23) ]
+   remark #15381: vectorization support: unaligned access used inside loop body
+   remark #15305: vectorization support: vector length 8
+   remark #15309: vectorization support: normalized vectorization overhead 1.596
+   remark #15417: vectorization support: number of FP up converts: single precision to double precision 1   [ fd.cpp(143,16) ]
+   remark #15417: vectorization support: number of FP up converts: single precision to double precision 2   [ fd.cpp(140,3) ]
+   remark #15301: REMAINDER LOOP WAS VECTORIZED
+LOOP END
+===========================================================================
