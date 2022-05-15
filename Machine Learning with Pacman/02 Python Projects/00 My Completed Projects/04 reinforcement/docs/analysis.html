@@ -1,0 +1,80 @@
+<html>
+  <head>
+  <title>analysis.py</title>
+  </head>
+  <body>
+  <h3>analysis.py (<a href="../analysis.py">original</a>)</h3>
+  <hr>
+  <pre>
+<span style="color: green; font-style: italic"># analysis.py
+# -----------
+# Licensing Information: Please do not distribute or publish solutions to this
+# project. You are free to use and extend these projects for educational
+# purposes. The Pacman AI projects were developed at UC Berkeley, primarily by
+# John DeNero (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# For more info, see http://inst.eecs.berkeley.edu/~cs188/sp09/pacman.html
+
+######################
+# ANALYSIS QUESTIONS #
+######################
+
+# Change these default values to obtain the specified policies through
+# value iteration.
+
+</span><span style="color: blue; font-weight: bold">def </span>question2<span style="font-weight: bold">():
+  </span>answerDiscount <span style="font-weight: bold">= </span><span style="color: red">0.9
+  </span>answerNoise <span style="font-weight: bold">= </span><span style="color: red">0.2
+  </span><span style="color: blue; font-weight: bold">return </span>answerDiscount<span style="font-weight: bold">, </span>answerNoise
+
+<span style="color: blue; font-weight: bold">def </span>question3a<span style="font-weight: bold">():
+  </span>answerDiscount <span style="font-weight: bold">= </span><span style="color: red">0.9
+  </span>answerNoise <span style="font-weight: bold">= </span><span style="color: red">0.2
+  </span>answerLivingReward <span style="font-weight: bold">= </span><span style="color: red">0.0
+  </span><span style="color: blue; font-weight: bold">return </span>answerDiscount<span style="font-weight: bold">, </span>answerNoise<span style="font-weight: bold">, </span>answerLivingReward
+  <span style="color: green; font-style: italic"># If not possible, return 'NOT POSSIBLE'
+
+</span><span style="color: blue; font-weight: bold">def </span>question3b<span style="font-weight: bold">():
+  </span>answerDiscount <span style="font-weight: bold">= </span><span style="color: red">0.9
+  </span>answerNoise <span style="font-weight: bold">= </span><span style="color: red">0.2
+  </span>answerLivingReward <span style="font-weight: bold">= </span><span style="color: red">0.0
+  </span><span style="color: blue; font-weight: bold">return </span>answerDiscount<span style="font-weight: bold">, </span>answerNoise<span style="font-weight: bold">, </span>answerLivingReward
+  <span style="color: green; font-style: italic"># If not possible, return 'NOT POSSIBLE'
+
+</span><span style="color: blue; font-weight: bold">def </span>question3c<span style="font-weight: bold">():
+  </span>answerDiscount <span style="font-weight: bold">= </span><span style="color: red">0.9
+  </span>answerNoise <span style="font-weight: bold">= </span><span style="color: red">0.2
+  </span>answerLivingReward <span style="font-weight: bold">= </span><span style="color: red">0.0
+  </span><span style="color: blue; font-weight: bold">return </span>answerDiscount<span style="font-weight: bold">, </span>answerNoise<span style="font-weight: bold">, </span>answerLivingReward
+  <span style="color: green; font-style: italic"># If not possible, return 'NOT POSSIBLE'
+
+</span><span style="color: blue; font-weight: bold">def </span>question3d<span style="font-weight: bold">():
+  </span>answerDiscount <span style="font-weight: bold">= </span><span style="color: red">0.9
+  </span>answerNoise <span style="font-weight: bold">= </span><span style="color: red">0.2
+  </span>answerLivingReward <span style="font-weight: bold">= </span><span style="color: red">0.0
+  </span><span style="color: blue; font-weight: bold">return </span>answerDiscount<span style="font-weight: bold">, </span>answerNoise<span style="font-weight: bold">, </span>answerLivingReward
+  <span style="color: green; font-style: italic"># If not possible, return 'NOT POSSIBLE'
+
+</span><span style="color: blue; font-weight: bold">def </span>question3e<span style="font-weight: bold">():
+  </span>answerDiscount <span style="font-weight: bold">= </span><span style="color: red">0.9
+  </span>answerNoise <span style="font-weight: bold">= </span><span style="color: red">0.2
+  </span>answerLivingReward <span style="font-weight: bold">= </span><span style="color: red">0.0
+  </span><span style="color: blue; font-weight: bold">return </span>answerDiscount<span style="font-weight: bold">, </span>answerNoise<span style="font-weight: bold">, </span>answerLivingReward
+  <span style="color: green; font-style: italic"># If not possible, return 'NOT POSSIBLE'
+
+</span><span style="color: blue; font-weight: bold">def </span>question6<span style="font-weight: bold">():
+  </span>answerEpsilon <span style="font-weight: bold">= </span><span style="color: blue">None
+  </span>answerLearningRate <span style="font-weight: bold">= </span><span style="color: blue">None
+  </span><span style="color: blue; font-weight: bold">return </span>answerEpsilon<span style="font-weight: bold">, </span>answerLearningRate
+  <span style="color: green; font-style: italic"># If not possible, return 'NOT POSSIBLE'
+  
+</span><span style="color: blue; font-weight: bold">if </span>__name__ <span style="font-weight: bold">== </span><span style="color: red">'__main__'</span><span style="font-weight: bold">:
+  </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'Answers to analysis questions:'
+  </span><span style="color: blue; font-weight: bold">import </span>analysis
+  <span style="color: blue; font-weight: bold">for </span>q <span style="color: blue; font-weight: bold">in </span><span style="font-weight: bold">[</span>q <span style="color: blue; font-weight: bold">for </span>q <span style="color: blue; font-weight: bold">in </span>dir<span style="font-weight: bold">(</span>analysis<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">if </span>q<span style="font-weight: bold">.</span>startswith<span style="font-weight: bold">(</span><span style="color: red">'question'</span><span style="font-weight: bold">)]:
+    </span>response <span style="font-weight: bold">= </span>getattr<span style="font-weight: bold">(</span>analysis<span style="font-weight: bold">, </span>q<span style="font-weight: bold">)()
+    </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'  Question %s:\t%s' </span><span style="font-weight: bold">% (</span>q<span style="font-weight: bold">, </span>str<span style="font-weight: bold">(</span>response<span style="font-weight: bold">))
+</span>
+  </pre>
+  </body>
+  </html>
+  

@@ -1,0 +1,93 @@
+<html>
+  <head>
+  <title>keyboardAgents.py</title>
+  </head>
+  <body>
+  <h3>keyboardAgents.py (<a href="../keyboardAgents.py">original</a>)</h3>
+  <hr>
+  <pre>
+<span style="color: green; font-style: italic"># keyboardAgents.py
+# -----------------
+# Licensing Information: Please do not distribute or publish solutions to this
+# project. You are free to use and extend these projects for educational
+# purposes. The Pacman AI projects were developed at UC Berkeley, primarily by
+# John DeNero (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# For more info, see http://inst.eecs.berkeley.edu/~cs188/sp09/pacman.html
+
+</span><span style="color: blue; font-weight: bold">from </span>game <span style="color: blue; font-weight: bold">import </span>Agent
+<span style="color: blue; font-weight: bold">from </span>game <span style="color: blue; font-weight: bold">import </span>Directions
+<span style="color: blue; font-weight: bold">import </span>random
+
+<span style="color: blue; font-weight: bold">class </span>KeyboardAgent<span style="font-weight: bold">(</span>Agent<span style="font-weight: bold">):
+  </span><span style="color: darkred">"""
+  An agent controlled by the keyboard.
+  """
+  </span><span style="color: green; font-style: italic"># NOTE: Arrow keys also work.
+  </span>WEST_KEY  <span style="font-weight: bold">= </span><span style="color: red">'a' 
+  </span>EAST_KEY  <span style="font-weight: bold">= </span><span style="color: red">'d' 
+  </span>NORTH_KEY <span style="font-weight: bold">= </span><span style="color: red">'w' 
+  </span>SOUTH_KEY <span style="font-weight: bold">= </span><span style="color: red">'s'
+  </span>STOP_KEY <span style="font-weight: bold">= </span><span style="color: red">'q'
+
+  </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">( </span><span style="color: blue">self</span><span style="font-weight: bold">, </span>index <span style="font-weight: bold">= </span><span style="color: red">0 </span><span style="font-weight: bold">):
+    
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>lastMove <span style="font-weight: bold">= </span>Directions<span style="font-weight: bold">.</span>STOP
+    <span style="color: blue">self</span><span style="font-weight: bold">.</span>index <span style="font-weight: bold">= </span>index
+    <span style="color: blue">self</span><span style="font-weight: bold">.</span>keys <span style="font-weight: bold">= []
+    
+  </span><span style="color: blue; font-weight: bold">def </span>getAction<span style="font-weight: bold">( </span><span style="color: blue">self</span><span style="font-weight: bold">, </span>state<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">from </span>graphicsUtils <span style="color: blue; font-weight: bold">import </span>keys_waiting
+    <span style="color: blue; font-weight: bold">from </span>graphicsUtils <span style="color: blue; font-weight: bold">import </span>keys_pressed
+    keys <span style="font-weight: bold">= </span>keys_waiting<span style="font-weight: bold">() + </span>keys_pressed<span style="font-weight: bold">()
+    </span><span style="color: blue; font-weight: bold">if </span>keys <span style="font-weight: bold">!= []:
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>keys <span style="font-weight: bold">= </span>keys
+    
+    legal <span style="font-weight: bold">= </span>state<span style="font-weight: bold">.</span>getLegalActions<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>index<span style="font-weight: bold">)
+    </span>move <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>getMove<span style="font-weight: bold">(</span>legal<span style="font-weight: bold">)
+    
+    </span><span style="color: blue; font-weight: bold">if </span>move <span style="font-weight: bold">== </span>Directions<span style="font-weight: bold">.</span>STOP<span style="font-weight: bold">:
+      </span><span style="color: green; font-style: italic"># Try to move in the same direction as before
+      </span><span style="color: blue; font-weight: bold">if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>lastMove <span style="color: blue; font-weight: bold">in </span>legal<span style="font-weight: bold">:
+        </span>move <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>lastMove
+    
+    <span style="color: blue; font-weight: bold">if </span><span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>STOP_KEY <span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>keys<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">and </span>Directions<span style="font-weight: bold">.</span>STOP <span style="color: blue; font-weight: bold">in </span>legal<span style="font-weight: bold">: </span>move <span style="font-weight: bold">= </span>Directions<span style="font-weight: bold">.</span>STOP
+
+    <span style="color: blue; font-weight: bold">if </span>move <span style="color: blue; font-weight: bold">not in </span>legal<span style="font-weight: bold">:
+      </span>move <span style="font-weight: bold">= </span>random<span style="font-weight: bold">.</span>choice<span style="font-weight: bold">(</span>legal<span style="font-weight: bold">)
+      
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>lastMove <span style="font-weight: bold">= </span>move
+    <span style="color: blue; font-weight: bold">return </span>move
+
+  <span style="color: blue; font-weight: bold">def </span>getMove<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>legal<span style="font-weight: bold">):
+    </span>move <span style="font-weight: bold">= </span>Directions<span style="font-weight: bold">.</span>STOP
+    <span style="color: blue; font-weight: bold">if   </span><span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>WEST_KEY <span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>keys <span style="color: blue; font-weight: bold">or </span><span style="color: red">'Left' </span><span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>keys<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">and </span>Directions<span style="font-weight: bold">.</span>WEST <span style="color: blue; font-weight: bold">in </span>legal<span style="font-weight: bold">:  </span>move <span style="font-weight: bold">= </span>Directions<span style="font-weight: bold">.</span>WEST
+    <span style="color: blue; font-weight: bold">if   </span><span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>EAST_KEY <span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>keys <span style="color: blue; font-weight: bold">or </span><span style="color: red">'Right' </span><span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>keys<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">and </span>Directions<span style="font-weight: bold">.</span>EAST <span style="color: blue; font-weight: bold">in </span>legal<span style="font-weight: bold">: </span>move <span style="font-weight: bold">= </span>Directions<span style="font-weight: bold">.</span>EAST
+    <span style="color: blue; font-weight: bold">if   </span><span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>NORTH_KEY <span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>keys <span style="color: blue; font-weight: bold">or </span><span style="color: red">'Up' </span><span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>keys<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">and </span>Directions<span style="font-weight: bold">.</span>NORTH <span style="color: blue; font-weight: bold">in </span>legal<span style="font-weight: bold">:   </span>move <span style="font-weight: bold">= </span>Directions<span style="font-weight: bold">.</span>NORTH
+    <span style="color: blue; font-weight: bold">if   </span><span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>SOUTH_KEY <span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>keys <span style="color: blue; font-weight: bold">or </span><span style="color: red">'Down' </span><span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>keys<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">and </span>Directions<span style="font-weight: bold">.</span>SOUTH <span style="color: blue; font-weight: bold">in </span>legal<span style="font-weight: bold">: </span>move <span style="font-weight: bold">= </span>Directions<span style="font-weight: bold">.</span>SOUTH
+    <span style="color: blue; font-weight: bold">return </span>move
+  
+<span style="color: blue; font-weight: bold">class </span>KeyboardAgent2<span style="font-weight: bold">(</span>KeyboardAgent<span style="font-weight: bold">):
+  </span><span style="color: darkred">"""
+  A second agent controlled by the keyboard.
+  """
+  </span><span style="color: green; font-style: italic"># NOTE: Arrow keys also work.
+  </span>WEST_KEY  <span style="font-weight: bold">= </span><span style="color: red">'j' 
+  </span>EAST_KEY  <span style="font-weight: bold">= </span><span style="color: red">"l" 
+  </span>NORTH_KEY <span style="font-weight: bold">= </span><span style="color: red">'i' 
+  </span>SOUTH_KEY <span style="font-weight: bold">= </span><span style="color: red">'k'
+  </span>STOP_KEY <span style="font-weight: bold">= </span><span style="color: red">'u'
+
+  </span><span style="color: blue; font-weight: bold">def </span>getMove<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>legal<span style="font-weight: bold">):
+    </span>move <span style="font-weight: bold">= </span>Directions<span style="font-weight: bold">.</span>STOP
+    <span style="color: blue; font-weight: bold">if   </span><span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>WEST_KEY <span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>keys<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">and </span>Directions<span style="font-weight: bold">.</span>WEST <span style="color: blue; font-weight: bold">in </span>legal<span style="font-weight: bold">:  </span>move <span style="font-weight: bold">= </span>Directions<span style="font-weight: bold">.</span>WEST
+    <span style="color: blue; font-weight: bold">if   </span><span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>EAST_KEY <span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>keys<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">and </span>Directions<span style="font-weight: bold">.</span>EAST <span style="color: blue; font-weight: bold">in </span>legal<span style="font-weight: bold">: </span>move <span style="font-weight: bold">= </span>Directions<span style="font-weight: bold">.</span>EAST
+    <span style="color: blue; font-weight: bold">if   </span><span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>NORTH_KEY <span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>keys<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">and </span>Directions<span style="font-weight: bold">.</span>NORTH <span style="color: blue; font-weight: bold">in </span>legal<span style="font-weight: bold">:   </span>move <span style="font-weight: bold">= </span>Directions<span style="font-weight: bold">.</span>NORTH
+    <span style="color: blue; font-weight: bold">if   </span><span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>SOUTH_KEY <span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>keys<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">and </span>Directions<span style="font-weight: bold">.</span>SOUTH <span style="color: blue; font-weight: bold">in </span>legal<span style="font-weight: bold">: </span>move <span style="font-weight: bold">= </span>Directions<span style="font-weight: bold">.</span>SOUTH
+    <span style="color: blue; font-weight: bold">return </span>move
+  
+  
+
+  </pre>
+  </body>
+  </html>
+  

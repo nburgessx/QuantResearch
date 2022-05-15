@@ -1,0 +1,36 @@
+<html>
+  <head>
+  <title>shopTest.py</title>
+  </head>
+  <body>
+  <h3>shopTest.py (<a href="../shopTest.py">original</a>)</h3>
+  <hr>
+  <pre>
+<span style="color: green; font-style: italic"># shopTest.py
+# -----------
+# Licensing Information: Please do not distribute or publish solutions to this
+# project. You are free to use and extend these projects for educational
+# purposes. The Pacman AI projects were developed at UC Berkeley, primarily by
+# John DeNero (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# For more info, see http://inst.eecs.berkeley.edu/~cs188/sp09/pacman.html
+
+</span><span style="color: blue; font-weight: bold">import </span>shop
+
+shopName <span style="font-weight: bold">= </span><span style="color: red">'the Berkeley Bowl'
+</span>fruitPrices <span style="font-weight: bold">= {</span><span style="color: red">'apples'</span><span style="font-weight: bold">: </span><span style="color: red">1.00</span><span style="font-weight: bold">, </span><span style="color: red">'oranges'</span><span style="font-weight: bold">: </span><span style="color: red">1.50</span><span style="font-weight: bold">, </span><span style="color: red">'pears'</span><span style="font-weight: bold">: </span><span style="color: red">1.75</span><span style="font-weight: bold">}
+</span>berkeleyShop <span style="font-weight: bold">= </span>shop<span style="font-weight: bold">.</span>FruitShop<span style="font-weight: bold">(</span>shopName<span style="font-weight: bold">, </span>fruitPrices<span style="font-weight: bold">)
+</span>applePrice <span style="font-weight: bold">= </span>berkeleyShop<span style="font-weight: bold">.</span>getCostPerPound<span style="font-weight: bold">(</span><span style="color: red">'apples'</span><span style="font-weight: bold">)
+</span><span style="color: blue; font-weight: bold">print </span>applePrice
+<span style="color: blue; font-weight: bold">print</span><span style="font-weight: bold">(</span><span style="color: red">'Apples cost $%.2f at %s.' </span><span style="font-weight: bold">% (</span>applePrice<span style="font-weight: bold">, </span>shopName<span style="font-weight: bold">))
+
+</span>otherName <span style="font-weight: bold">= </span><span style="color: red">'the Stanford Mall'
+</span>otherFruitPrices <span style="font-weight: bold">= {</span><span style="color: red">'kiwis'</span><span style="font-weight: bold">:</span><span style="color: red">6.00</span><span style="font-weight: bold">, </span><span style="color: red">'apples'</span><span style="font-weight: bold">: </span><span style="color: red">4.50</span><span style="font-weight: bold">, </span><span style="color: red">'peaches'</span><span style="font-weight: bold">: </span><span style="color: red">8.75</span><span style="font-weight: bold">}
+</span>otherFruitShop <span style="font-weight: bold">= </span>shop<span style="font-weight: bold">.</span>FruitShop<span style="font-weight: bold">(</span>otherName<span style="font-weight: bold">, </span>otherFruitPrices<span style="font-weight: bold">)
+</span>otherPrice <span style="font-weight: bold">= </span>otherFruitShop<span style="font-weight: bold">.</span>getCostPerPound<span style="font-weight: bold">(</span><span style="color: red">'apples'</span><span style="font-weight: bold">)
+</span><span style="color: blue; font-weight: bold">print </span>otherPrice
+<span style="color: blue; font-weight: bold">print</span><span style="font-weight: bold">(</span><span style="color: red">'Apples cost $%.2f at %s.' </span><span style="font-weight: bold">% (</span>otherPrice<span style="font-weight: bold">, </span>otherName<span style="font-weight: bold">))
+</span><span style="color: blue; font-weight: bold">print</span><span style="font-weight: bold">(</span><span style="color: red">"My, that's expensive!"</span><span style="font-weight: bold">)</span>
+  </pre>
+  </body>
+  </html>
+  

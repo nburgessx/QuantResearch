@@ -1,0 +1,154 @@
+<html>
+  <head>
+  <title>layout.py</title>
+  </head>
+  <body>
+  <h3>layout.py (<a href="../layout.py">original</a>)</h3>
+  <hr>
+  <pre>
+<span style="color: green; font-style: italic"># layout.py
+# ---------
+# Licensing Information: Please do not distribute or publish solutions to this
+# project. You are free to use and extend these projects for educational
+# purposes. The Pacman AI projects were developed at UC Berkeley, primarily by
+# John DeNero (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# For more info, see http://inst.eecs.berkeley.edu/~cs188/sp09/pacman.html
+
+</span><span style="color: blue; font-weight: bold">from </span>util <span style="color: blue; font-weight: bold">import </span>manhattanDistance
+<span style="color: blue; font-weight: bold">from </span>game <span style="color: blue; font-weight: bold">import </span>Grid
+<span style="color: blue; font-weight: bold">import </span>os
+<span style="color: blue; font-weight: bold">import </span>random
+
+VISIBILITY_MATRIX_CACHE <span style="font-weight: bold">= {}
+
+</span><span style="color: blue; font-weight: bold">class </span>Layout<span style="font-weight: bold">:
+  </span><span style="color: darkred">"""
+  A Layout manages the static information about the game board.
+  """
+  
+  </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>layoutText<span style="font-weight: bold">):
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>width <span style="font-weight: bold">= </span>len<span style="font-weight: bold">(</span>layoutText<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">])
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>height<span style="font-weight: bold">= </span>len<span style="font-weight: bold">(</span>layoutText<span style="font-weight: bold">)
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>walls <span style="font-weight: bold">= </span>Grid<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>width<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>height<span style="font-weight: bold">, </span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">)
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>food <span style="font-weight: bold">= </span>Grid<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>width<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>height<span style="font-weight: bold">, </span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">)
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>capsules <span style="font-weight: bold">= []
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>agentPositions <span style="font-weight: bold">= []
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>numGhosts <span style="font-weight: bold">= </span><span style="color: red">0
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>processLayoutText<span style="font-weight: bold">(</span>layoutText<span style="font-weight: bold">)
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>layoutText <span style="font-weight: bold">= </span>layoutText
+    <span style="color: green; font-style: italic"># self.initializeVisibilityMatrix()
+    
+  </span><span style="color: blue; font-weight: bold">def </span>getNumGhosts<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>numGhosts
+    
+  <span style="color: blue; font-weight: bold">def </span>initializeVisibilityMatrix<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">global </span>VISIBILITY_MATRIX_CACHE
+    <span style="color: blue; font-weight: bold">if </span>reduce<span style="font-weight: bold">(</span>str<span style="font-weight: bold">.</span>__add__<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>layoutText<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">not in </span>VISIBILITY_MATRIX_CACHE<span style="font-weight: bold">:
+      </span><span style="color: blue; font-weight: bold">from </span>game <span style="color: blue; font-weight: bold">import </span>Directions
+      vecs <span style="font-weight: bold">= [(-</span><span style="color: red">0.5</span><span style="font-weight: bold">,</span><span style="color: red">0</span><span style="font-weight: bold">), (</span><span style="color: red">0.5</span><span style="font-weight: bold">,</span><span style="color: red">0</span><span style="font-weight: bold">),(</span><span style="color: red">0</span><span style="font-weight: bold">,-</span><span style="color: red">0.5</span><span style="font-weight: bold">),(</span><span style="color: red">0</span><span style="font-weight: bold">,</span><span style="color: red">0.5</span><span style="font-weight: bold">)]
+      </span>dirs <span style="font-weight: bold">= [</span>Directions<span style="font-weight: bold">.</span>NORTH<span style="font-weight: bold">, </span>Directions<span style="font-weight: bold">.</span>SOUTH<span style="font-weight: bold">, </span>Directions<span style="font-weight: bold">.</span>WEST<span style="font-weight: bold">, </span>Directions<span style="font-weight: bold">.</span>EAST<span style="font-weight: bold">]
+      </span>vis <span style="font-weight: bold">= </span>Grid<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>width<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>height<span style="font-weight: bold">, {</span>Directions<span style="font-weight: bold">.</span>NORTH<span style="font-weight: bold">:</span>set<span style="font-weight: bold">(), </span>Directions<span style="font-weight: bold">.</span>SOUTH<span style="font-weight: bold">:</span>set<span style="font-weight: bold">(), </span>Directions<span style="font-weight: bold">.</span>EAST<span style="font-weight: bold">:</span>set<span style="font-weight: bold">(), </span>Directions<span style="font-weight: bold">.</span>WEST<span style="font-weight: bold">:</span>set<span style="font-weight: bold">(), </span>Directions<span style="font-weight: bold">.</span>STOP<span style="font-weight: bold">:</span>set<span style="font-weight: bold">()})
+      </span><span style="color: blue; font-weight: bold">for </span>x <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>width<span style="font-weight: bold">):
+        </span><span style="color: blue; font-weight: bold">for </span>y <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>height<span style="font-weight: bold">):
+          </span><span style="color: blue; font-weight: bold">if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>walls<span style="font-weight: bold">[</span>x<span style="font-weight: bold">][</span>y<span style="font-weight: bold">] == </span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">:
+            </span><span style="color: blue; font-weight: bold">for </span>vec<span style="font-weight: bold">, </span>direction <span style="color: blue; font-weight: bold">in </span>zip<span style="font-weight: bold">(</span>vecs<span style="font-weight: bold">, </span>dirs<span style="font-weight: bold">):
+              </span>dx<span style="font-weight: bold">, </span>dy <span style="font-weight: bold">= </span>vec
+              nextx<span style="font-weight: bold">, </span>nexty <span style="font-weight: bold">= </span>x <span style="font-weight: bold">+ </span>dx<span style="font-weight: bold">, </span>y <span style="font-weight: bold">+ </span>dy
+              <span style="color: blue; font-weight: bold">while </span><span style="font-weight: bold">(</span>nextx <span style="font-weight: bold">+ </span>nexty<span style="font-weight: bold">) != </span>int<span style="font-weight: bold">(</span>nextx<span style="font-weight: bold">) + </span>int<span style="font-weight: bold">(</span>nexty<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">or not </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>walls<span style="font-weight: bold">[</span>int<span style="font-weight: bold">(</span>nextx<span style="font-weight: bold">)][</span>int<span style="font-weight: bold">(</span>nexty<span style="font-weight: bold">)] :
+                </span>vis<span style="font-weight: bold">[</span>x<span style="font-weight: bold">][</span>y<span style="font-weight: bold">][</span>direction<span style="font-weight: bold">].</span>add<span style="font-weight: bold">((</span>nextx<span style="font-weight: bold">, </span>nexty<span style="font-weight: bold">))
+                </span>nextx<span style="font-weight: bold">, </span>nexty <span style="font-weight: bold">= </span>x <span style="font-weight: bold">+ </span>dx<span style="font-weight: bold">, </span>y <span style="font-weight: bold">+ </span>dy
+      <span style="color: blue">self</span><span style="font-weight: bold">.</span>visibility <span style="font-weight: bold">= </span>vis      
+      VISIBILITY_MATRIX_CACHE<span style="font-weight: bold">[</span>reduce<span style="font-weight: bold">(</span>str<span style="font-weight: bold">.</span>__add__<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>layoutText<span style="font-weight: bold">)] = </span>vis
+    <span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>visibility <span style="font-weight: bold">= </span>VISIBILITY_MATRIX_CACHE<span style="font-weight: bold">[</span>reduce<span style="font-weight: bold">(</span>str<span style="font-weight: bold">.</span>__add__<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>layoutText<span style="font-weight: bold">)]
+      
+  </span><span style="color: blue; font-weight: bold">def </span>isWall<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>pos<span style="font-weight: bold">):
+    </span>x<span style="font-weight: bold">, </span>col <span style="font-weight: bold">= </span>pos
+    <span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>walls<span style="font-weight: bold">[</span>x<span style="font-weight: bold">][</span>col<span style="font-weight: bold">]
+  
+  </span><span style="color: blue; font-weight: bold">def </span>getRandomLegalPosition<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+    </span>x <span style="font-weight: bold">= </span>random<span style="font-weight: bold">.</span>choice<span style="font-weight: bold">(</span>range<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>width<span style="font-weight: bold">))
+    </span>y <span style="font-weight: bold">= </span>random<span style="font-weight: bold">.</span>choice<span style="font-weight: bold">(</span>range<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>height<span style="font-weight: bold">))
+    </span><span style="color: blue; font-weight: bold">while </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>isWall<span style="font-weight: bold">( (</span>x<span style="font-weight: bold">, </span>y<span style="font-weight: bold">) ):
+      </span>x <span style="font-weight: bold">= </span>random<span style="font-weight: bold">.</span>choice<span style="font-weight: bold">(</span>range<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>width<span style="font-weight: bold">))
+      </span>y <span style="font-weight: bold">= </span>random<span style="font-weight: bold">.</span>choice<span style="font-weight: bold">(</span>range<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>height<span style="font-weight: bold">))
+    </span><span style="color: blue; font-weight: bold">return </span><span style="font-weight: bold">(</span>x<span style="font-weight: bold">,</span>y<span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>getRandomCorner<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+    </span>poses <span style="font-weight: bold">= [(</span><span style="color: red">1</span><span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">), (</span><span style="color: red">1</span><span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>height <span style="font-weight: bold">- </span><span style="color: red">2</span><span style="font-weight: bold">), (</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>width <span style="font-weight: bold">- </span><span style="color: red">2</span><span style="font-weight: bold">, </span><span style="color: red">1</span><span style="font-weight: bold">), (</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>width <span style="font-weight: bold">- </span><span style="color: red">2</span><span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>height <span style="font-weight: bold">- </span><span style="color: red">2</span><span style="font-weight: bold">)]
+    </span><span style="color: blue; font-weight: bold">return </span>random<span style="font-weight: bold">.</span>choice<span style="font-weight: bold">(</span>poses<span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>getFurthestCorner<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>pacPos<span style="font-weight: bold">):
+    </span>poses <span style="font-weight: bold">= [(</span><span style="color: red">1</span><span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">), (</span><span style="color: red">1</span><span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>height <span style="font-weight: bold">- </span><span style="color: red">2</span><span style="font-weight: bold">), (</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>width <span style="font-weight: bold">- </span><span style="color: red">2</span><span style="font-weight: bold">, </span><span style="color: red">1</span><span style="font-weight: bold">), (</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>width <span style="font-weight: bold">- </span><span style="color: red">2</span><span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>height <span style="font-weight: bold">- </span><span style="color: red">2</span><span style="font-weight: bold">)]
+    </span>dist<span style="font-weight: bold">, </span>pos <span style="font-weight: bold">= </span>max<span style="font-weight: bold">([(</span>manhattanDistance<span style="font-weight: bold">(</span>p<span style="font-weight: bold">, </span>pacPos<span style="font-weight: bold">), </span>p<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">for </span>p <span style="color: blue; font-weight: bold">in </span>poses<span style="font-weight: bold">])
+    </span><span style="color: blue; font-weight: bold">return </span>pos
+  
+  <span style="color: blue; font-weight: bold">def </span>isVisibleFrom<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>ghostPos<span style="font-weight: bold">, </span>pacPos<span style="font-weight: bold">, </span>pacDirection<span style="font-weight: bold">):
+    </span>row<span style="font-weight: bold">, </span>col <span style="font-weight: bold">= [</span>int<span style="font-weight: bold">(</span>x<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">for </span>x <span style="color: blue; font-weight: bold">in </span>pacPos<span style="font-weight: bold">]
+    </span><span style="color: blue; font-weight: bold">return </span>ghostPos <span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>visibility<span style="font-weight: bold">[</span>row<span style="font-weight: bold">][</span>col<span style="font-weight: bold">][</span>pacDirection<span style="font-weight: bold">]
+  
+  </span><span style="color: blue; font-weight: bold">def </span>__str__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">return </span><span style="color: red">"\n"</span><span style="font-weight: bold">.</span>join<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>layoutText<span style="font-weight: bold">)
+    
+  </span><span style="color: blue; font-weight: bold">def </span>deepCopy<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">return </span>Layout<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>layoutText<span style="font-weight: bold">[:])
+    
+  </span><span style="color: blue; font-weight: bold">def </span>processLayoutText<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>layoutText<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Coordinates are flipped from the input format to the (x,y) convention here
+    
+    The shape of the maze.  Each character  
+    represents a different type of object.   
+     % - Wall                               
+     . - Food
+     o - Capsule
+     G - Ghost
+     P - Pacman
+    Other characters are ignored.
+    """
+    </span>maxY <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>height <span style="font-weight: bold">- </span><span style="color: red">1
+    </span><span style="color: blue; font-weight: bold">for </span>y <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>height<span style="font-weight: bold">):       
+      </span><span style="color: blue; font-weight: bold">for </span>x <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>width<span style="font-weight: bold">):
+        </span>layoutChar <span style="font-weight: bold">= </span>layoutText<span style="font-weight: bold">[</span>maxY <span style="font-weight: bold">- </span>y<span style="font-weight: bold">][</span>x<span style="font-weight: bold">]  
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>processLayoutChar<span style="font-weight: bold">(</span>x<span style="font-weight: bold">, </span>y<span style="font-weight: bold">, </span>layoutChar<span style="font-weight: bold">)
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>agentPositions<span style="font-weight: bold">.</span>sort<span style="font-weight: bold">()
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>agentPositions <span style="font-weight: bold">= [ ( </span>i <span style="font-weight: bold">== </span><span style="color: red">0</span><span style="font-weight: bold">, </span>pos<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">for </span>i<span style="font-weight: bold">, </span>pos <span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>agentPositions<span style="font-weight: bold">]
+  
+  </span><span style="color: blue; font-weight: bold">def </span>processLayoutChar<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>x<span style="font-weight: bold">, </span>y<span style="font-weight: bold">, </span>layoutChar<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">if </span>layoutChar <span style="font-weight: bold">== </span><span style="color: red">'%'</span><span style="font-weight: bold">:      
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>walls<span style="font-weight: bold">[</span>x<span style="font-weight: bold">][</span>y<span style="font-weight: bold">] = </span><span style="color: blue; font-weight: bold">True
+    elif </span>layoutChar <span style="font-weight: bold">== </span><span style="color: red">'.'</span><span style="font-weight: bold">:
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>food<span style="font-weight: bold">[</span>x<span style="font-weight: bold">][</span>y<span style="font-weight: bold">] = </span><span style="color: blue; font-weight: bold">True 
+    elif </span>layoutChar <span style="font-weight: bold">== </span><span style="color: red">'o'</span><span style="font-weight: bold">:    
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>capsules<span style="font-weight: bold">.</span>append<span style="font-weight: bold">((</span>x<span style="font-weight: bold">, </span>y<span style="font-weight: bold">))   
+    </span><span style="color: blue; font-weight: bold">elif </span>layoutChar <span style="font-weight: bold">== </span><span style="color: red">'P'</span><span style="font-weight: bold">:    
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>agentPositions<span style="font-weight: bold">.</span>append<span style="font-weight: bold">( (</span><span style="color: red">0</span><span style="font-weight: bold">, (</span>x<span style="font-weight: bold">, </span>y<span style="font-weight: bold">) ) )
+    </span><span style="color: blue; font-weight: bold">elif </span>layoutChar <span style="color: blue; font-weight: bold">in </span><span style="font-weight: bold">[</span><span style="color: red">'G'</span><span style="font-weight: bold">]:    
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>agentPositions<span style="font-weight: bold">.</span>append<span style="font-weight: bold">( (</span><span style="color: red">1</span><span style="font-weight: bold">, (</span>x<span style="font-weight: bold">, </span>y<span style="font-weight: bold">) ) )
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>numGhosts <span style="font-weight: bold">+= </span><span style="color: red">1
+    </span><span style="color: blue; font-weight: bold">elif </span>layoutChar <span style="color: blue; font-weight: bold">in  </span><span style="font-weight: bold">[</span><span style="color: red">'1'</span><span style="font-weight: bold">, </span><span style="color: red">'2'</span><span style="font-weight: bold">, </span><span style="color: red">'3'</span><span style="font-weight: bold">, </span><span style="color: red">'4'</span><span style="font-weight: bold">]:
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>agentPositions<span style="font-weight: bold">.</span>append<span style="font-weight: bold">( (</span>int<span style="font-weight: bold">(</span>layoutChar<span style="font-weight: bold">), (</span>x<span style="font-weight: bold">,</span>y<span style="font-weight: bold">)))
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>numGhosts <span style="font-weight: bold">+= </span><span style="color: red">1 
+</span><span style="color: blue; font-weight: bold">def </span>getLayout<span style="font-weight: bold">(</span>name<span style="font-weight: bold">, </span>back <span style="font-weight: bold">= </span><span style="color: red">2</span><span style="font-weight: bold">):
+  </span><span style="color: blue; font-weight: bold">if </span>name<span style="font-weight: bold">.</span>endswith<span style="font-weight: bold">(</span><span style="color: red">'.lay'</span><span style="font-weight: bold">):
+    </span>layout <span style="font-weight: bold">= </span>tryToLoad<span style="font-weight: bold">(</span><span style="color: red">'layouts/' </span><span style="font-weight: bold">+ </span>name<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">if </span>layout <span style="font-weight: bold">== </span><span style="color: blue">None</span><span style="font-weight: bold">: </span>layout <span style="font-weight: bold">= </span>tryToLoad<span style="font-weight: bold">(</span>name<span style="font-weight: bold">)
+  </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+    </span>layout <span style="font-weight: bold">= </span>tryToLoad<span style="font-weight: bold">(</span><span style="color: red">'layouts/' </span><span style="font-weight: bold">+ </span>name <span style="font-weight: bold">+ </span><span style="color: red">'.lay'</span><span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">if </span>layout <span style="font-weight: bold">== </span><span style="color: blue">None</span><span style="font-weight: bold">: </span>layout <span style="font-weight: bold">= </span>tryToLoad<span style="font-weight: bold">(</span>name <span style="font-weight: bold">+ </span><span style="color: red">'.lay'</span><span style="font-weight: bold">)
+  </span><span style="color: blue; font-weight: bold">if </span>layout <span style="font-weight: bold">== </span><span style="color: blue">None </span><span style="color: blue; font-weight: bold">and </span>back <span style="font-weight: bold">&gt;= </span><span style="color: red">0</span><span style="font-weight: bold">:
+    </span>curdir <span style="font-weight: bold">= </span>os<span style="font-weight: bold">.</span>path<span style="font-weight: bold">.</span>abspath<span style="font-weight: bold">(</span><span style="color: red">'.'</span><span style="font-weight: bold">)
+    </span>os<span style="font-weight: bold">.</span>chdir<span style="font-weight: bold">(</span><span style="color: red">'..'</span><span style="font-weight: bold">)
+    </span>layout <span style="font-weight: bold">= </span>getLayout<span style="font-weight: bold">(</span>name<span style="font-weight: bold">, </span>back <span style="font-weight: bold">-</span><span style="color: red">1</span><span style="font-weight: bold">)
+    </span>os<span style="font-weight: bold">.</span>chdir<span style="font-weight: bold">(</span>curdir<span style="font-weight: bold">)
+  </span><span style="color: blue; font-weight: bold">return </span>layout
+
+<span style="color: blue; font-weight: bold">def </span>tryToLoad<span style="font-weight: bold">(</span>fullname<span style="font-weight: bold">):
+  </span><span style="color: blue; font-weight: bold">if</span><span style="font-weight: bold">(</span><span style="color: blue; font-weight: bold">not </span>os<span style="font-weight: bold">.</span>path<span style="font-weight: bold">.</span>exists<span style="font-weight: bold">(</span>fullname<span style="font-weight: bold">)): </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">None
+  </span>f <span style="font-weight: bold">= </span>open<span style="font-weight: bold">(</span>fullname<span style="font-weight: bold">)
+  </span><span style="color: blue; font-weight: bold">try</span><span style="font-weight: bold">: </span><span style="color: blue; font-weight: bold">return </span>Layout<span style="font-weight: bold">([</span>line<span style="font-weight: bold">.</span>strip<span style="font-weight: bold">() </span><span style="color: blue; font-weight: bold">for </span>line <span style="color: blue; font-weight: bold">in </span>f<span style="font-weight: bold">])
+  </span><span style="color: blue; font-weight: bold">finally</span><span style="font-weight: bold">: </span>f<span style="font-weight: bold">.</span>close<span style="font-weight: bold">()</span>
+  </pre>
+  </body>
+  </html>
+  

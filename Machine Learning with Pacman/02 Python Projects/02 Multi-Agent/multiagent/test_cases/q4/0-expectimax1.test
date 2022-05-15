@@ -1,0 +1,48 @@
+class: "GraphGameTreeTest"
+alg: "ExpectimaxAgent"
+depth: "2"
+
+#  Tree adapted from lecture 6 slides
+diagram: """
+           max
+      /-/   |   \--\
+     /      |       \
+    /       |        \
+ exp1      exp2      exp3
+  /|\      /|\       /|\ 
+ / | \    / | \     / | \
+A  B  C  D  E  F   G  H  I  
+3 12  8  2  4  6  14  5  2
+"""
+num_agents: "2"
+
+start_state: "max"
+win_states: "A B C D E F G H I"
+lose_states: ""
+
+successors: """
+max Left exp1
+max Center exp2
+max Right exp3
+exp1 Left A
+exp1 Center B
+exp1 Right C
+exp2 Left D
+exp2 Center E
+exp2 Right F
+exp3 Left G
+exp3 Center H
+exp3 Right I
+"""
+
+evaluation: """
+A 3.0
+B 12.0
+C 8.0
+D 2.0
+E 4.0
+F 6.0
+G 14.0
+H 5.0
+I 2.0
+"""

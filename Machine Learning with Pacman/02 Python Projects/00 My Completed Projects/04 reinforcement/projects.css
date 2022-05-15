@@ -1,0 +1,116 @@
+html,body {
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	font: 13px verdana,helvetica,arial,sans-serif;
+	padding: 20px 7%;
+	color: #333333;
+	max-width: 700px;
+}
+
+/*
+td {
+	font: 13px verdana,helvetica,arial,sans-serif;
+	line-height: 140%;
+}
+
+th,td {
+	vertical-align: top;
+}
+*/
+
+/* Blocks - general */
+
+h2,h3,h4,h5 {
+	color: #325B9D;
+	font-weight: 600;
+	font-size: 200%;
+}
+
+h2 {
+	border-bottom: 1px solid #000000;
+	margin: 0 0 0 -20px;
+	padding-top: 10px;
+	padding-bottom: 8px;
+	padding-left: 0px;
+	padding-right: 75px;
+	line-height: 100%;
+}
+
+h3 {
+	font-size: 140%;
+	line-height: 90%;
+	border-bottom: 1px solid #527BBD;
+	margin-top: 30px;
+}
+
+h4 {
+	font-size: 120%;
+	margin: 20px 0 10px 0;
+}
+
+h5 {
+	font-size: 90%;
+}
+
+hr {
+	color: #000000;
+	background-color: #000000;
+}
+
+pre {
+	margin-left: 2%;
+	padding: 5px;
+	line-height: 100%;
+	width: 90%; /* causes bug in IE 5.0 Windows */
+	scrollbar-face-color: #527BBD;
+	scrollbar-arrow-color: #DEE7F7;
+	scrollbar-track-color: #DEE7F7;
+	padding-bottom: 24px!ie7;
+}
+
+p {
+	line-height: 120%;
+}
+
+blockquote {
+	padding-left: 10px;
+}
+
+/* IE5 Mac hack \*/
+
+pre {
+	overflow: auto;
+	overflow-y: hidden;
+}
+
+/* End IE5 Mac hack */
+
+ul,ol,li {
+	margin: 0;
+	padding: 1px;
+}
+
+ul,ol {
+	margin-left: 25px;
+}
+
+.spacing li {
+	margin-bottom: 15px;
+}
+
+.spacing li li, .spacing li:last-child {
+	margin-bottom: 5px;
+}
+
+hr {
+	margin-top: 100px;
+}
+
+pre {
+	font-family: Courier New, Courier, mono;
+	font-size: 1.2em
+}
+

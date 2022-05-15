@@ -1,0 +1,60 @@
+<html>
+  <head>
+  <title>shop.py</title>
+  </head>
+  <body>
+  <h3>shop.py (<a href="../shop.py">original</a>)</h3>
+  <hr>
+  <pre>
+<span style="color: green; font-style: italic"># shop.py
+# -------
+# Licensing Information: Please do not distribute or publish solutions to this
+# project. You are free to use and extend these projects for educational
+# purposes. The Pacman AI projects were developed at UC Berkeley, primarily by
+# John DeNero (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# For more info, see http://inst.eecs.berkeley.edu/~cs188/sp09/pacman.html
+
+</span><span style="color: blue; font-weight: bold">class </span>FruitShop<span style="font-weight: bold">:
+
+    </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>name<span style="font-weight: bold">, </span>fruitPrices<span style="font-weight: bold">):
+        </span><span style="color: darkred">"""
+            name: Name of the fruit shop
+            
+            fruitPrices: Dictionary with keys as fruit 
+            strings and prices for values e.g. 
+            {'apples':2.00, 'oranges': 1.50, 'pears': 1.75} 
+        """
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>fruitPrices <span style="font-weight: bold">= </span>fruitPrices
+        <span style="color: blue">self</span><span style="font-weight: bold">.</span>name <span style="font-weight: bold">= </span>name
+        <span style="color: blue; font-weight: bold">print </span><span style="color: red">'Welcome to %s fruit shop' </span><span style="font-weight: bold">% (</span>name<span style="font-weight: bold">)
+        
+    </span><span style="color: blue; font-weight: bold">def </span>getCostPerPound<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>fruit<span style="font-weight: bold">):
+        </span><span style="color: darkred">"""
+            fruit: Fruit string
+        Returns cost of 'fruit', assuming 'fruit'
+        is in our inventory or None otherwise
+        """
+        </span><span style="color: blue; font-weight: bold">if </span>fruit <span style="color: blue; font-weight: bold">not in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>fruitPrices<span style="font-weight: bold">:
+            </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"Sorry we don't have %s" </span><span style="font-weight: bold">% (</span>fruit<span style="font-weight: bold">)
+            </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">None
+        </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>fruitPrices<span style="font-weight: bold">[</span>fruit<span style="font-weight: bold">]
+        
+    </span><span style="color: blue; font-weight: bold">def </span>getPriceOfOrder<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>orderList<span style="font-weight: bold">):
+        </span><span style="color: darkred">"""
+            orderList: List of (fruit, numPounds) tuples
+            
+        Returns cost of orderList. If any of the fruit are  
+        """ 
+        </span>totalCost <span style="font-weight: bold">= </span><span style="color: red">0.0             
+        </span><span style="color: blue; font-weight: bold">for </span>fruit<span style="font-weight: bold">, </span>numPounds <span style="color: blue; font-weight: bold">in </span>orderList<span style="font-weight: bold">:
+            </span>costPerPound <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>getCostPerPound<span style="font-weight: bold">(</span>fruit<span style="font-weight: bold">)
+            </span><span style="color: blue; font-weight: bold">if </span>costPerPound <span style="font-weight: bold">!= </span><span style="color: blue">None</span><span style="font-weight: bold">:
+                </span>totalCost <span style="font-weight: bold">+= </span>numPounds <span style="font-weight: bold">* </span>costPerPound
+        <span style="color: blue; font-weight: bold">return </span>totalCost
+    
+    <span style="color: blue; font-weight: bold">def </span>getName<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+        </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>name
+  </pre>
+  </body>
+  </html>
+  

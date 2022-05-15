@@ -1,0 +1,186 @@
+<html>
+  <head>
+  <title>qlearningAgents.py</title>
+  </head>
+  <body>
+  <h3>qlearningAgents.py (<a href="../qlearningAgents.py">original</a>)</h3>
+  <hr>
+  <pre>
+<span style="color: green; font-style: italic"># qlearningAgents.py
+# ------------------
+# Licensing Information: Please do not distribute or publish solutions to this
+# project. You are free to use and extend these projects for educational
+# purposes. The Pacman AI projects were developed at UC Berkeley, primarily by
+# John DeNero (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# For more info, see http://inst.eecs.berkeley.edu/~cs188/sp09/pacman.html
+
+</span><span style="color: blue; font-weight: bold">from </span>game <span style="color: blue; font-weight: bold">import </span><span style="font-weight: bold">*
+</span><span style="color: blue; font-weight: bold">from </span>learningAgents <span style="color: blue; font-weight: bold">import </span>ReinforcementAgent
+<span style="color: blue; font-weight: bold">from </span>featureExtractors <span style="color: blue; font-weight: bold">import </span><span style="font-weight: bold">*
+
+</span><span style="color: blue; font-weight: bold">import </span>random<span style="font-weight: bold">,</span>util<span style="font-weight: bold">,</span>math
+
+<span style="color: blue; font-weight: bold">class </span>QLearningAgent<span style="font-weight: bold">(</span>ReinforcementAgent<span style="font-weight: bold">):
+  </span><span style="color: darkred">"""
+    Q-Learning Agent
+
+    Functions you should fill in:
+      - getQValue
+      - getAction
+      - getValue
+      - getPolicy
+      - update
+
+    Instance variables you have access to
+      - self.epsilon (exploration prob)
+      - self.alpha (learning rate)
+      - self.discount (discount rate)
+
+    Functions you should use
+      - self.getLegalActions(state)
+        which returns legal actions
+        for a state
+  """
+  </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, **</span>args<span style="font-weight: bold">):
+    </span><span style="color: red">"You can initialize Q-values here..."
+    </span>ReinforcementAgent<span style="font-weight: bold">.</span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, **</span>args<span style="font-weight: bold">)
+
+    </span><span style="color: red">"*** YOUR CODE HERE ***"
+
+  </span><span style="color: blue; font-weight: bold">def </span>getQValue<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>state<span style="font-weight: bold">, </span>action<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+      Returns Q(state,action)
+      Should return 0.0 if we never seen
+      a state or (state,action) tuple
+    """
+    </span><span style="color: red">"*** YOUR CODE HERE ***"
+    </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+
+
+  </span><span style="color: blue; font-weight: bold">def </span>getValue<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>state<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+      Returns max_action Q(state,action)
+      where the max is over legal actions.  Note that if
+      there are no legal actions, which is the case at the
+      terminal state, you should return a value of 0.0.
+    """
+    </span><span style="color: red">"*** YOUR CODE HERE ***"
+    </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+
+  </span><span style="color: blue; font-weight: bold">def </span>getPolicy<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>state<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+      Compute the best action to take in a state.  Note that if there
+      are no legal actions, which is the case at the terminal state,
+      you should return None.
+    """
+    </span><span style="color: red">"*** YOUR CODE HERE ***"
+    </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+
+  </span><span style="color: blue; font-weight: bold">def </span>getAction<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>state<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+      Compute the action to take in the current state.  With
+      probability self.epsilon, we should take a random action and
+      take the best policy action otherwise.  Note that if there are
+      no legal actions, which is the case at the terminal state, you
+      should choose None as the action.
+
+      HINT: You might want to use util.flipCoin(prob)
+      HINT: To pick randomly from a list, use random.choice(list)
+    """
+    </span><span style="color: green; font-style: italic"># Pick Action
+    </span>legalActions <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>getLegalActions<span style="font-weight: bold">(</span>state<span style="font-weight: bold">)
+    </span>action <span style="font-weight: bold">= </span><span style="color: blue">None
+    </span><span style="color: red">"*** YOUR CODE HERE ***"
+    </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+
+    </span><span style="color: blue; font-weight: bold">return </span>action
+
+  <span style="color: blue; font-weight: bold">def </span>update<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>state<span style="font-weight: bold">, </span>action<span style="font-weight: bold">, </span>nextState<span style="font-weight: bold">, </span>reward<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+      The parent class calls this to observe a
+      state = action =&gt; nextState and reward transition.
+      You should do your Q-Value update here
+
+      NOTE: You should never call this function,
+      it will be called on your behalf
+    """
+    </span><span style="color: red">"*** YOUR CODE HERE ***"
+    </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+
+</span><span style="color: blue; font-weight: bold">class </span>PacmanQAgent<span style="font-weight: bold">(</span>QLearningAgent<span style="font-weight: bold">):
+  </span><span style="color: red">"Exactly the same as QLearningAgent, but with different default parameters"
+
+  </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>epsilon<span style="font-weight: bold">=</span><span style="color: red">0.05</span><span style="font-weight: bold">,</span>gamma<span style="font-weight: bold">=</span><span style="color: red">0.8</span><span style="font-weight: bold">,</span>alpha<span style="font-weight: bold">=</span><span style="color: red">0.2</span><span style="font-weight: bold">, </span>numTraining<span style="font-weight: bold">=</span><span style="color: red">0</span><span style="font-weight: bold">, **</span>args<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    These default parameters can be changed from the pacman.py command line.
+    For example, to change the exploration rate, try:
+        python pacman.py -p PacmanQLearningAgent -a epsilon=0.1
+
+    alpha    - learning rate
+    epsilon  - exploration rate
+    gamma    - discount factor
+    numTraining - number of training episodes, i.e. no learning after these many episodes
+    """
+    </span>args<span style="font-weight: bold">[</span><span style="color: red">'epsilon'</span><span style="font-weight: bold">] = </span>epsilon
+    args<span style="font-weight: bold">[</span><span style="color: red">'gamma'</span><span style="font-weight: bold">] = </span>gamma
+    args<span style="font-weight: bold">[</span><span style="color: red">'alpha'</span><span style="font-weight: bold">] = </span>alpha
+    args<span style="font-weight: bold">[</span><span style="color: red">'numTraining'</span><span style="font-weight: bold">] = </span>numTraining
+    <span style="color: blue">self</span><span style="font-weight: bold">.</span>index <span style="font-weight: bold">= </span><span style="color: red">0  </span><span style="color: green; font-style: italic"># This is always Pacman
+    </span>QLearningAgent<span style="font-weight: bold">.</span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, **</span>args<span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>getAction<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>state<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Simply calls the getAction method of QLearningAgent and then
+    informs parent of action for Pacman.  Do not change or remove this
+    method.
+    """
+    </span>action <span style="font-weight: bold">= </span>QLearningAgent<span style="font-weight: bold">.</span>getAction<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">,</span>state<span style="font-weight: bold">)
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>doAction<span style="font-weight: bold">(</span>state<span style="font-weight: bold">,</span>action<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">return </span>action
+
+
+<span style="color: blue; font-weight: bold">class </span>ApproximateQAgent<span style="font-weight: bold">(</span>PacmanQAgent<span style="font-weight: bold">):
+  </span><span style="color: darkred">"""
+     ApproximateQLearningAgent
+
+     You should only have to overwrite getQValue
+     and update.  All other QLearningAgent functions
+     should work as is.
+  """
+  </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>extractor<span style="font-weight: bold">=</span><span style="color: red">'IdentityExtractor'</span><span style="font-weight: bold">, **</span>args<span style="font-weight: bold">):
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>featExtractor <span style="font-weight: bold">= </span>util<span style="font-weight: bold">.</span>lookup<span style="font-weight: bold">(</span>extractor<span style="font-weight: bold">, </span>globals<span style="font-weight: bold">())()
+    </span>PacmanQAgent<span style="font-weight: bold">.</span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, **</span>args<span style="font-weight: bold">)
+
+    </span><span style="color: green; font-style: italic"># You might want to initialize weights here.
+    </span><span style="color: red">"*** YOUR CODE HERE ***"
+
+  </span><span style="color: blue; font-weight: bold">def </span>getQValue<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>state<span style="font-weight: bold">, </span>action<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+      Should return Q(state,action) = w * featureVector
+      where * is the dotProduct operator
+    """
+    </span><span style="color: red">"*** YOUR CODE HERE ***"
+    </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+
+  </span><span style="color: blue; font-weight: bold">def </span>update<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>state<span style="font-weight: bold">, </span>action<span style="font-weight: bold">, </span>nextState<span style="font-weight: bold">, </span>reward<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+       Should update your weights based on transition
+    """
+    </span><span style="color: red">"*** YOUR CODE HERE ***"
+    </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+
+  </span><span style="color: blue; font-weight: bold">def </span>final<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>state<span style="font-weight: bold">):
+    </span><span style="color: red">"Called at the end of each game."
+    </span><span style="color: green; font-style: italic"># call the super-class final method
+    </span>PacmanQAgent<span style="font-weight: bold">.</span>final<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>state<span style="font-weight: bold">)
+
+    </span><span style="color: green; font-style: italic"># did we finish training?
+    </span><span style="color: blue; font-weight: bold">if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>episodesSoFar <span style="font-weight: bold">== </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>numTraining<span style="font-weight: bold">:
+      </span><span style="color: green; font-style: italic"># you might want to print your weights here for debugging
+      </span><span style="color: red">"*** YOUR CODE HERE ***"
+      </span><span style="color: blue; font-weight: bold">pass
+</span>
+  </pre>
+  </body>
+  </html>
+  

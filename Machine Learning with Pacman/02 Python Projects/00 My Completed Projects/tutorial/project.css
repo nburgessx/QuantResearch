@@ -1,0 +1,136 @@
+html,body {
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	font: 13px verdana,helvetica,arial,sans-serif;
+	padding: 20px 7%;
+	color: #333333;
+	max-width: 700px;
+}
+
+td {
+	font: 13px verdana,helvetica,arial,sans-serif;
+	line-height: 140%;
+}
+
+pre {
+    margin-left: 2em;
+}
+
+th,td {
+	vertical-align: top;
+}
+
+/* Blocks - general */
+
+h2,h3,h4,h5 {
+	color: #325B9D;
+	font-weight: 600;
+	font-size: 200%;
+}
+
+h2 {
+	border-bottom: 1px solid #000000;
+	margin: 0 0 0 -20px;
+	padding-top: 10px;
+	padding-bottom: 8px;
+	padding-left: 0px;
+	padding-right: 75px;
+	line-height: 100%;
+}
+
+h3 {
+	font-size: 140%;
+	line-height: 90%;
+	border-bottom: 1px solid #527BBD;
+	margin-top: 30px;
+}
+
+h4 {
+	font-size: 120%;
+	margin: 20px 0 10px 0;
+}
+
+h5 {
+	font-size: 90%;
+}
+
+hr {
+	color: #000000;
+	background-color: #000000;
+}
+
+p {
+	line-height: 120%;
+}
+
+blockquote {
+	padding-left: 10px;
+}
+
+ul,ol,li {
+	margin: 0;
+	padding: 1px;
+}
+
+ul,ol {
+	margin-left: 25px;
+}
+
+.spacing li {
+	margin-bottom: 15px;
+}
+
+.spacing li li, .spacing li:last-child {
+	margin-bottom: 5px;
+}
+
+hr {
+	margin-top: 100px;
+}
+
+dl{	
+	width: 97%; 
+	padding: 1%;
+	
+	/*Matt Effect*/ 
+	border-width: 0; 
+	border-style: solid; 
+	border-color: #FFFFFF; 
+	
+	
+} 
+dl dt{ 
+	float: left; 
+	clear: left; 
+	width: 20%; 
+	
+	padding: .3em 5% .5em 5%; 
+	/*The -1px on the right margin pulls 
+	the dd over top of it by 1px.*/ 
+	/*The Overlap is because they
+	 both create the middle border and 
+	by overlapping them it does not matter
+	 if the dt or the dd are longer.*/ 
+	margin: 0 -1px 0 0; 	
+	border-right: 1px solid #A5BFD6; 
+	
+	font-weight: bold; 
+	
+} 
+dl dd{ 
+	width: 60%; 
+	padding: .5em 4.5% 1em 5%; 
+	float: left; 
+	margin: 0 ; 
+	border-left: 1px #A5BFD6 solid; 
+	clear: right; /*Forces the dd to break to the next line.*/
+} 
+/*Creates the horizontal border between each *row*.*/
+dl> dd + dt,
+dl > dd + dt + dd{
+	border-top: 1px #A5BFD6 solid;
+}
+

@@ -1,0 +1,11 @@
+class: "EvalAgentTest"
+
+agentName: "ContestAgent"
+layoutName: "contestClassic"
+maxTime: "180"
+numGames: "5"
+
+scoreThresholds: "2500 2900"
+
+randomSeed: "0"
+ghosts: "[DirectionalGhost(1), DirectionalGhost(2), DirectionalGhost(3)]"

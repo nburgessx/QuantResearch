@@ -1,0 +1,265 @@
+<html>
+  <head>
+  <title>learningAgents.py</title>
+  </head>
+  <body>
+  <h3>learningAgents.py (<a href="../learningAgents.py">original</a>)</h3>
+  <hr>
+  <pre>
+<span style="color: green; font-style: italic"># learningAgents.py
+# -----------------
+# Licensing Information: Please do not distribute or publish solutions to this
+# project. You are free to use and extend these projects for educational
+# purposes. The Pacman AI projects were developed at UC Berkeley, primarily by
+# John DeNero (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# For more info, see http://inst.eecs.berkeley.edu/~cs188/sp09/pacman.html
+
+</span><span style="color: blue; font-weight: bold">from </span>game <span style="color: blue; font-weight: bold">import </span>Directions<span style="font-weight: bold">, </span>Agent<span style="font-weight: bold">, </span>Actions
+
+<span style="color: blue; font-weight: bold">import </span>random<span style="font-weight: bold">,</span>util<span style="font-weight: bold">,</span>time
+
+<span style="color: blue; font-weight: bold">class </span>ValueEstimationAgent<span style="font-weight: bold">(</span>Agent<span style="font-weight: bold">):
+  </span><span style="color: darkred">"""
+    Abstract agent which assigns values to (state,action)
+    Q-Values for an environment. As well as a value to a
+    state and a policy given respectively by,
+
+    V(s) = max_{a in actions} Q(s,a)
+    policy(s) = arg_max_{a in actions} Q(s,a)
+
+    Both ValueIterationAgent and QLearningAgent inherit
+    from this agent. While a ValueIterationAgent has
+    a model of the environment via a MarkovDecisionProcess
+    (see mdp.py) that is used to estimate Q-Values before
+    ever actually acting, the QLearningAgent estimates
+    Q-Values while acting in the environment.
+  """
+
+  </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>alpha<span style="font-weight: bold">=</span><span style="color: red">1.0</span><span style="font-weight: bold">, </span>epsilon<span style="font-weight: bold">=</span><span style="color: red">0.05</span><span style="font-weight: bold">, </span>gamma<span style="font-weight: bold">=</span><span style="color: red">0.8</span><span style="font-weight: bold">, </span>numTraining <span style="font-weight: bold">= </span><span style="color: red">10</span><span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Sets options, which can be passed in via the Pacman command line using -a alpha=0.5,...
+    alpha    - learning rate
+    epsilon  - exploration rate
+    gamma    - discount factor
+    numTraining - number of training episodes, i.e. no learning after these many episodes
+    """
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>alpha <span style="font-weight: bold">= </span>float<span style="font-weight: bold">(</span>alpha<span style="font-weight: bold">)
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>epsilon <span style="font-weight: bold">= </span>float<span style="font-weight: bold">(</span>epsilon<span style="font-weight: bold">)
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>discount <span style="font-weight: bold">= </span>float<span style="font-weight: bold">(</span>gamma<span style="font-weight: bold">)
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>numTraining <span style="font-weight: bold">= </span>int<span style="font-weight: bold">(</span>numTraining<span style="font-weight: bold">)
+
+  </span><span style="color: green; font-style: italic">####################################
+  #    Override These Functions      #
+  ####################################
+  </span><span style="color: blue; font-weight: bold">def </span>getQValue<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>state<span style="font-weight: bold">, </span>action<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Should return Q(state,action)
+    """
+    </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+
+  </span><span style="color: blue; font-weight: bold">def </span>getValue<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>state<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    What is the value of this state under the best action?
+    Concretely, this is given by
+
+    V(s) = max_{a in actions} Q(s,a)
+    """
+    </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+
+  </span><span style="color: blue; font-weight: bold">def </span>getPolicy<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>state<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    What is the best action to take in the state. Note that because
+    we might want to explore, this might not coincide with getAction
+    Concretely, this is given by
+
+    policy(s) = arg_max_{a in actions} Q(s,a)
+
+    If many actions achieve the maximal Q-value,
+    it doesn't matter which is selected.
+    """
+    </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+
+  </span><span style="color: blue; font-weight: bold">def </span>getAction<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>state<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    state: can call state.getLegalActions()
+    Choose an action and return it.
+    """
+    </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+
+</span><span style="color: blue; font-weight: bold">class </span>ReinforcementAgent<span style="font-weight: bold">(</span>ValueEstimationAgent<span style="font-weight: bold">):
+  </span><span style="color: darkred">"""
+    Abstract Reinforcemnt Agent: A ValueEstimationAgent
+      which estimates Q-Values (as well as policies) from experience
+      rather than a model
+
+      What you need to know:
+          - The environment will call
+            observeTransition(state,action,nextState,deltaReward),
+            which will call update(state, action, nextState, deltaReward)
+            which you should override.
+      - Use self.getLegalActions(state) to know which actions
+            are available in a state
+  """
+  </span><span style="color: green; font-style: italic">####################################
+  #    Override These Functions      #
+  ####################################
+
+  </span><span style="color: blue; font-weight: bold">def </span>update<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>state<span style="font-weight: bold">, </span>action<span style="font-weight: bold">, </span>nextState<span style="font-weight: bold">, </span>reward<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+        This class will call this function, which you write, after
+        observing a transition and reward
+    """
+    </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+
+  </span><span style="color: green; font-style: italic">####################################
+  #    Read These Functions          #
+  ####################################
+
+  </span><span style="color: blue; font-weight: bold">def </span>getLegalActions<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">,</span>state<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+      Get the actions available for a given
+      state. This is what you should use to
+      obtain legal actions for a state
+    """
+    </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>actionFn<span style="font-weight: bold">(</span>state<span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>observeTransition<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>state<span style="font-weight: bold">,</span>action<span style="font-weight: bold">,</span>nextState<span style="font-weight: bold">,</span>deltaReward<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+        Called by environment to inform agent that a transition has
+        been observed. This will result in a call to self.update
+        on the same arguments
+
+        NOTE: Do *not* override or call this function
+    """
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>episodeRewards <span style="font-weight: bold">+= </span>deltaReward
+    <span style="color: blue">self</span><span style="font-weight: bold">.</span>update<span style="font-weight: bold">(</span>state<span style="font-weight: bold">,</span>action<span style="font-weight: bold">,</span>nextState<span style="font-weight: bold">,</span>deltaReward<span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>startEpisode<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+      Called by environment when new episode is starting
+    """
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>lastState <span style="font-weight: bold">= </span><span style="color: blue">None
+    self</span><span style="font-weight: bold">.</span>lastAction <span style="font-weight: bold">= </span><span style="color: blue">None
+    self</span><span style="font-weight: bold">.</span>episodeRewards <span style="font-weight: bold">= </span><span style="color: red">0.0
+
+  </span><span style="color: blue; font-weight: bold">def </span>stopEpisode<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+      Called by environment when episode is done
+    """
+    </span><span style="color: blue; font-weight: bold">if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>episodesSoFar <span style="font-weight: bold">&lt; </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>numTraining<span style="font-weight: bold">:
+          </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>accumTrainRewards <span style="font-weight: bold">+= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>episodeRewards
+    <span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+          </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>accumTestRewards <span style="font-weight: bold">+= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>episodeRewards
+    <span style="color: blue">self</span><span style="font-weight: bold">.</span>episodesSoFar <span style="font-weight: bold">+= </span><span style="color: red">1
+    </span><span style="color: blue; font-weight: bold">if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>episodesSoFar <span style="font-weight: bold">&gt;= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>numTraining<span style="font-weight: bold">:
+      </span><span style="color: green; font-style: italic"># Take off the training wheels
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>epsilon <span style="font-weight: bold">= </span><span style="color: red">0.0    </span><span style="color: green; font-style: italic"># no exploration
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>alpha <span style="font-weight: bold">= </span><span style="color: red">0.0      </span><span style="color: green; font-style: italic"># no learning
+
+  </span><span style="color: blue; font-weight: bold">def </span>isInTraining<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+      </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>episodesSoFar <span style="font-weight: bold">&lt; </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>numTraining
+
+  <span style="color: blue; font-weight: bold">def </span>isInTesting<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+      </span><span style="color: blue; font-weight: bold">return not </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>isInTraining<span style="font-weight: bold">()
+
+  </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>actionFn <span style="font-weight: bold">= </span><span style="color: blue">None</span><span style="font-weight: bold">, </span>numTraining<span style="font-weight: bold">=</span><span style="color: red">100</span><span style="font-weight: bold">, </span>epsilon<span style="font-weight: bold">=</span><span style="color: red">0.5</span><span style="font-weight: bold">, </span>alpha<span style="font-weight: bold">=</span><span style="color: red">0.5</span><span style="font-weight: bold">, </span>gamma<span style="font-weight: bold">=</span><span style="color: red">1</span><span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    actionFn: Function which takes a state and returns the list of legal actions
+
+    alpha    - learning rate
+    epsilon  - exploration rate
+    gamma    - discount factor
+    numTraining - number of training episodes, i.e. no learning after these many episodes
+    """
+    </span><span style="color: blue; font-weight: bold">if </span>actionFn <span style="font-weight: bold">== </span><span style="color: blue">None</span><span style="font-weight: bold">:
+        </span>actionFn <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">lambda </span>state<span style="font-weight: bold">: </span>state<span style="font-weight: bold">.</span>getLegalActions<span style="font-weight: bold">()
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>actionFn <span style="font-weight: bold">= </span>actionFn
+    <span style="color: blue">self</span><span style="font-weight: bold">.</span>episodesSoFar <span style="font-weight: bold">= </span><span style="color: red">0
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>accumTrainRewards <span style="font-weight: bold">= </span><span style="color: red">0.0
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>accumTestRewards <span style="font-weight: bold">= </span><span style="color: red">0.0
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>numTraining <span style="font-weight: bold">= </span>int<span style="font-weight: bold">(</span>numTraining<span style="font-weight: bold">)
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>epsilon <span style="font-weight: bold">= </span>float<span style="font-weight: bold">(</span>epsilon<span style="font-weight: bold">)
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>alpha <span style="font-weight: bold">= </span>float<span style="font-weight: bold">(</span>alpha<span style="font-weight: bold">)
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>discount <span style="font-weight: bold">= </span>float<span style="font-weight: bold">(</span>gamma<span style="font-weight: bold">)
+
+  </span><span style="color: green; font-style: italic">################################
+  # Controls needed for Crawler  #
+  ################################
+  </span><span style="color: blue; font-weight: bold">def </span>setEpsilon<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>epsilon<span style="font-weight: bold">):
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>epsilon <span style="font-weight: bold">= </span>epsilon
+
+  <span style="color: blue; font-weight: bold">def </span>setLearningRate<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>alpha<span style="font-weight: bold">):
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>alpha <span style="font-weight: bold">= </span>alpha
+
+  <span style="color: blue; font-weight: bold">def </span>setDiscount<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>discount<span style="font-weight: bold">):
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>discount <span style="font-weight: bold">= </span>discount
+
+  <span style="color: blue; font-weight: bold">def </span>doAction<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">,</span>state<span style="font-weight: bold">,</span>action<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+        Called by inherited class when
+        an action is taken in a state
+    """
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>lastState <span style="font-weight: bold">= </span>state
+    <span style="color: blue">self</span><span style="font-weight: bold">.</span>lastAction <span style="font-weight: bold">= </span>action
+
+  <span style="color: green; font-style: italic">###################
+  # Pacman Specific #
+  ###################
+  </span><span style="color: blue; font-weight: bold">def </span>observationFunction<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>state<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+        This is where we ended up after our last action.
+        The simulation should somehow ensure this is called
+    """
+    </span><span style="color: blue; font-weight: bold">if not </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>lastState <span style="color: blue; font-weight: bold">is </span><span style="color: blue">None</span><span style="font-weight: bold">:
+        </span>reward <span style="font-weight: bold">= </span>state<span style="font-weight: bold">.</span>getScore<span style="font-weight: bold">() - </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>lastState<span style="font-weight: bold">.</span>getScore<span style="font-weight: bold">()
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>observeTransition<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>lastState<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>lastAction<span style="font-weight: bold">, </span>state<span style="font-weight: bold">, </span>reward<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">return </span>state
+
+  <span style="color: blue; font-weight: bold">def </span>registerInitialState<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>state<span style="font-weight: bold">):
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>startEpisode<span style="font-weight: bold">()
+    </span><span style="color: blue; font-weight: bold">if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>episodesSoFar <span style="font-weight: bold">== </span><span style="color: red">0</span><span style="font-weight: bold">:
+        </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'Beginning %d episodes of Training' </span><span style="font-weight: bold">% (</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>numTraining<span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>final<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>state<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+      Called by Pacman game at the terminal state
+    """
+    </span>deltaReward <span style="font-weight: bold">= </span>state<span style="font-weight: bold">.</span>getScore<span style="font-weight: bold">() - </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>lastState<span style="font-weight: bold">.</span>getScore<span style="font-weight: bold">()
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>observeTransition<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>lastState<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>lastAction<span style="font-weight: bold">, </span>state<span style="font-weight: bold">, </span>deltaReward<span style="font-weight: bold">)
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>stopEpisode<span style="font-weight: bold">()
+
+    </span><span style="color: green; font-style: italic"># Make sure we have this var
+    </span><span style="color: blue; font-weight: bold">if not </span><span style="color: red">'episodeStartTime' </span><span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>__dict__<span style="font-weight: bold">:
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>episodeStartTime <span style="font-weight: bold">= </span>time<span style="font-weight: bold">.</span>time<span style="font-weight: bold">()
+    </span><span style="color: blue; font-weight: bold">if not </span><span style="color: red">'lastWindowAccumRewards' </span><span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>__dict__<span style="font-weight: bold">:
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>lastWindowAccumRewards <span style="font-weight: bold">= </span><span style="color: red">0.0
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>lastWindowAccumRewards <span style="font-weight: bold">+= </span>state<span style="font-weight: bold">.</span>getScore<span style="font-weight: bold">()
+
+    </span>NUM_EPS_UPDATE <span style="font-weight: bold">= </span><span style="color: red">100
+    </span><span style="color: blue; font-weight: bold">if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>episodesSoFar <span style="font-weight: bold">% </span>NUM_EPS_UPDATE <span style="font-weight: bold">== </span><span style="color: red">0</span><span style="font-weight: bold">:
+        </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'Reinforcement Learning Status:'
+        </span>windowAvg <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>lastWindowAccumRewards <span style="font-weight: bold">/ </span>float<span style="font-weight: bold">(</span>NUM_EPS_UPDATE<span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>episodesSoFar <span style="font-weight: bold">&lt;= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>numTraining<span style="font-weight: bold">:
+            </span>trainAvg <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>accumTrainRewards <span style="font-weight: bold">/ </span>float<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>episodesSoFar<span style="font-weight: bold">)
+            </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'\tCompleted %d out of %d training episodes' </span><span style="font-weight: bold">% (
+                   </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>episodesSoFar<span style="font-weight: bold">,</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>numTraining<span style="font-weight: bold">)
+            </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'\tAverage Rewards over all training: %.2f' </span><span style="font-weight: bold">% (
+                    </span>trainAvg<span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+            </span>testAvg <span style="font-weight: bold">= </span>float<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>accumTestRewards<span style="font-weight: bold">) / (</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>episodesSoFar <span style="font-weight: bold">- </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>numTraining<span style="font-weight: bold">)
+            </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'\tCompleted %d test episodes' </span><span style="font-weight: bold">% (</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>episodesSoFar <span style="font-weight: bold">- </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>numTraining<span style="font-weight: bold">)
+            </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'\tAverage Rewards over testing: %.2f' </span><span style="font-weight: bold">% </span>testAvg
+        <span style="color: blue; font-weight: bold">print </span><span style="color: red">'\tAverage Rewards for last %d episodes: %.2f'  </span><span style="font-weight: bold">% (
+                </span>NUM_EPS_UPDATE<span style="font-weight: bold">,</span>windowAvg<span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'\tEpisode took %.2f seconds' </span><span style="font-weight: bold">% (</span>time<span style="font-weight: bold">.</span>time<span style="font-weight: bold">() - </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>episodeStartTime<span style="font-weight: bold">)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>lastWindowAccumRewards <span style="font-weight: bold">= </span><span style="color: red">0.0
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>episodeStartTime <span style="font-weight: bold">= </span>time<span style="font-weight: bold">.</span>time<span style="font-weight: bold">()
+
+    </span><span style="color: blue; font-weight: bold">if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>episodesSoFar <span style="font-weight: bold">== </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>numTraining<span style="font-weight: bold">:
+        </span>msg <span style="font-weight: bold">= </span><span style="color: red">'Training Done (turning off epsilon and alpha)'
+        </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'%s\n%s' </span><span style="font-weight: bold">% (</span>msg<span style="font-weight: bold">,</span><span style="color: red">'-' </span><span style="font-weight: bold">* </span>len<span style="font-weight: bold">(</span>msg<span style="font-weight: bold">))
+</span>
+  </pre>
+  </body>
+  </html>
+  

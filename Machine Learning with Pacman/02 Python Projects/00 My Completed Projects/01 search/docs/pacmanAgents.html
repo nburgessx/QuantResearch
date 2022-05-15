@@ -1,0 +1,58 @@
+<html>
+  <head>
+  <title>pacmanAgents.py</title>
+  </head>
+  <body>
+  <h3>pacmanAgents.py (<a href="../pacmanAgents.py">original</a>)</h3>
+  <hr>
+  <pre>
+<span style="color: green; font-style: italic"># pacmanAgents.py
+# ---------------
+# Licensing Information: Please do not distribute or publish solutions to this
+# project. You are free to use and extend these projects for educational
+# purposes. The Pacman AI projects were developed at UC Berkeley, primarily by
+# John DeNero (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# For more info, see http://inst.eecs.berkeley.edu/~cs188/sp09/pacman.html
+
+</span><span style="color: blue; font-weight: bold">from </span>pacman <span style="color: blue; font-weight: bold">import </span>Directions
+<span style="color: blue; font-weight: bold">from </span>game <span style="color: blue; font-weight: bold">import </span>Agent
+<span style="color: blue; font-weight: bold">import </span>random
+<span style="color: blue; font-weight: bold">import </span>game
+<span style="color: blue; font-weight: bold">import </span>util
+
+<span style="color: blue; font-weight: bold">class </span>LeftTurnAgent<span style="font-weight: bold">(</span>game<span style="font-weight: bold">.</span>Agent<span style="font-weight: bold">):
+  </span><span style="color: red">"An agent that turns left at every opportunity"
+  
+  </span><span style="color: blue; font-weight: bold">def </span>getAction<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>state<span style="font-weight: bold">):
+    </span>legal <span style="font-weight: bold">= </span>state<span style="font-weight: bold">.</span>getLegalPacmanActions<span style="font-weight: bold">()
+    </span>current <span style="font-weight: bold">= </span>state<span style="font-weight: bold">.</span>getPacmanState<span style="font-weight: bold">().</span>configuration<span style="font-weight: bold">.</span>direction
+    <span style="color: blue; font-weight: bold">if </span>current <span style="font-weight: bold">== </span>Directions<span style="font-weight: bold">.</span>STOP<span style="font-weight: bold">: </span>current <span style="font-weight: bold">= </span>Directions<span style="font-weight: bold">.</span>NORTH
+    left <span style="font-weight: bold">= </span>Directions<span style="font-weight: bold">.</span>LEFT<span style="font-weight: bold">[</span>current<span style="font-weight: bold">]
+    </span><span style="color: blue; font-weight: bold">if </span>left <span style="color: blue; font-weight: bold">in </span>legal<span style="font-weight: bold">: </span><span style="color: blue; font-weight: bold">return </span>left
+    <span style="color: blue; font-weight: bold">if </span>current <span style="color: blue; font-weight: bold">in </span>legal<span style="font-weight: bold">: </span><span style="color: blue; font-weight: bold">return </span>current
+    <span style="color: blue; font-weight: bold">if </span>Directions<span style="font-weight: bold">.</span>RIGHT<span style="font-weight: bold">[</span>current<span style="font-weight: bold">] </span><span style="color: blue; font-weight: bold">in </span>legal<span style="font-weight: bold">: </span><span style="color: blue; font-weight: bold">return </span>Directions<span style="font-weight: bold">.</span>RIGHT<span style="font-weight: bold">[</span>current<span style="font-weight: bold">]
+    </span><span style="color: blue; font-weight: bold">if </span>Directions<span style="font-weight: bold">.</span>LEFT<span style="font-weight: bold">[</span>left<span style="font-weight: bold">] </span><span style="color: blue; font-weight: bold">in </span>legal<span style="font-weight: bold">: </span><span style="color: blue; font-weight: bold">return </span>Directions<span style="font-weight: bold">.</span>LEFT<span style="font-weight: bold">[</span>left<span style="font-weight: bold">]
+    </span><span style="color: blue; font-weight: bold">return </span>Directions<span style="font-weight: bold">.</span>STOP
+
+<span style="color: blue; font-weight: bold">class </span>GreedyAgent<span style="font-weight: bold">(</span>Agent<span style="font-weight: bold">):
+  </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>evalFn<span style="font-weight: bold">=</span><span style="color: red">"scoreEvaluation"</span><span style="font-weight: bold">):
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>evaluationFunction <span style="font-weight: bold">= </span>util<span style="font-weight: bold">.</span>lookup<span style="font-weight: bold">(</span>evalFn<span style="font-weight: bold">, </span>globals<span style="font-weight: bold">())
+    </span><span style="color: blue; font-weight: bold">assert </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>evaluationFunction <span style="font-weight: bold">!= </span><span style="color: blue">None
+        
+  </span><span style="color: blue; font-weight: bold">def </span>getAction<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>state<span style="font-weight: bold">):
+    </span><span style="color: green; font-style: italic"># Generate candidate actions
+    </span>legal <span style="font-weight: bold">= </span>state<span style="font-weight: bold">.</span>getLegalPacmanActions<span style="font-weight: bold">()
+    </span><span style="color: blue; font-weight: bold">if </span>Directions<span style="font-weight: bold">.</span>STOP <span style="color: blue; font-weight: bold">in </span>legal<span style="font-weight: bold">: </span>legal<span style="font-weight: bold">.</span>remove<span style="font-weight: bold">(</span>Directions<span style="font-weight: bold">.</span>STOP<span style="font-weight: bold">)
+      
+    </span>successors <span style="font-weight: bold">= [(</span>state<span style="font-weight: bold">.</span>generateSuccessor<span style="font-weight: bold">(</span><span style="color: red">0</span><span style="font-weight: bold">, </span>action<span style="font-weight: bold">), </span>action<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">for </span>action <span style="color: blue; font-weight: bold">in </span>legal<span style="font-weight: bold">] 
+    </span>scored <span style="font-weight: bold">= [(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>evaluationFunction<span style="font-weight: bold">(</span>state<span style="font-weight: bold">), </span>action<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">for </span>state<span style="font-weight: bold">, </span>action <span style="color: blue; font-weight: bold">in </span>successors<span style="font-weight: bold">]
+    </span>bestScore <span style="font-weight: bold">= </span>max<span style="font-weight: bold">(</span>scored<span style="font-weight: bold">)[</span><span style="color: red">0</span><span style="font-weight: bold">]
+    </span>bestActions <span style="font-weight: bold">= [</span>pair<span style="font-weight: bold">[</span><span style="color: red">1</span><span style="font-weight: bold">] </span><span style="color: blue; font-weight: bold">for </span>pair <span style="color: blue; font-weight: bold">in </span>scored <span style="color: blue; font-weight: bold">if </span>pair<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">] == </span>bestScore<span style="font-weight: bold">]
+    </span><span style="color: blue; font-weight: bold">return </span>random<span style="font-weight: bold">.</span>choice<span style="font-weight: bold">(</span>bestActions<span style="font-weight: bold">)
+  
+</span><span style="color: blue; font-weight: bold">def </span>scoreEvaluation<span style="font-weight: bold">(</span>state<span style="font-weight: bold">):
+  </span><span style="color: blue; font-weight: bold">return </span>state<span style="font-weight: bold">.</span>getScore<span style="font-weight: bold">()  </span>
+  </pre>
+  </body>
+  </html>
+  
