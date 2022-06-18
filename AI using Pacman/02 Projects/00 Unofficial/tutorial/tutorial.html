@@ -1,0 +1,923 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Unix/Python Tutorial</title>
+<link href="project.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<h2>Project 0: Unix/Python Tutorial</h2>
+
+<!--announcements-->
+
+<h3>Introduction</h3>
+
+This tutorial will cover the basics of working in the Unix environment for the Berkeley instructional machines and a small Python tutorial. It assumes you have an EECS Instructional account for CS 188 and that you know how to access it. 
+
+<p>You can download all of the files associated with this tutorial (including this description) as a <a href="tutorial.zip">zip archive</a>.
+
+<h3>Table of Contents</h3>
+<ul>
+<li><a href="#Unix Basics">Unix Basics</a></li>
+<li><a href="#Python Basics">Python Basics</a></li>
+<ul>
+<li><a href="#Invoking the Interpreter">Invoking the Interpreter</a></li>
+<li><a href="#Operators">Operators</a></li>
+<li><a href="#Strings">Strings</a></li>
+<li><a href="#Dir and Help">Dir and Help</a></li>
+<li><a href="#Built-in Data Structures">Built-in Data Structures</a></li>
+<ul>
+<li><a href="#Lists">Lists</a></li>
+<li><a href="#Tuples">Tuples</a></li>
+<li><a href="#Sets">Sets</a></li>
+<li><a href="#Dictionaries">Dictionaries</a></li>
+</ul>
+<li><a href="#Writing Scripts">Writing Scripts</a></li>
+<li><a href="#Indentation">Indentation</a></li>
+<li><a href="#Writing Functions">Writing Functions</a></li>
+<li><a href="#Object Basics">Object Basics</a></li>
+<ul>
+<li><a href="#Defining Classes">Defining Classes</a></li>
+<li><a href="#Using Objects">Using Objects</a></li>
+</ul>
+<li><a href="#Tips and Tricks">Tips and Tricks</a></li>
+<li><a href="#Troubleshooting">Troubleshooting</a></li>
+</ul>
+<li><a href="#More References">More References</a></li>
+</ul>
+
+
+
+
+<h3>Submission</h3>
+
+To get you familiarized with the automatic grading system, we will ask you to submit answers for problems 1 (<a href="#buyLotsOfFruit"><code>buyLotsOfFruit</code> function</a>) and 2 (<a href="#shopSmart"><code>shopSmart</code> function</a>). This is a good thing: learning the basics of python now will save you many headaches later in the course. 
+<p><b>This tutorial should be submitted with the name <code>p0</code> using these <a href="../../submission_instructions.html">submission instructions</a></b>. 
+<p>Please read the submission instructions - they contain important information on how to submit this and all further assignments.
+
+<h3><a name="Unix Basics">Unix Basics</a></h3>
+Here are basic commands to navigate UNIX and edit files.
+
+<h4>File/Directory Manipulation</h4>
+When you open a terminal window, you're placed at a command prompt.
+
+<br><br>
+<code>
+solar%
+</code> 
+<br><br>
+
+The prompt shows your username, the host you are logged onto, and your current location in the directory structure (your path). The tilde character is shorthand for your home directory. To make a directory, use the <code>mkdir</code> command. Use <code>cd</code> to change to that directory:
+
+<br><br>
+<code>
+[cs188-ta@midway ~]$ mkdir tutorial<br>
+[cs188-ta@midway ~]$ cd tutorial<br>
+[cs188-ta@midway ~/tutorial]$
+</code>
+<br><br>
+
+The Python files used in this tutorial reside in the <code>~cs188/projects/tutorial</code> directory. To copy them to your directory, use the <code>cp</code> command. The <code>*</code> is a useful way to specify multiple files in a given directory; <code>*.py</code> refers to all filenames that end have the <code>.py</code> ending. Note that <code>.</code> is shorthand for the current directory. Use <code>ls</code> to see a listing of the contents of a directory.
+
+<br><br>
+<code>
+[cs188-ta@midway ~]$ cp ~cs188/projects/tutorial/*.py .<br>
+[cs188-ta@midway ~]$ ls<br>
+buyLotsOfFruit.py<br>
+foreach.py<br>
+listcomp.py<br>
+listcomp2.py<br>
+quickSort.py<br>
+shop.py<br>
+shopSmart.py<br>
+shopTest.py
+</code>
+<br><br>
+
+Some other useful Unix commands:
+<ul>
+<li><code>rm</code> removes (deletes) a file</li>
+<li><code>mv</code> moves a file (ie. cut/paste instead of
+copy/paste)</li>
+<li><code>man</code> displays documentation for a command</li>
+<li><code>pwd</code> prints your current path </li>
+<li><code>xterm</code> opens a new terminal window</li>
+<li><code>mozilla</code> opens a web browser</li>
+<li>Press "Ctrl-c" to kill a running process</li>
+<li>Append <code>&</code> to a command to run it in the background</li>
+<li><code>fg</code> brings a program running in the background to the foreground</li>
+</ul>
+
+<h4>The Emacs text editor</h4>
+Emacs is a customizable text editor which has some nice features specifically tailored for programmers. However, you can use any other text editor that you may prefer (such as <code>vi</code>, <code>pico</code>, or <code>joe</code> on Unix; or Notepad on Windows; or TextWrangler on Macs; and <a href="http://wiki.python.org/moin/PythonEditors">many more</a>).
+
+To run Emacs, type <code>emacs</code> at a command prompt:
+
+<br><br>
+<code>
+[cs188-ta@midway ~]$ emacs helloWorld.py &<br>
+[1] 3262
+</code>
+<br><br>
+
+Here we gave the argument <code><a href="docs/helloWorld.html">helloWorld.py</a></code> which will either open
+that file for editing if it exists, or create it otherwise.  Emacs
+notices that this is a Python source file (because of the <code>.py</code> ending) and enters
+Python-mode, which is supposed to help you write code.  When editing
+this file you may notice some of that some text becomes automatically
+colored: this is syntactic highlighting to help you
+distinguish items such as keywords, variables, strings, and comments.
+Pressing Enter, Tab, or Backspace may cause
+the cursor to jump to weird locations: this is because Python is
+very picky about indentation, and Emacs is predicting the proper
+tabbing that you should use.
+
+<p>Some basic Emacs editing commands (<code>C-</code> means "while
+holding the Ctrl-key"):
+
+<ul>
+<li><code>C-x C-s</code> Save the current file</li>
+<li><code>C-x C-f</code> Open a file, or create a new file it if
+doesn't exist</li>
+<li><code>C-k</code> Cut a line, add it to the clipboard</li>
+<li><code>C-y</code> Paste the contents of the clipboard</li>
+<li><code>C-_</code> Undo</li>
+<li><code>C-g</code> Abort a half-entered command</li>
+</ul>
+
+<p>You can also copy and paste using just the mouse.  Using the
+left button, select a region of text to copy.  Click the middle button
+to paste.
+
+<p>There are two ways you can use Emacs to develop Python code.  The most
+straightforward way is to use it just as a text editor: create and
+edit Python files in Emacs; then run Python to test the code somewhere
+else, like in a terminal window.  Alternatively, you can run Python
+inside Emacs: see the options under "Python" in the menubar, or type
+<code>C-c !</code> to start a Python interpreter in a split screen. 
+(Use <code>C-x o</code> to switch between the split
+screens).
+
+<p>If you want to spend some extra set-up time becoming a power user, you can try an IDE like <a href="http://www.eclipse.org/downloads/">Eclipse</a> (Download the Eclipse Classic package at the bottom). Check out <a
+href="http://www.fabioz.com/pydev/manual_101_root.html">PyDev</a> for Python support in Eclipse.  See our <a href="../../eclipse.html">eclipse setup instructions</a> for help.
+
+<h3><a name="Python Basics">Python Basics</a></h3>
+
+The programming assignments in this course will be written in <a href="http://www.python.org/about/">Python</a>, an interpreted, object-oriented language that shares some features with both Java and Scheme.  This tutorial will walk through the primary syntactic constructions in Python, using short examples.  
+
+<p>
+You may find the <a href="#Troubleshooting">Troubleshooting</a> section helpful if you run into problems.
+It contains a list of the frequent problems previous CS188 students have encountered when following this tutorial.
+
+<h4><a name="Invoking the Interpreter">Invoking the Interpeter</a></h4>
+
+Like Scheme, Python can be run in one of two modes. It can either be used <i>interactively</i>, via an interpeter, or it can be called from the command line to execute a <i>script</i>.  We will first use the Python interpreter interactively.
+
+<br><br>
+
+You invoke the interpreter by entering <code>python</code> at the Unix command prompt.
+<br>
+Note: you may have to type <code>python2.4</code> or <code>python2.5</code>, rather than <code>python</code>, depending on your machine.
+<br>
+
+<code>
+<br><br>
+[cs188-ta@midway ~]$ python <br>
+Python 2.5 (r25:51908, Sep 28 2008, 12:45:36) <br>
+[GCC 3.4.6] on sunos5<br>
+Type "help", "copyright", "credits" or "license" for more information.<br>
+>>>  <br><br>
+</code>
+
+<h4><a name="Operators">Operators</a></h4>
+The Python interpeter can be used to evaluate expressions, for example simple arithmetic expressions.
+If you enter such expressions at the prompt (<code>>>></code>) they will
+be evaluated and the result wil be returned on the next line.
+
+<code>
+<br><br>
+>>> 1 + 1 <br>
+2 <br>
+>>> 2 * 3 <br>
+6 <br><br>
+</code>
+
+Boolean operators also exist in Python to manipulate the primitive <code>True</code> and <code>False</code> values.
+
+<code>
+<br><br>
+>>> 1==0 <br>
+False <br>
+>>> not (1==0) <br>
+True <br>
+>>> (2==2) and (2==3) <br>
+False <br>
+>>> (2==2) or (2==3) <br>
+True <br>
+</code>
+
+<br>
+
+<h4><a name="Strings">Strings</a></h4>
+Like Java, Python has a built in string type. The <code>+</code> operator is overloaded
+to do string concatenation on string values.
+<code>
+<br><br>
+>>> 'artificial' + "intelligence" <br>
+'artificialintelligence' <br>
+</code>
+<br>
+There are many built-in methods which allow you to manipulate strings.
+<br><br>
+<code> 
+>>> 'artificial'.upper()<br>
+'ARTIFICIAL'<br>
+>>> 'HELP'.lower()<br>
+'help'<br>
+>>> len('Help')<br>
+4
+</code>
+<br><br>
+Notice that we can use either single quotes <code>' '</code> or double quotes <code>" "</code>
+to surround string. This allows for easy nesting of strings.
+
+<br><br>
+
+We can also store expressions into variables. 
+
+<code>
+<br><br>
+>>> s = 'hello world' <br>
+>>> print s <br>
+hello world <br>
+>>> s.upper()<br>
+'HELLO WORLD'<br>
+>>> len(s.upper())<br>
+11<br>
+>>> num = 8.0 <br>
+>>> num += 2.5 <br>
+>>> print num <br>
+10.5 <br>
+</code>
+
+<br>
+In Python, you do not have declare variables before you assign to them.
+
+<br><br>
+<b><em>Exercise: </b></em> Learn about the methods Python provides for strings. 
+
+<p>
+<a name="Dir and Help">To see what methods Python provides for a datatype, use the <code>dir</code> and <code>help</code>
+commands:</a>
+
+<code><br><br>
+>>> s = 'abc' <br><br>
+>>> dir(s)<br>
+['__add__', '__class__', '__contains__', '__delattr__', '__doc__', '__eq__', '__ge__',
+ '__getattribute__', '__getitem__', '__getnewargs__', '__getslice__', '__gt__', '__hash__', '__init__','__le__', '__len__', '__lt__', '__mod__', '__mul__', '__ne__', '__new__', '__reduce__', '__reduce_ex__','__repr__', '__rmod__', '__rmul__', '__setattr__', '__str__', 'capitalize', 'center', 
+'count', 'decode', 'encode', 'endswith', 'expandtabs', 'find', 'index', 'isalnum', 'isalpha', 'isdigit', 'islower', 'isspace', 'istitle', 'isupper', 'join', 'ljust', 'lower', 'lstrip', 'replace', 'rfind','rindex', 'rjust', 'rsplit', 'rstrip', 'split', 'splitlines', 'startswith', 'strip', 'swapcase', 'title', 'translate', 'upper', 'zfill']<br><br>
+>>> help(s.find)<br>
+<pre>Help on built-in function find:<br>
+<br>
+find(...)
+    S.find(sub [,start [,end]]) -> int
+    
+    Return the lowest index in S where substring sub is found,
+    such that sub is contained within s[start,end].  Optional
+    arguments start and end are interpreted as in slice notation.
+    
+    Return -1 on failure.<br>
+</pre>
+>> s.find('b')<br>
+1<br><br>
+</code>
+Try out some of the string functions listed in <code>dir</code> (ignore those with underscores '_' around the method name).
+
+<h4><a name="Built-in Data Structures">Built-in Data Structures</a></h4>
+
+Python comes equipped with some useful built-in data structures, broadly similar to Java's collections package. 
+
+<h4><a name="Lists">Lists</a></h4>
+<em>Lists</em> store a sequence of mutable items:
+<code>
+<br><br>
+>>> fruits = ['apple','orange','pear','banana']<br>
+>>> fruits[0] <br>
+'apple'<br><br>
+</code>
+
+We can use the <code>+</code> operator to do list concatenation:
+<code>
+<br><br>
+>>> otherFruits = ['kiwi','strawberry']<br>
+>>> fruits + otherFruits<br>
+>>> ['apple', 'orange', 'pear', 'banana', 'kiwi', 'strawberry']<br><br>
+</code>
+
+Python also allows negative-indexing from the back of the list. 
+For instance,  <code>fruits[-1]</code> will access the last
+element <code>'banana'</code>:
+
+<code><br><br>
+>>> fruits[-2]<br>
+'pear'<br>
+>>> fruits.pop()<br>
+'banana'<br>
+>>> fruits<br>
+['apple', 'orange', 'pear']<br>
+>>> fruits.append('grapefruit') <br>
+>>> fruits <br>
+['apple', 'orange', 'pear', 'grapefruit'] <br>
+>>> fruits[-1] = 'pineapple' <br>
+>>> fruits <br>
+['apple', 'orange', 'pear', 'pineapple'] <br>
+</code>
+
+<br>
+We can also index multiple adjacent elements using the slice operator.
+For instance <code>fruits[1:3]</code> which returns a list containing
+the elements at position 1 and 2. In general <code>fruits[start:stop]</code>
+will get the elements in <code>start, start+1, ..., stop-1</code>. We can
+also do <code>fruits[start:]</code> which returns all elements starting from the <code>start</code> index. Also <code>fruits[:end]</code> will return all elements before the element at position <code>end</code>:
+
+<code><br><br>
+>>> fruits[0:2] <br>
+['apple', 'orange'] <br>
+>>> fruits[:3]<br>
+['apple', 'orange', 'pear'] <br>
+>>> fruits[2:]<br>
+['pear', 'pineapple'] <br>
+>>> len(fruits) <br>
+4 <br><br>
+</code>
+
+The items stored in lists can be any Python data type. So for instance
+we can have lists of lists:
+
+<code><br><br>
+>>> lstOfLsts = [['a','b','c'],[1,2,3],['one','two','three']] <br>
+>>> lstOfLsts[1][2]  <br>
+3<br>
+>>> lstOfLsts[0].pop()<br>
+'c'<br>
+>>> lstOfLsts<br>
+[['a', 'b'],[1, 2, 3],['one', 'two', 'three']]<br><br>
+</code>
+
+<br>
+<b><em>Exercise:</b></em> Play with some of the list functions. You can
+find the methods you can call on an object via the <code>dir</code> and
+get information about them via the <code>help</code> command:
+<code>
+<br><br>
+>>> dir(list)<br>
+['__add__', '__class__', '__contains__', '__delattr__', '__delitem__', <br>'__delslice__', '__doc__', '__eq__', '__ge__', '__getattribute__', <br>'__getitem__', '__getslice__', '__gt__', '__hash__', '__iadd__', '__imul__', <br>'__init__', '__iter__', '__le__', '__len__', '__lt__', '__mul__', '__ne__', <br>'__new__', '__reduce__', '__reduce_ex__', '__repr__', '__reversed__', <br>'__rmul__', '__setattr__', '__setitem__', '__setslice__', '__str__', <br>'append', 'count', 'extend', 'index', 'insert', 'pop', 'remove', 'reverse', <br>'sort']<br>
+</code>
+<pre>>>> help(list.reverse)
+Help on built-in function reverse:
+
+reverse(...)
+    L.reverse() -- reverse *IN PLACE*
+</pre>
+<code>
+>>> lst = ['a','b','c']<br>
+>>> lst.reverse()<br>
+>>> ['c','b','a']<br><br>    
+</code>
+Note: Ignore functions with underscores "_" around the names; these are private helper methods.
+
+
+<br>
+<h4><a name="Tuples">Tuples</a></h4>
+A data structure similar to the list is the <em>tuple</em>, which is like a list
+except that it is immutable once it is created (i.e. you cannot change its content once created).  Note that tuples are surrounded with parentheses while lists have square brackets.
+
+<code>
+<br><br>
+>>> pair = (3,5)<br>
+>>> pair[0]<br>
+3<br>
+>>> x,y = pair<br>
+>>> x<br>
+3<br>
+>>> y<br>
+5 <br>
+>>> pair[1] = 6<br>
+TypeError: object does not support item assignment<br><br>
+</code>
+
+The attempt to modify an immutable structure raised an exception.  Exceptions indicate errors: index out of bounds errors, type errors, and so on will all report exceptions in this way.
+
+<br>
+<h4><a name="Sets">Sets</a></h4>
+A <em>set</em> is another data structure that serves as an unordered list with no duplicate items. Below, we show how to create a set, add things to the set, test if an item is in the set, and perform common set operations (difference, intersection, union):
+
+<code>
+<br><br>
+>>> shapes = ['circle','square','triangle','circle']<br>
+>>> setOfShapes = set(shapes)<br>
+>>> setOfShapes <br>
+set(['circle','square','triangle']) <br>
+>>> setOfShapes.add('polygon') <br>
+>>> setOfShapes <br>
+set(['circle','square','triangle','polygon']) <br>
+>>> 'circle' in setOfShapes <br>
+True <br>
+>>> 'rhombus' in setOfShapes <br>
+False <br>
+>>> favoriteShapes = ['circle','triangle','hexagon']<br>
+>>> setOfFavoriteShapes = set(favoriteShapes)<br>
+>>> setOfShapes - setOfFavoriteShapes <br>
+set(['square','polyon']) <br>
+>>> setOfShapes & setOfFavoriteShapes <br>
+set(['circle','triangle'])<br>
+>>> setOfShapes | setOfFavoriteShapes <br>
+set(['circle','square','triangle','polygon','hexagon']) <br>
+<br>
+</code>
+<b>Note that the objects in the set are unordered; you cannot assume that their traversal or print order will be the same across machines!</b>
+
+<br>
+<h4><a name="Dictionaries">Dictionaries</a></h4>
+The last built-in data structure is the <em>dictionary</em> 
+which stores a map from one type of object (the key) to another (the value). The key must
+be an immutable type (string, number, or tuple). The value can be any Python data type.
+
+<br><br>
+<b>Note:</b> In the example below, the printed order of the keys returned by Python could be different than shown below. The reason is that unlike lists which have a fixed ordering, a dictionary is simply a hash table for which there is no fixed ordering of the keys (see the <a href="http://inst.eecs.berkeley.edu/~cs188/sp09/faq.html">FAQ about dictionary key ordering</a>).
+
+<code>
+<br><br>
+>>> studentIds = {'knuth': 42.0, 'turing': 56.0, 'nash': 92.0 }<br>
+>>> studentIds['turing']<br>
+56.0<br>
+>>> studentIds['nash'] = 'ninety-two'<br>
+>>> studentIds<br>
+{'knuth': 42.0, 'turing': 56.0, 'nash': 'ninety-two'}<br>
+>>> del studentIds['knuth']<br>
+>>> studentIds<br>
+{'turing': 56.0, 'nash': 'ninety-two'}<br>
+>>> studentIds['knuth'] = [42.0,'forty-two']<br>
+>>> studentIds<br>
+{'knuth': [42.0, 'forty-two'], 'turing': 56.0, 'nash': 'ninety-two'}<br>
+>>> studentIds.keys()<br>
+['knuth', 'turing', 'nash']<br>
+>>> studentIds.values()<br>
+[[42.0, 'forty-two'], 56.0, 'ninety-two']<br>
+>>> studentIds.items()<br>
+[('knuth',[42.0, 'forty-two']), ('turing',56.0), ('nash','ninety-two')]<br>
+>>> len(studentIds) <br>
+3 <br><br>
+</code> 
+
+<p> As with nested lists, you can also create dictionaries of dictionaries.
+
+<p><b><em>Exercise:</b></em> Use <code>dir</code> and <code>help</code>
+to learn about the functions you can call on dictionaries.
+
+<h4><a name="Writing Scripts">Writing Scripts</a></h4>
+ 
+Now that you've got a handle on using Python interactively, let's write
+a simple Python script that demonstrates Python's <code>for</code> loop. Open the file called <code><a href="docs/foreach.html">foreach.py</a></code> and update it with the following code:
+
+<code>
+<pre># This is what a comment looks like 
+fruits = ['apples','oranges','pears','bananas']
+for fruit in fruits:
+    print fruit + ' for sale'
+
+fruitPrices = {'apples': 2.00, 'oranges': 1.50, 'pears': 1.75}
+for fruit, price in fruitPrices.items():
+    if price < 2.00:
+        print '%s cost %f a pound' % (fruit, price)
+    else:
+        print fruit + ' are too expensive!'
+</pre>        
+</code>
+
+At the command line, use the following command in the directory
+containing <code><a href="docs/foreach.html">foreach.py</a></code>:
+
+<code>
+<br><br>
+[cs188-tf@solar ~/tutorial]$ python foreach.py<br>
+apples for sale<br>
+oranges for sale<br>
+pears for sale<br>
+bananas for sale<br>
+oranges cost 1.500000 a pound<br>
+pears cost 1.750000 a pound<br>
+apples are too expensive!<br>
+</code>
+<br>
+
+Remember that the print statements listing the costs may be in a different order on your screen than in this tutorial; that's due to the fact that we're looping over dictionary keys, which are unordered. To learn more about control structures (e.g., <code>if</code> and <code>else</code>) in Python, check out the official <a href="http://docs.python.org/tut/">Python tutorial section on this topic</a>.<br><br>
+
+If you like functional programming (like Scheme) you might also like <code>map</code> and <code>filter</code>:
+<code>
+<br><br>
+>>> map(lambda x: x * x, [1,2,3])<br>
+[1, 4, 9]<br>
+>>> filter(lambda x: x > 3, [1,2,3,4,5,4,3,2,1])<br>
+[4, 5, 4]<br>
+</code>
+<br>
+You can <a href="http://www.secnetix.de/olli/Python/lambda_functions.hawk">learn more about <code>lambda</code></a> if you're interested.
+
+The next snippet of code demonstrates python's <em>list comprehension</em> construction:
+<code>
+<pre>nums = [1,2,3,4,5,6]
+plusOneNums = [x+1 for x in nums]
+oddNums = [x for x in nums if x % 2 == 1]
+print oddNums
+oddNumsPlusOne = [x+1 for x in nums if x % 2 ==1]
+print oddNumsPlusOne
+</pre> 
+</code>
+
+This code is in a file called <code><a href="docs/listcomp.html">listcomp.py</a></code>, which you can run:
+<code>
+<br><br>
+[cs188-ta@midway ~]$ python listcomp.py<br>
+[1,3,5]<br>
+[2,4,6]<br><br>
+</code>
+
+Those of you familiar with Scheme, will recognize that the list comprehension is similar to the 
+<code>map</code> function. In Scheme, the first list comprehension would be
+written as:
+
+<pre>(define nums '(1,2,3,4,5,6))
+(map 
+   (lambda (x) (+ x 1))  nums)
+</pre>
+
+<b><em>Exercise:</em></b> Write a list comprehension which, from a list, generates a lowercased version of each
+string that has length greater than five.  Solution: <code><a href="docs/listcomp2.html">listcomp2.py</a></code>
+
+<h4><a name="Indentation">Beware of Indendation!</a></h4>
+
+Unlike many other languages, Python uses the indentation in the source code for interpretation. So for instance, for the following script:
+
+<pre>if 0 == 1: 
+    print 'We are in a world of arithmetic pain' 
+print 'Thank you for playing' 
+</pre>         
+
+will output
+
+<code><br><br>
+Thank you for playing<br><br>         
+</code>
+
+But if we had written the script as
+
+<code>
+<pre>if 0 == 1: 
+    print 'We are in a world of arithmetic pain'
+    print 'Thank you for playing'
+</pre>       
+</code>
+
+there would be no output. The moral of the story: be careful how you indent! It's best to use four spaces for indentation -- that's what the course code uses.
+
+<h4><a name="Writing Functions">Writing Functions</a></h4>
+
+As in Scheme or Java, in Python you can define your own functions:
+
+<code>
+<pre>fruitPrices = {'apples':2.00, 'oranges': 1.50, 'pears': 1.75}
+
+def buyFruit(fruit, numPounds):
+    if fruit not in fruitPrices:
+        print "Sorry we don't have %s" % (fruit)
+    else:
+        cost = fruitPrices[fruit] * numPounds
+        print "That'll be %f please" % (cost)
+
+# Main Function
+if __name__ == '__main__':        
+    buyFruit('apples',2.4)
+    buyFruit('coconuts',2)        
+</pre>
+</code>
+
+Rather than having a <code>main</code> function as in Java, the <code>__name__ == '__main__'</code> check is
+used to delimit expressions which are executed when the file is called as a
+script from the command line. The code after the main check is thus the same sort of code you would put in a <code>main</code> function in Java.<br><br>
+
+Save this script as <em>fruit.py</em> and run it:
+
+<code><br><br>
+[cs188-ta@midway ~]$ python fruit.py<br>
+That'll be 4.800000 please<br>
+Sorry we don't have coconuts<br><br>
+</code>
+<a name="buyLotsOfFruit"></a>
+<b><em>Problem 1 (for submission):</b></em> Add a <code>buyLotsOfFruit(orderList)</code> function to <code><a href="docs/buyLotsOfFruit.html">buyLotsOfFruit.py</a></code> which takes a list of <code>(fruit,pound)</code> tuples and returns
+the cost of your list. If there is some <code>fruit</code> in the list which
+doesn't appear in <code>fruitPrices</code> it should print an error message and
+return <code>None</code> (which is like <code>nil</code> in Scheme). 
+Please do not change the <code>fruitPrices</code> variable.
+<p>
+<em>Test Case:</em>We will check your code by testing that the script correctly outputs
+<p>
+<code>Cost of [('apples', 2.0), ('pears', 3.0), ('limes', 4.0)] is 12.25</code>
+<br><br>
+<b><em>Advanced Exercise:</b></em> Write a <code>quickSort</code> function in
+Python using list comprehensions. Use the first element as the 
+pivot. Solution: <code><a href="docs/quickSort.html">quickSort.py</a></code>
+
+<h4><a name="Object Basics">Object Basics</a></h4>
+
+Although this isn't a class in object-oriented programming, you'll have to use some objects in the programming projects, and so
+it's worth covering the basics of objects in Python.  An object encapsulates data and provides functions for interacting with that data. 
+
+<h4><a name="Defining Classes">Defining Classes</a></h4>
+Here's an example of defining a class named <code>FruitShop</code>:
+
+<code>
+<pre>class FruitShop:
+
+    def __init__(self, name, fruitPrices):
+        """
+            name: Name of the fruit shop
+            
+            fruitPrices: Dictionary with keys as fruit 
+            strings and prices for values e.g. 
+            {'apples':2.00, 'oranges': 1.50, 'pears': 1.75} 
+        """
+        self.fruitPrices = fruitPrices
+        self.name = name
+        print 'Welcome to the %s fruit shop' % (name)
+        
+    def getCostPerPound(self, fruit):
+        """
+            fruit: Fruit string
+        Returns cost of 'fruit', assuming 'fruit'
+        is in our inventory or None otherwise
+        """
+        if fruit not in self.fruitPrices:
+            print "Sorry we don't have %s" % (fruit)
+            return None
+        return self.fruitPrices[fruit]
+        
+    def getPriceOfOrder(self, orderList):
+        """
+            orderList: List of (fruit, numPounds) tuples
+            
+        Returns cost of orderList. If any of the fruit are  
+        """ 
+        totalCost = 0.0             
+        for fruit, numPounds in orderList:
+            costPerPound = self.getCostPerPound(fruit)
+            if costPerPound != None:
+                totalCost += numPounds * costPerPound
+        return totalCost
+    
+    def getName(self):
+        return self.name
+</pre>
+</code>
+
+<p>
+The <code>FruitShop</code> class has some data, the name of the shop and the prices per pound
+of some fruit, and it provides functions, or methods, on this data. What advantage is there to wrapping this data in a class? 
+<ol>
+  <li> Encapsulating the data prevents it from being altered or used inappropriately, </li>
+  <li> The abstraction that objects provide make it easier to write general-purpose code. </li>
+</ol>
+
+<p>
+<h4><a name="Using Objects">Using Objects</a></h4>
+So how do we make an object and use it? Download the <code>FruitShop</code> implementation in <code><a href="docs/shop.html">shop.py</a></code>.  
+We then import the code from this file (making it accessible to other scripts) using <code>import shop</code>, since <code><a href="docs/shop.html">shop.py</a></code> is the name of the file.  Then, we can create <code>FruitShop</code> objects as follows:
+
+<code>
+<pre>
+import shop
+
+shopName = 'the Berkeley Bowl'
+fruitPrices = {'apples': 1.00, 'oranges': 1.50, 'pears': 1.75}
+berkeleyShop = shop.FruitShop(shopName, fruitPrices)
+applePrice = berkeleyShop.getCostPerPound('apples')
+print applePrice
+print('Apples cost $%.2f at %s.' % (applePrice, shopName))
+
+otherName = 'the Stanford Mall'
+otherFruitPrices = {'kiwis':6.00, 'apples': 4.50, 'peaches': 8.75}
+otherFruitShop = shop.FruitShop(otherName, otherFruitPrices)
+otherPrice = otherFruitShop.getCostPerPound('apples')
+print otherPrice
+print('Apples cost $%.2f at %s.' % (otherPrice, otherName))
+print("My, that's expensive!")
+</pre>
+</code>
+
+You can download this code in <code><a href="docs/shopTest.html">shopTest.py</a></code> and run it like this:
+
+<code> <pre>
+[cs188-ta@midway ~]$ python shopTest.py
+Welcome to the Berkeley Bowl fruit shop
+1.0
+Apples cost $1.00 at the Berkeley Bowl.
+Welcome to the Stanford Mall fruit shop
+4.5
+Apples cost $4.50 at the Stanford Mall.
+My, that's expensive!
+</pre>
+</code>
+
+So what just happended? The <code>import shop</code> statement told Python to load all of the functions and classes in <code><a href="docs/shop.html">shop.py</a></code>.
+The line <code>berkeleyShop = shop.FruitShop(shopName, fruitPrices)</code> constructs an <em>instance</em> of the <code>FruitShop</code> class defined in <em>shop.py</em>, by calling the <code>__init__</code> function in that class.  Note that we only passed two arguments
+in, while <code>__init__</code> seems to take three arguments: <code>(self, name, fruitPrices)</code>. The reason for this is that all methods in a class have <code>self</code> as the first argument.  The <code>self</code> variable's value is automatically set to the object 
+itself; when calling a method, you only supply the remaining arguments.  The <code>self</code> variable contains all the data (<code>name</code> and <code>fruitPrices</code>) for the current specific instance (similar to <code>this</code> in Java).
+The print statements use the substitution operator (described in the <a href="http://www.python.org/doc/2.5/lib/typesseq-strings.html">Python docs</a> if you're curious).
+
+<h4><a name="Static vs Instance Variables">Static vs Instance Variables</a></h4>
+The following example with illustrate how to use static and instance variables in python.
+
+<br>
+Create the <code>person_class.py</code> containing the following code:<br>
+<pre>
+<code>
+class Person:
+    population = 0
+    def __init__(self, myAge):
+        self.age = myAge
+        Person.population += 1
+    def get_population(self):
+        return Person.population
+    def get_age(self):
+        return self.age
+</code>
+</pre>
+We first compile the script:<br>
+[cs188-ta@midway ~]$ python person_class.py<br>
+
+Now use the class as follows:<br>
+<code>
+>>> import person_class<br>
+>>> p1 = person_class.Person(12)<br>
+>>> p1.get_population()<br>
+1 <br>
+>>> p2 = person_class.Person(63)<br>
+>>> p1.get_population()<br>
+2 <br>
+>>> p2.get_population()<br>
+2 <br>
+>>> p1.get_age()<br>
+12 <br>
+>>> p2.get_age()<br>
+63 <br>
+</code>
+
+In the code above, <code>age</code> is an instance variable and <code>population</code> is a static variable.
+<code>population</code> is shared by all instances of the <code>Person</code> class whereas each instance has its own <code>age</code> variable.
+
+
+<br><br>
+<a name="shopSmart"></a>
+<b><em>Problem 2 (for submission): </b></em> Fill in the function <code>shopSmart(orders,shops)</code> in <code><a href="docs/shopSmart.html">shopSmart.py</a></code>, which takes an <code>orderList</code> (like the kind passed in to <code>FruitShop.getPriceOfOrder</code>) and a list of <code>FruitShop</code> and returns the <code>FruitShop</code> where your order costs the least amount in total. Don't change the file name or variable names, please.  Note that we will provide the <code><a href="docs/shop.html">shop.py</a></code> implementation as a "support" file, so you don't need to submit yours.
+<p>
+<em>Test Case:</em>We will check that, with the following variable definitions:
+<p>
+<code>
+<pre>orders1 = [('apples',1.0), ('oranges',3.0)]
+orders2 = [('apples',3.0)]			 
+dir1 = {'apples': 2.0, 'oranges':1.0}
+shop1 =  shop.FruitShop('shop1',dir1)
+dir2 = {'apples': 1.0, 'oranges': 5.0}
+shop2 = shop.FruitShop('shop2',dir2)
+shops = [shop1, shop2]
+</pre>
+</code>
+<p>
+The following are true:
+<p>
+<code>
+shopSmart.shopSmart(orders1, shops).getName() == 'shop1'
+</code>
+<p>and<p>
+<code>shopSmart.shopSmart(orders2, shops).getName() == 'shop2'
+</code>
+<br><br>
+<h4><a name="Tips and Tricks">More Python Tips and Tricks</a></h4>
+This tutorial has briefly touched on some major aspects of Python that will
+be relevant to the course.  Here's some more useful tidbits:
+
+<ul>
+<li> Use <code>range</code> to generate a sequence of integers, useful for generating traditional indexed <code>for</code> loops:
+
+<pre>for index in range(3):
+    print lst[index]
+</pre></li>
+<li> After importing a file, if you edit a source file, the changes will not be immediately
+propagated in the interpreter.  For this, use the <code>reload</code>
+command:
+<code><br><br>
+>>> reload(shop)<br>
+<br>
+</code> 
+</li>
+</ul>
+
+<h4><a name="Troubleshooting">Troubleshooting</a></h4>
+
+These are some problems (and their solutions) that new python learners commonly encounter.
+
+<ul>
+<li>
+<b>Problem:</b><br> ImportError: No module named py<br>
+
+<p><b>Solution:</b><br>
+When using <code>import</code>, do not include the ".py" from the filename.
+<br>
+For example, you should say: <code>import shop</code>
+<br>
+NOT: <code>import shop<b>.py</b></code>
+</li>
+
+
+<li>
+<b>Problem:</b><br> NameError: name 'MY VARIABLE' is not defined<br>
+
+Even after importing you may see this.<br>
+<p><b>Solution:</b><br>
+To access a member of a module, you have to type <code>MODULE NAME.MEMBER NAME</code>, where <code>MODULE NAME</code> is the name of the <code>.py</code> file, and <code>MEMBER NAME</code> is the name of the variable (or function) you are trying to access.
+</li>
+
+
+
+<li>
+<b>Problem:</b><br> TypeError: 'dict' object is not callable<br>
+
+<p><b>Solution:</b><br>
+Dictionary looks up are done using square brackets: [ and ]. NOT parenthesis: ( and ).
+</li>
+
+
+<li>
+<b>Problem:</b><br> ValueError: too many values to unpack<br>
+
+<p><b>Solution:</b><br>
+Make sure the number of variables you are assigning in a <code>for</code> loop matches the number of elements in each item of the list.
+Similarly for working with tuples.
+
+<p>
+For example, if <code>pair</code> is a tuple of two elements (e.g. <code>pair =('apple', 2.0)</code>) then the following code would cause the "too many values to unpack error":<br>
+<code>(a,b,c) = pair</code><br>
+
+<p>Here is a problematic scenario involving a <code>for</code> loop:<br>
+<pre>
+pairList = [('apples', 2.00), ('oranges', 1.50), ('pears', 1.75)]
+for fruit, price, <em>color</em> in pairList:
+    print '%s fruit costs %f and is the color %s' % (fruit, price, color)
+</pre>
+</li>
+
+<li>
+<b>Problem:</b><br> AttributeError: 'list' object has no attribute 'length' (or something similar)<br>
+
+<p><b>Solution:</b><br>
+Finding length of lists is done using <code>len(NAME OF LIST)</code>.
+</li>
+
+<li>
+<b>Problem:</b><br> Changes to a file are not taking effect.<br>
+
+<p><b>Solution:</b><br>
+<ol>
+<li> Make sure you are saving all your files after any changes.</li>
+
+<li>
+If you are editing a file in a  window different from the one you are using to execute python, make sure you <code>reload(<i>YOUR_MODULE</i>)</code> to guarantee your changes are being reflected.
+
+<code>reload</code> works similar to <code>import</code>.
+</li>
+</ol>
+</li>
+
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+<h4><a name="More References">More References!</a></h4>
+<ul>
+<li> The place to go for more Python information: <a
+href="http://www.python.org">www.python.org</a><br>
+<li>A good reference book: <a href="http://oreilly.com/catalog/9780596513986/">Learning Python</a>
+(From the UCB campus, you can read the whole book online)
+</li>
+</ul>

@@ -1,0 +1,410 @@
+<html>
+  <head>
+  <title>pacclient.py</title>
+  </head>
+  <body>
+  <h3>pacclient.py (<a href="../pacclient.py">original</a>)</h3>
+  <hr>
+  <pre>
+<span style="color: green; font-style: italic"># pacclient.py
+# ------------
+# Licensing Information: Please do not distribute or publish solutions to this
+# project. You are free to use and extend these projects for educational
+# purposes. The Pacman AI projects were developed at UC Berkeley, primarily by
+# John DeNero (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# For more info, see http://inst.eecs.berkeley.edu/~cs188/sp09/pacman.html
+
+</span><span style="color: darkred">"""
+Pacclient provides an interface to the server.
+
+You should not need to change any of this code, but
+you can read about the command line options in readCommand.
+
+If you choose to use another language besides python or to
+not use our starter files, this is the object you need to
+interface with.  It is the only object that talks to the server.
+
+"""
+
+</span><span style="color: blue; font-weight: bold">from </span>capture <span style="color: blue; font-weight: bold">import </span><span style="font-weight: bold">*
+</span><span style="color: blue; font-weight: bold">import </span>cPickle<span style="font-weight: bold">, </span>asyncore<span style="font-weight: bold">, </span>socket
+<span style="color: blue; font-weight: bold">import </span>re<span style="font-weight: bold">, </span>time
+<span style="color: blue; font-weight: bold">import </span>threading
+<span style="color: blue; font-weight: bold">import </span>game
+
+SERVER_CONNECTION_TIMEOUT <span style="font-weight: bold">= </span><span style="color: red">30 </span><span style="color: green; font-style: italic"># seconds
+
+</span><span style="color: blue; font-weight: bold">def </span>debugl<span style="font-weight: bold">(</span>s<span style="font-weight: bold">):
+  </span><span style="color: green; font-style: italic"># print s
+  </span><span style="color: blue; font-weight: bold">return
+
+def </span>secs<span style="font-weight: bold">():
+  </span><span style="color: blue; font-weight: bold">return </span><span style="color: red">'%0.2f' </span><span style="font-weight: bold">% (</span>time<span style="font-weight: bold">.</span>time<span style="font-weight: bold">() % </span><span style="color: red">100</span><span style="font-weight: bold">)
+
+</span><span style="color: blue; font-weight: bold">class </span>TeamThread<span style="font-weight: bold">(</span>threading<span style="font-weight: bold">.</span>Thread<span style="font-weight: bold">):
+
+  </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>agents<span style="font-weight: bold">, </span>pacClient<span style="font-weight: bold">):
+    </span>threading<span style="font-weight: bold">.</span>Thread<span style="font-weight: bold">.</span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">)
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gotGameStateEvent <span style="font-weight: bold">= </span>threading<span style="font-weight: bold">.</span>Event<span style="font-weight: bold">()
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gameState <span style="font-weight: bold">= </span><span style="color: blue">None </span><span style="color: green; font-style: italic"># Slot filled by PacClient
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gotTimeout <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">False
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>agentIndex <span style="font-weight: bold">= </span><span style="color: red">0
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>stateNumber <span style="font-weight: bold">= </span><span style="color: red">0
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>agents <span style="font-weight: bold">= </span>agents
+    <span style="color: blue">self</span><span style="font-weight: bold">.</span>semaphore <span style="font-weight: bold">= </span>threading<span style="font-weight: bold">.</span>Semaphore<span style="font-weight: bold">()
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gameOver <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">False
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>pacClient <span style="font-weight: bold">= </span>pacClient  <span style="color: green; font-style: italic"># For sending actions
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>rules <span style="font-weight: bold">= </span>CaptureRules<span style="font-weight: bold">()
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>setDaemon<span style="font-weight: bold">(</span><span style="color: blue; font-weight: bold">True</span><span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>run<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">while not </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gameOver<span style="font-weight: bold">:
+      </span>debugl<span style="font-weight: bold">( </span><span style="color: red">"Waiting for event.." </span><span style="font-weight: bold">)
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gotGameStateEvent<span style="font-weight: bold">.</span>wait<span style="font-weight: bold">(</span>SERVER_CONNECTION_TIMEOUT<span style="font-weight: bold">)
+      </span><span style="color: blue; font-weight: bold">if not </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gotGameStateEvent<span style="font-weight: bold">.</span>isSet<span style="font-weight: bold">():
+        </span><span style="color: blue; font-weight: bold">print </span><span style="font-weight: bold">&gt;&gt;</span>sys<span style="font-weight: bold">.</span>stderr<span style="font-weight: bold">, </span><span style="color: red">'Lost connection with server'
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>pacClient<span style="font-weight: bold">.</span>finishGame<span style="font-weight: bold">()
+        </span><span style="color: blue; font-weight: bold">return
+      if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gameOver<span style="font-weight: bold">: </span><span style="color: blue; font-weight: bold">return
+
+      </span><span style="color: green; font-style: italic"># Grab the next state
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>semaphore<span style="font-weight: bold">.</span>acquire<span style="font-weight: bold">()
+      </span>localGS <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gameState
+      localIndex <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>agentIndex
+      localMoveNumber <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>stateNumber
+      <span style="color: blue">self</span><span style="font-weight: bold">.</span>gotGameStateEvent<span style="font-weight: bold">.</span>clear<span style="font-weight: bold">()
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>semaphore<span style="font-weight: bold">.</span>release<span style="font-weight: bold">()
+
+      </span><span style="color: green; font-style: italic"># Check for the end of the game
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>rules<span style="font-weight: bold">.</span>process<span style="font-weight: bold">(</span>localGS<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">)
+      </span><span style="color: blue; font-weight: bold">if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gameOver<span style="font-weight: bold">: </span><span style="color: blue; font-weight: bold">return
+
+      </span>agent <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>agents<span style="font-weight: bold">[</span>localIndex<span style="font-weight: bold">]
+      </span>action <span style="font-weight: bold">= </span>agent<span style="font-weight: bold">.</span>getAction<span style="font-weight: bold">(</span>localGS<span style="font-weight: bold">)
+      </span>debugl<span style="font-weight: bold">(</span>action<span style="font-weight: bold">)
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>pacClient<span style="font-weight: bold">.</span>sendAction<span style="font-weight: bold">(</span>localMoveNumber<span style="font-weight: bold">, </span>action<span style="font-weight: bold">)
+
+</span><span style="color: blue; font-weight: bold">class </span>PacClient<span style="font-weight: bold">(</span>asyncore<span style="font-weight: bold">.</span>dispatcher<span style="font-weight: bold">):
+
+  </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>server<span style="font-weight: bold">, </span>port<span style="font-weight: bold">, </span>agentFactoryBuilder<span style="font-weight: bold">, </span>display<span style="font-weight: bold">, </span>user<span style="font-weight: bold">, </span>password<span style="font-weight: bold">, </span>gamename<span style="font-weight: bold">):
+    </span>asyncore<span style="font-weight: bold">.</span>dispatcher<span style="font-weight: bold">.</span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">)
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>create_socket<span style="font-weight: bold">(</span>socket<span style="font-weight: bold">.</span>AF_INET<span style="font-weight: bold">, </span>socket<span style="font-weight: bold">.</span>SOCK_STREAM<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">print </span><span style="font-weight: bold">&gt;&gt;</span>sys<span style="font-weight: bold">.</span>stderr<span style="font-weight: bold">, </span><span style="color: red">"Connecting to server(%s:%d)..." </span><span style="font-weight: bold">% (</span>server<span style="font-weight: bold">, </span>port<span style="font-weight: bold">)
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>connect<span style="font-weight: bold">((</span>server<span style="font-weight: bold">, </span>port<span style="font-weight: bold">))
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>bufSema <span style="font-weight: bold">= </span>threading<span style="font-weight: bold">.</span>Semaphore<span style="font-weight: bold">()
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>sendbuf <span style="font-weight: bold">= </span><span style="color: red">""
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>recvbuf <span style="font-weight: bold">= </span><span style="color: red">""
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>__pickled <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">False
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>responses <span style="font-weight: bold">= {</span><span style="color: red">200</span><span style="font-weight: bold">:</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>userpass<span style="font-weight: bold">,
+                      </span><span style="color: red">202</span><span style="font-weight: bold">:</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>notify<span style="font-weight: bold">,
+                      </span><span style="color: red">203</span><span style="font-weight: bold">:</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>notify<span style="font-weight: bold">,
+                      </span><span style="color: red">250</span><span style="font-weight: bold">:</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>joingame<span style="font-weight: bold">,
+                      </span><span style="color: red">400</span><span style="font-weight: bold">:</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>error<span style="font-weight: bold">,
+                      </span><span style="color: red">401</span><span style="font-weight: bold">:</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>error<span style="font-weight: bold">,
+                      </span><span style="color: red">402</span><span style="font-weight: bold">:</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>error<span style="font-weight: bold">,
+                      </span><span style="color: red">404</span><span style="font-weight: bold">:</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>error<span style="font-weight: bold">,
+                      </span><span style="color: red">350</span><span style="font-weight: bold">:</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>notify<span style="font-weight: bold">,
+                      </span><span style="color: red">500</span><span style="font-weight: bold">:</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>startgame<span style="font-weight: bold">,
+                      </span><span style="color: red">501</span><span style="font-weight: bold">:</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>setAgent<span style="font-weight: bold">,
+                      </span><span style="color: red">502</span><span style="font-weight: bold">:</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gogogadgetpickle<span style="font-weight: bold">,
+                      </span><span style="color: red">504</span><span style="font-weight: bold">:</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>ok<span style="font-weight: bold">,
+                      </span><span style="color: red">505</span><span style="font-weight: bold">:</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>win<span style="font-weight: bold">,
+                      </span><span style="color: red">506</span><span style="font-weight: bold">:</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>lose<span style="font-weight: bold">,
+                      </span><span style="color: red">510</span><span style="font-weight: bold">:</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>notify<span style="font-weight: bold">,
+                      </span><span style="color: red">511</span><span style="font-weight: bold">:</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>badness<span style="font-weight: bold">}
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>agentFactoryBuilder <span style="font-weight: bold">= </span>agentFactoryBuilder
+    <span style="color: blue">self</span><span style="font-weight: bold">.</span>gameState <span style="font-weight: bold">= </span><span style="color: blue">None
+    self</span><span style="font-weight: bold">.</span>statesReceived <span style="font-weight: bold">= </span><span style="color: red">0
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>display <span style="font-weight: bold">= </span>display
+    <span style="color: blue">self</span><span style="font-weight: bold">.</span>user <span style="font-weight: bold">= </span>user
+    <span style="color: blue">self</span><span style="font-weight: bold">.</span>password <span style="font-weight: bold">= </span>password
+    <span style="color: blue">self</span><span style="font-weight: bold">.</span>layout <span style="font-weight: bold">= </span><span style="color: blue">None
+    </span><span style="color: blue; font-weight: bold">if </span>gamename <span style="font-weight: bold">!= </span><span style="color: red">''</span><span style="font-weight: bold">:
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gamename <span style="font-weight: bold">= </span>gamename
+      <span style="color: blue">self</span><span style="font-weight: bold">.</span>anygame <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">False
+    else</span><span style="font-weight: bold">:
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>anygame <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">True
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gamename <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">False
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>teamThread <span style="font-weight: bold">= </span><span style="color: blue">None </span><span style="color: green; font-style: italic"># Created on launch of game
+    </span>asyncore<span style="font-weight: bold">.</span>loop<span style="font-weight: bold">()
+
+  </span><span style="color: blue; font-weight: bold">def </span>handle_connect<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">pass
+
+  def </span>handle_close<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"Server closed connection"
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>close<span style="font-weight: bold">()
+
+  </span><span style="color: blue; font-weight: bold">def </span>handle_read<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+    </span>stuff <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>recv<span style="font-weight: bold">(</span><span style="color: red">4096</span><span style="font-weight: bold">)
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>recvbuf <span style="font-weight: bold">+= </span>stuff
+    <span style="color: blue">self</span><span style="font-weight: bold">.</span>parse_read<span style="font-weight: bold">(</span>stuff<span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>parse_read<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">,</span>stuff<span style="font-weight: bold">):
+    </span>debugl<span style="font-weight: bold">(</span><span style="color: red">"Received "</span><span style="font-weight: bold">+</span>str<span style="font-weight: bold">(</span>len<span style="font-weight: bold">(</span>stuff<span style="font-weight: bold">))+</span><span style="color: red">" chars, now "</span><span style="font-weight: bold">+</span>str<span style="font-weight: bold">(</span>len<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>recvbuf<span style="font-weight: bold">))+</span><span style="color: red">" in buffer"</span><span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">if</span><span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>__pickled<span style="font-weight: bold">):
+      </span>debugl<span style="font-weight: bold">(</span><span style="color: red">"Searching for a pickle..."</span><span style="font-weight: bold">)
+      </span>rxp <span style="font-weight: bold">= </span>re<span style="font-weight: bold">.</span>compile<span style="font-weight: bold">(</span><span style="color: red">"(.*?)(\r\n511: EOP \(End of Pickle\))\r\n"</span><span style="font-weight: bold">,</span>re<span style="font-weight: bold">.</span>DOTALL<span style="font-weight: bold">)
+      </span>m <span style="font-weight: bold">= </span>rxp<span style="font-weight: bold">.</span>match<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>recvbuf<span style="font-weight: bold">)
+      </span><span style="color: blue; font-weight: bold">if</span><span style="font-weight: bold">(</span>m<span style="font-weight: bold">):
+        </span>debugl<span style="font-weight: bold">(</span><span style="color: red">"Found a pickle!"</span><span style="font-weight: bold">)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>__pickled <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">False
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>handle_pickle<span style="font-weight: bold">(</span>m<span style="font-weight: bold">.</span>group<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">))
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>recvbuf <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>recvbuf<span style="font-weight: bold">[</span>len<span style="font-weight: bold">(</span>m<span style="font-weight: bold">.</span>group<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">))+</span>len<span style="font-weight: bold">(</span>m<span style="font-weight: bold">.</span>group<span style="font-weight: bold">(</span><span style="color: red">2</span><span style="font-weight: bold">))+</span><span style="color: red">2</span><span style="font-weight: bold">:]
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>parse_read<span style="font-weight: bold">(</span><span style="color: red">""</span><span style="font-weight: bold">)
+      </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+        </span>debugl<span style="font-weight: bold">(</span><span style="color: red">"No pickle :("</span><span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+      </span>rxp <span style="font-weight: bold">= </span>re<span style="font-weight: bold">.</span>compile<span style="font-weight: bold">(</span><span style="color: red">"(.*?)\r\n"</span><span style="font-weight: bold">)
+      </span>m <span style="font-weight: bold">= </span>rxp<span style="font-weight: bold">.</span>match<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>recvbuf<span style="font-weight: bold">)
+      </span><span style="color: blue; font-weight: bold">if</span><span style="font-weight: bold">(</span>m<span style="font-weight: bold">):
+        </span>debugl<span style="font-weight: bold">(</span><span style="color: red">"Found a command!"</span><span style="font-weight: bold">)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>recvbuf <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>recvbuf<span style="font-weight: bold">[</span>len<span style="font-weight: bold">(</span>m<span style="font-weight: bold">.</span>group<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">))+</span><span style="color: red">2</span><span style="font-weight: bold">:]
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>parse_line<span style="font-weight: bold">(</span>m<span style="font-weight: bold">.</span>group<span style="font-weight: bold">(</span><span style="color: red">1</span><span style="font-weight: bold">))
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>parse_read<span style="font-weight: bold">(</span><span style="color: red">""</span><span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>parse_line<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">,</span>line<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">if </span>int<span style="font-weight: bold">(</span>line<span style="font-weight: bold">.</span>split<span style="font-weight: bold">(</span><span style="color: red">":"</span><span style="font-weight: bold">)[</span><span style="color: red">0</span><span style="font-weight: bold">]) </span><span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>responses<span style="font-weight: bold">.</span>keys<span style="font-weight: bold">():
+      </span>code <span style="font-weight: bold">= </span>int<span style="font-weight: bold">(</span>line<span style="font-weight: bold">.</span>split<span style="font-weight: bold">(</span><span style="color: red">":"</span><span style="font-weight: bold">)[</span><span style="color: red">0</span><span style="font-weight: bold">])
+      </span>debugl<span style="font-weight: bold">( </span><span style="color: red">"Dispatching to "</span><span style="font-weight: bold">+</span>str<span style="font-weight: bold">(</span>code<span style="font-weight: bold">))
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>responses<span style="font-weight: bold">[</span>code<span style="font-weight: bold">](</span>code<span style="font-weight: bold">,</span>line<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+      </span>debugl<span style="font-weight: bold">(</span><span style="color: red">"line \""</span><span style="font-weight: bold">+</span>line<span style="font-weight: bold">+</span><span style="color: red">"\" didn't give me a code I understand :("</span><span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>error<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">,</span>code<span style="font-weight: bold">,</span>line<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">print </span><span style="font-weight: bold">&gt;&gt;</span>sys<span style="font-weight: bold">.</span>stderr<span style="font-weight: bold">, </span><span style="color: red">"General error: "
+    </span><span style="color: blue; font-weight: bold">print </span><span style="font-weight: bold">&gt;&gt;</span>sys<span style="font-weight: bold">.</span>stderr<span style="font-weight: bold">, </span>line
+
+  <span style="color: blue; font-weight: bold">def </span>notify<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">,</span>code<span style="font-weight: bold">,</span>line<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">print </span><span style="font-weight: bold">&gt;&gt;</span>sys<span style="font-weight: bold">.</span>stderr<span style="font-weight: bold">, </span><span style="color: red">"The server requests our attention:"
+    </span><span style="color: blue; font-weight: bold">print </span><span style="font-weight: bold">&gt;&gt;</span>sys<span style="font-weight: bold">.</span>stderr<span style="font-weight: bold">, </span>line
+
+  <span style="color: blue; font-weight: bold">def </span>userpass<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">,</span>code<span style="font-weight: bold">,</span>line<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">print </span><span style="font-weight: bold">&gt;&gt;</span>sys<span style="font-weight: bold">.</span>stderr<span style="font-weight: bold">, </span><span style="color: red">"Logging in..."
+    </span><span style="color: blue; font-weight: bold">if not </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>user<span style="font-weight: bold">:
+      </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"Please enter your username:"
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>user <span style="font-weight: bold">= </span>sys<span style="font-weight: bold">.</span>stdin<span style="font-weight: bold">.</span>readline<span style="font-weight: bold">().</span>strip<span style="font-weight: bold">()
+    </span><span style="color: blue; font-weight: bold">if not </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>password<span style="font-weight: bold">:
+      </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"Please enter your password:"
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>password <span style="font-weight: bold">= </span>sys<span style="font-weight: bold">.</span>stdin<span style="font-weight: bold">.</span>readline<span style="font-weight: bold">().</span>strip<span style="font-weight: bold">()
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>bufline<span style="font-weight: bold">(</span><span style="color: red">"201:"</span><span style="font-weight: bold">+</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>user<span style="font-weight: bold">+</span><span style="color: red">":"</span><span style="font-weight: bold">+</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>password<span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>joingame<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>code<span style="font-weight: bold">,</span>line<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">if not </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>anygame <span style="color: blue; font-weight: bold">and not </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gamename<span style="font-weight: bold">:
+      </span><span style="color: blue; font-weight: bold">print </span>line<span style="font-weight: bold">.</span>split<span style="font-weight: bold">(</span><span style="color: red">":"</span><span style="font-weight: bold">)[</span><span style="color: red">1</span><span style="font-weight: bold">:]
+      </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"If you know the name of the game you are trying to reach, please press 1, now. If you would like to wait for a game, please press 2, now."
+      </span>choice <span style="font-weight: bold">= </span>sys<span style="font-weight: bold">.</span>stdin<span style="font-weight: bold">.</span>readline<span style="font-weight: bold">().</span>strip<span style="font-weight: bold">()
+      </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"Thank you. Your input is important to us."
+      </span><span style="color: blue; font-weight: bold">if </span><span style="font-weight: bold">(</span>int<span style="font-weight: bold">(</span>choice<span style="font-weight: bold">) == </span><span style="color: red">1</span><span style="font-weight: bold">):
+        </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"Please enter the extension of the game you are trying to reach... now."
+        </span>gamename <span style="font-weight: bold">= </span>sys<span style="font-weight: bold">.</span>stdin<span style="font-weight: bold">.</span>readline<span style="font-weight: bold">().</span>strip<span style="font-weight: bold">()
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>bufline<span style="font-weight: bold">(</span><span style="color: red">"300:" </span><span style="font-weight: bold">+ </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gamename<span style="font-weight: bold">)
+      </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+        </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"All our games are currently busy. Please hold. You will be matched with a game as soon as one is available."
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>bufline<span style="font-weight: bold">(</span><span style="color: red">"301:ANYGAME"</span><span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">elif </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gamename<span style="font-weight: bold">:
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>bufline<span style="font-weight: bold">(</span><span style="color: red">"300:" </span><span style="font-weight: bold">+ </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gamename<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">elif </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>anygame<span style="font-weight: bold">:
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>bufline<span style="font-weight: bold">(</span><span style="color: red">"301:ANYGAME"</span><span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>gogogadgetpickle<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">,</span>code<span style="font-weight: bold">,</span>line<span style="font-weight: bold">):
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>__pickled <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">True
+    </span>debugl<span style="font-weight: bold">(</span><span style="color: red">"Waiting for a pickle..."</span><span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>setAgent<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>code<span style="font-weight: bold">, </span>line<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>lastAction<span style="font-weight: bold">:
+      </span>a<span style="font-weight: bold">, </span>gs<span style="font-weight: bold">, </span>agentIndex <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>lastAction<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gameState<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>realAgent
+      legals <span style="font-weight: bold">= </span>gs<span style="font-weight: bold">.</span>getLegalActions<span style="font-weight: bold">(</span>agentIndex<span style="font-weight: bold">)
+      </span><span style="color: blue; font-weight: bold">if </span>a <span style="color: blue; font-weight: bold">in </span>legals<span style="font-weight: bold">:
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>display<span style="font-weight: bold">.</span>update<span style="font-weight: bold">(</span>gs<span style="font-weight: bold">.</span>generateSuccessor<span style="font-weight: bold">(</span>agentIndex<span style="font-weight: bold">, </span>a<span style="font-weight: bold">).</span>data<span style="font-weight: bold">)
+    </span>debugl<span style="font-weight: bold">(</span><span style="color: red">"Agent " </span><span style="font-weight: bold">+ </span>line<span style="font-weight: bold">.</span>split<span style="font-weight: bold">(</span><span style="color: red">":"</span><span style="font-weight: bold">)[</span><span style="color: red">1</span><span style="font-weight: bold">])
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>agentNum <span style="font-weight: bold">= </span>int<span style="font-weight: bold">(</span>int<span style="font-weight: bold">(</span>line<span style="font-weight: bold">.</span>split<span style="font-weight: bold">(</span><span style="color: red">":"</span><span style="font-weight: bold">)[</span><span style="color: red">1</span><span style="font-weight: bold">])/</span><span style="color: red">2</span><span style="font-weight: bold">)
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>realAgent <span style="font-weight: bold">= </span>int<span style="font-weight: bold">(</span>line<span style="font-weight: bold">.</span>split<span style="font-weight: bold">(</span><span style="color: red">":"</span><span style="font-weight: bold">)[</span><span style="color: red">1</span><span style="font-weight: bold">])
+
+  </span><span style="color: blue; font-weight: bold">def </span>startgame<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">,</span>code<span style="font-weight: bold">,</span>line<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"Initializing agents..."
+    </span>agentIndexBase <span style="font-weight: bold">= </span>int<span style="font-weight: bold">(</span>line<span style="font-weight: bold">.</span>split<span style="font-weight: bold">(</span><span style="color: red">":"</span><span style="font-weight: bold">)[</span><span style="color: red">1</span><span style="font-weight: bold">])
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>lastAction <span style="font-weight: bold">= </span><span style="color: blue">None
+    self</span><span style="font-weight: bold">.</span>isBlue <span style="font-weight: bold">= (</span>agentIndexBase <span style="font-weight: bold">== </span><span style="color: red">1</span><span style="font-weight: bold">)
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>agents <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>agentFactoryBuilder<span style="font-weight: bold">(</span><span style="color: blue; font-weight: bold">not </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>isBlue<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">for </span>agent <span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>agents<span style="font-weight: bold">:
+      </span><span style="color: blue; font-weight: bold">if </span><span style="color: red">'registerTeam' </span><span style="color: blue; font-weight: bold">in </span>dir<span style="font-weight: bold">(</span>agent<span style="font-weight: bold">):
+        </span>agent<span style="font-weight: bold">.</span>registerTeam<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>agents<span style="font-weight: bold">)
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>teamThread <span style="font-weight: bold">= </span>TeamThread<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>agents<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">)
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>teamThread<span style="font-weight: bold">.</span>gotTimeout <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">False
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>teamThread<span style="font-weight: bold">.</span>daemon <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">True
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>teamThread<span style="font-weight: bold">.</span>start<span style="font-weight: bold">()
+
+  </span><span style="color: blue; font-weight: bold">def </span>handle_pickle<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>pickle<span style="font-weight: bold">):
+    </span><span style="color: green; font-style: italic"># TODO Add error handling for a bad pickle
+    </span>stateNumber<span style="font-weight: bold">, </span>gameState <span style="font-weight: bold">= </span>cPickle<span style="font-weight: bold">.</span>loads<span style="font-weight: bold">(</span>pickle<span style="font-weight: bold">)
+    </span><span style="color: green; font-style: italic"># print secs(), 'Received:', stateNumber
+    # Cache and reconstitute states
+    </span><span style="color: blue; font-weight: bold">if </span>gameState<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>layout<span style="font-weight: bold">:
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>layout <span style="font-weight: bold">= </span>gameState<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>layout
+    <span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+      </span>gameState<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>layout <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>layout
+    gameState<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>food <span style="font-weight: bold">= </span>game<span style="font-weight: bold">.</span>reconstituteGrid<span style="font-weight: bold">(</span>gameState<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>food<span style="font-weight: bold">)
+
+    </span><span style="color: blue; font-weight: bold">if not </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gameState<span style="font-weight: bold">: </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>registerInitialState<span style="font-weight: bold">(</span>gameState<span style="font-weight: bold">)
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gameState <span style="font-weight: bold">= </span>gameState
+
+    debugl<span style="font-weight: bold">(</span>gameState<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>_agentMoved<span style="font-weight: bold">)
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>display<span style="font-weight: bold">.</span>update<span style="font-weight: bold">(</span>gameState<span style="font-weight: bold">.</span>data<span style="font-weight: bold">)
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gameState <span style="font-weight: bold">= </span>gameState
+    <span style="color: blue">self</span><span style="font-weight: bold">.</span>pushState<span style="font-weight: bold">(</span>stateNumber<span style="font-weight: bold">, </span>gameState<span style="font-weight: bold">) </span><span style="color: green; font-style: italic"># Send state to agent
+
+  </span><span style="color: blue; font-weight: bold">def </span>ok<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">,</span>code<span style="font-weight: bold">,</span>line<span style="font-weight: bold">):
+    </span>debugl<span style="font-weight: bold">(</span><span style="color: red">"You don't say what to do with 'ok'"</span><span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>badness<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">,</span>code<span style="font-weight: bold">,</span>line<span style="font-weight: bold">):
+    </span>debugl<span style="font-weight: bold">(</span><span style="color: red">"We were not expecting a "</span><span style="font-weight: bold">+</span>line<span style="font-weight: bold">+</span><span style="color: red">" here ???"</span><span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>win<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">,</span>code<span style="font-weight: bold">,</span>line<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"You Win!"
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>finishGame<span style="font-weight: bold">()
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>close<span style="font-weight: bold">()
+
+  </span><span style="color: blue; font-weight: bold">def </span>lose<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">,</span>code<span style="font-weight: bold">,</span>line<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"You Lose :("
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>finishGame<span style="font-weight: bold">()
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>close<span style="font-weight: bold">()
+
+  </span><span style="color: blue; font-weight: bold">def </span>bufline<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>s<span style="font-weight: bold">):
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>sendbuf <span style="font-weight: bold">+= (</span>s <span style="font-weight: bold">+ </span><span style="color: red">"\r\n"</span><span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>writable<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">return </span><span style="font-weight: bold">(</span>len<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>sendbuf<span style="font-weight: bold">) &gt; </span><span style="color: red">0</span><span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>handle_write<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+    </span>sent <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>send<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>sendbuf<span style="font-weight: bold">)
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>sendbuf <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>sendbuf<span style="font-weight: bold">[</span>sent<span style="font-weight: bold">:]
+
+  </span><span style="color: blue; font-weight: bold">def </span>registerInitialState<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>gameState<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Registers the initial state
+    """
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>display<span style="font-weight: bold">.</span>initialize<span style="font-weight: bold">(</span>gameState<span style="font-weight: bold">.</span>data<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>isBlue<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">for </span>agent <span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>agents<span style="font-weight: bold">[:</span>len<span style="font-weight: bold">(</span>gameState<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>agentStates<span style="font-weight: bold">)/</span><span style="color: red">2</span><span style="font-weight: bold">]:
+      </span><span style="color: blue; font-weight: bold">if </span><span style="color: red">'registerInitialState' </span><span style="color: blue; font-weight: bold">in </span>dir<span style="font-weight: bold">(</span>agent<span style="font-weight: bold">):
+        </span>agent<span style="font-weight: bold">.</span>registerInitialState<span style="font-weight: bold">(</span>gameState<span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>pushState<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>stateNumber<span style="font-weight: bold">, </span>gameState<span style="font-weight: bold">):
+    </span>debugl<span style="font-weight: bold">(</span><span style="color: red">"storing a state..."</span><span style="font-weight: bold">)
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>teamThread<span style="font-weight: bold">.</span>semaphore<span style="font-weight: bold">.</span>acquire<span style="font-weight: bold">()
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>teamThread<span style="font-weight: bold">.</span>agentIndex <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>agentNum
+    <span style="color: blue">self</span><span style="font-weight: bold">.</span>teamThread<span style="font-weight: bold">.</span>stateNumber <span style="font-weight: bold">= </span>stateNumber
+    <span style="color: blue">self</span><span style="font-weight: bold">.</span>teamThread<span style="font-weight: bold">.</span>gameState <span style="font-weight: bold">= </span>gameState
+    <span style="color: blue">self</span><span style="font-weight: bold">.</span>teamThread<span style="font-weight: bold">.</span>semaphore<span style="font-weight: bold">.</span>release<span style="font-weight: bold">()
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>teamThread<span style="font-weight: bold">.</span>gotGameStateEvent<span style="font-weight: bold">.</span>set<span style="font-weight: bold">()
+    </span>agent <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>teamThread<span style="font-weight: bold">.</span>agents<span style="font-weight: bold">[</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>agentNum<span style="font-weight: bold">]
+    </span><span style="color: blue; font-weight: bold">if </span><span style="color: red">'_distributions' </span><span style="color: blue; font-weight: bold">in </span>dir<span style="font-weight: bold">(</span>agent<span style="font-weight: bold">): </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>display<span style="font-weight: bold">.</span>updateDistributions<span style="font-weight: bold">(</span>agent<span style="font-weight: bold">.</span>_distributions<span style="font-weight: bold">)
+
+
+  </span><span style="color: blue; font-weight: bold">def </span>sendAction<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>stateNumber<span style="font-weight: bold">, </span>action<span style="font-weight: bold">):
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>lastAction <span style="font-weight: bold">= </span>action
+    <span style="color: blue">self</span><span style="font-weight: bold">.</span>bufline<span style="font-weight: bold">(</span><span style="color: red">"503:"</span><span style="font-weight: bold">+</span>str<span style="font-weight: bold">(</span>stateNumber<span style="font-weight: bold">) + </span><span style="color: red">':' </span><span style="font-weight: bold">+ </span>action<span style="font-weight: bold">)
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>handle_write<span style="font-weight: bold">()
+
+  </span><span style="color: blue; font-weight: bold">def </span>finishGame<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>teamThread<span style="font-weight: bold">.</span>gameOver <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">True
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>teamThread<span style="font-weight: bold">.</span>gotGameStateEvent<span style="font-weight: bold">.</span>set<span style="font-weight: bold">()
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>display<span style="font-weight: bold">.</span>finish<span style="font-weight: bold">()
+
+  </span><span style="color: blue; font-weight: bold">def </span>run<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"PacClient is running!"
+    </span>asyncore<span style="font-weight: bold">.</span>loop<span style="font-weight: bold">()
+
+</span><span style="color: blue; font-weight: bold">def </span>readCommand<span style="font-weight: bold">( </span>argv <span style="font-weight: bold">):
+  </span><span style="color: darkred">"""
+  Processes the command used to run pacman from the command line.
+  """
+  </span><span style="color: blue; font-weight: bold">from </span>optparse <span style="color: blue; font-weight: bold">import </span>OptionParser
+  usageStr <span style="font-weight: bold">= </span><span style="color: darkred">"""
+  USAGE:      python pacclient.py &lt;options&gt;
+  EXAMPLES:   (1) python pacclient.py
+                  - starts an interactive game with a random teammate.
+  EXAMPLES:   (2) python pacclient.py -2 OffenseAgent
+                  - starts an interactive game with a random teammate.
+  """
+  </span>parser <span style="font-weight: bold">= </span>OptionParser<span style="font-weight: bold">(</span>usageStr<span style="font-weight: bold">)
+
+  </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'-a'</span><span style="font-weight: bold">, </span><span style="color: red">'--agents'</span><span style="font-weight: bold">, </span>help<span style="font-weight: bold">=</span>default<span style="font-weight: bold">(</span><span style="color: red">'Your team'</span><span style="font-weight: bold">),
+                    </span>default<span style="font-weight: bold">=</span><span style="color: red">'BaselineAgents'</span><span style="font-weight: bold">)
+  </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'--agentOpts'</span><span style="font-weight: bold">, </span>help<span style="font-weight: bold">=</span>default<span style="font-weight: bold">(</span><span style="color: red">'Arguments passed to the factory'</span><span style="font-weight: bold">),
+                    </span>default<span style="font-weight: bold">=</span><span style="color: red">''</span><span style="font-weight: bold">)
+  </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'-t'</span><span style="font-weight: bold">, </span><span style="color: red">'--textgraphics'</span><span style="font-weight: bold">, </span>action<span style="font-weight: bold">=</span><span style="color: red">'store_true'</span><span style="font-weight: bold">,
+                    </span>help<span style="font-weight: bold">=</span><span style="color: red">'Display output as text only'</span><span style="font-weight: bold">, </span>default<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">)
+  </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'-q'</span><span style="font-weight: bold">, </span><span style="color: red">'--quiet'</span><span style="font-weight: bold">, </span>action<span style="font-weight: bold">=</span><span style="color: red">'store_true'</span><span style="font-weight: bold">,
+                    </span>help<span style="font-weight: bold">=</span><span style="color: red">'Display minimal output'</span><span style="font-weight: bold">, </span>default<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">)
+  </span><span style="color: green; font-style: italic"># parser.add_option('-G', '--pygame', action='store_true', dest='pygame',
+  #                   help='Display output with Pygame graphics (faster)', default=False)
+  </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'-z'</span><span style="font-weight: bold">, </span><span style="color: red">'--zoom'</span><span style="font-weight: bold">, </span>type<span style="font-weight: bold">=</span><span style="color: red">'float'</span><span style="font-weight: bold">,
+                    </span>help<span style="font-weight: bold">=</span>default<span style="font-weight: bold">(</span><span style="color: red">'Zoom in the graphics'</span><span style="font-weight: bold">), </span>default<span style="font-weight: bold">=</span><span style="color: red">1</span><span style="font-weight: bold">)
+  </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'-s'</span><span style="font-weight: bold">, </span><span style="color: red">'--server'</span><span style="font-weight: bold">,
+                    </span>help<span style="font-weight: bold">=</span>default<span style="font-weight: bold">(</span><span style="color: red">'The SERVER to connect to'</span><span style="font-weight: bold">), </span>default<span style="font-weight: bold">=</span><span style="color: red">'discourse.millennium.berkeley.edu'</span><span style="font-weight: bold">)
+  </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'-p'</span><span style="font-weight: bold">, </span><span style="color: red">'--port'</span><span style="font-weight: bold">, </span>type<span style="font-weight: bold">=</span><span style="color: red">'int'</span><span style="font-weight: bold">,
+                    </span>help<span style="font-weight: bold">=</span>default<span style="font-weight: bold">(</span><span style="color: red">'The PORT to connect to'</span><span style="font-weight: bold">), </span>default<span style="font-weight: bold">=</span><span style="color: red">7226</span><span style="font-weight: bold">)
+  </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'-U'</span><span style="font-weight: bold">, </span><span style="color: red">'--user'</span><span style="font-weight: bold">,
+                    </span>help<span style="font-weight: bold">=</span>default<span style="font-weight: bold">(</span><span style="color: red">'Your username'</span><span style="font-weight: bold">), </span>default<span style="font-weight: bold">=</span><span style="color: red">'guest'</span><span style="font-weight: bold">)
+  </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'-P'</span><span style="font-weight: bold">, </span><span style="color: red">'--password'</span><span style="font-weight: bold">,
+                    </span>help<span style="font-weight: bold">=</span>default<span style="font-weight: bold">(</span><span style="color: red">'Your password'</span><span style="font-weight: bold">), </span>default<span style="font-weight: bold">=</span><span style="color: red">'guest'</span><span style="font-weight: bold">)
+  </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'-g'</span><span style="font-weight: bold">, </span><span style="color: red">'--gamename'</span><span style="font-weight: bold">,
+                    </span>help<span style="font-weight: bold">=</span>default<span style="font-weight: bold">(</span><span style="color: red">'The name of the game you wish to contact'</span><span style="font-weight: bold">), </span>default<span style="font-weight: bold">=</span><span style="color: red">''</span><span style="font-weight: bold">)
+  </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'-f'</span><span style="font-weight: bold">, </span><span style="color: red">'--fixRandomSeed'</span><span style="font-weight: bold">, </span>action<span style="font-weight: bold">=</span><span style="color: red">'store_true'</span><span style="font-weight: bold">,
+                    </span>help<span style="font-weight: bold">=</span><span style="color: red">'Fixes the random seed to always play the same game'</span><span style="font-weight: bold">, </span>default<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">)
+
+  </span>options<span style="font-weight: bold">, </span>otherjunk <span style="font-weight: bold">= </span>parser<span style="font-weight: bold">.</span>parse_args<span style="font-weight: bold">()
+  </span><span style="color: blue; font-weight: bold">if </span>len<span style="font-weight: bold">(</span>otherjunk<span style="font-weight: bold">) != </span><span style="color: red">0</span><span style="font-weight: bold">: </span><span style="color: blue; font-weight: bold">raise </span>Exception<span style="font-weight: bold">(</span><span style="color: red">"Illegal args: " </span><span style="font-weight: bold">+ </span>otherjunk<span style="font-weight: bold">)
+  </span>args <span style="font-weight: bold">= </span>dict<span style="font-weight: bold">()
+
+  </span>agentArgs <span style="font-weight: bold">= </span>parseAgentArgs<span style="font-weight: bold">(</span>options<span style="font-weight: bold">.</span>agentOpts<span style="font-weight: bold">)
+  </span>args<span style="font-weight: bold">[</span><span style="color: red">'agentFactoryBuilder'</span><span style="font-weight: bold">] = </span>loadAgentAccessor<span style="font-weight: bold">(</span>options<span style="font-weight: bold">.</span>agents<span style="font-weight: bold">, </span>agentArgs<span style="font-weight: bold">)
+
+  </span><span style="color: green; font-style: italic"># Choose a display format
+  #if options.pygame:
+  # import pygameDisplay
+  #  args['display'] = pygameDisplay.PacmanGraphics()
+  </span><span style="color: blue; font-weight: bold">if </span>options<span style="font-weight: bold">.</span>quiet<span style="font-weight: bold">:
+    </span><span style="color: blue; font-weight: bold">import </span>textDisplay
+    args<span style="font-weight: bold">[</span><span style="color: red">'display'</span><span style="font-weight: bold">] = </span>textDisplay<span style="font-weight: bold">.</span>NullGraphics<span style="font-weight: bold">()
+  </span><span style="color: blue; font-weight: bold">elif </span>options<span style="font-weight: bold">.</span>textgraphics<span style="font-weight: bold">:
+    </span><span style="color: blue; font-weight: bold">import </span>textDisplay
+    args<span style="font-weight: bold">[</span><span style="color: red">'display'</span><span style="font-weight: bold">] = </span>textDisplay<span style="font-weight: bold">.</span>PacmanGraphics<span style="font-weight: bold">()
+  </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+    </span><span style="color: blue; font-weight: bold">import </span>graphicsDisplay
+    args<span style="font-weight: bold">[</span><span style="color: red">'display'</span><span style="font-weight: bold">] = </span>graphicsDisplay<span style="font-weight: bold">.</span>PacmanGraphics<span style="font-weight: bold">(</span>options<span style="font-weight: bold">.</span>zoom<span style="font-weight: bold">, </span><span style="color: red">0</span><span style="font-weight: bold">, </span><span style="color: blue; font-weight: bold">True</span><span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">if </span>options<span style="font-weight: bold">.</span>fixRandomSeed<span style="font-weight: bold">: </span>random<span style="font-weight: bold">.</span>seed<span style="font-weight: bold">(</span><span style="color: red">'cs188'</span><span style="font-weight: bold">)
+
+  </span>args<span style="font-weight: bold">[</span><span style="color: red">'server'</span><span style="font-weight: bold">] = </span>options<span style="font-weight: bold">.</span>server
+  args<span style="font-weight: bold">[</span><span style="color: red">'port'</span><span style="font-weight: bold">] = </span>options<span style="font-weight: bold">.</span>port
+  args<span style="font-weight: bold">[</span><span style="color: red">'user'</span><span style="font-weight: bold">] = </span>options<span style="font-weight: bold">.</span>user
+  args<span style="font-weight: bold">[</span><span style="color: red">'password'</span><span style="font-weight: bold">] = </span>options<span style="font-weight: bold">.</span>password
+  args<span style="font-weight: bold">[</span><span style="color: red">'gamename'</span><span style="font-weight: bold">] = </span>options<span style="font-weight: bold">.</span>gamename
+
+  <span style="color: blue; font-weight: bold">return </span>args
+
+<span style="color: blue; font-weight: bold">def </span>loadAgentAccessor<span style="font-weight: bold">(</span>factory<span style="font-weight: bold">, </span>args<span style="font-weight: bold">):
+  </span><span style="color: red">"Returns a function that takes isRed and returns a list of agents"
+  </span><span style="color: green; font-style: italic"># Looks through all pythonPath Directories for the right module,
+  </span><span style="color: blue; font-weight: bold">return lambda </span>isRed<span style="font-weight: bold">: </span>loadAgents<span style="font-weight: bold">(</span>isRed<span style="font-weight: bold">, </span>factory<span style="font-weight: bold">, </span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">, </span>args<span style="font-weight: bold">)
+
+</span><span style="color: blue; font-weight: bold">if </span>__name__ <span style="font-weight: bold">== </span><span style="color: red">'__main__'</span><span style="font-weight: bold">:
+  </span><span style="color: darkred">"""
+  The main function called when pacman.py is run
+  from the command line:
+
+  &gt; python pacclient.py
+
+  See the usage string for more details.
+
+  &gt; python pacclient.py --help
+  """
+  </span>args <span style="font-weight: bold">= </span>readCommand<span style="font-weight: bold">( </span>sys<span style="font-weight: bold">.</span>argv<span style="font-weight: bold">[</span><span style="color: red">1</span><span style="font-weight: bold">:] ) </span><span style="color: green; font-style: italic"># Get game components based on input=======
+  </span>PacClient<span style="font-weight: bold">(**</span>args<span style="font-weight: bold">)
+</span>
+  </pre>
+  </body>
+  </html>
+  

@@ -1,0 +1,126 @@
+<html>
+  <head>
+  <title>search.py</title>
+  </head>
+  <body>
+  <h3>search.py (<a href="../search.py">original</a>)</h3>
+  <hr>
+  <pre>
+<span style="color: green; font-style: italic"># search.py
+# ---------
+# Licensing Information: Please do not distribute or publish solutions to this
+# project. You are free to use and extend these projects for educational
+# purposes. The Pacman AI projects were developed at UC Berkeley, primarily by
+# John DeNero (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# For more info, see http://inst.eecs.berkeley.edu/~cs188/sp09/pacman.html
+
+</span><span style="color: darkred">"""
+In search.py, you will implement generic search algorithms which are called 
+by Pacman agents (in searchAgents.py).
+"""
+
+</span><span style="color: blue; font-weight: bold">import </span>util
+
+<span style="color: blue; font-weight: bold">class </span>SearchProblem<span style="font-weight: bold">:
+  </span><span style="color: darkred">"""
+  This class outlines the structure of a search problem, but doesn't implement
+  any of the methods (in object-oriented terminology: an abstract class).
+  
+  You do not need to change anything in this class, ever.
+  """
+  
+  </span><span style="color: blue; font-weight: bold">def </span>getStartState<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+     </span><span style="color: darkred">"""
+     Returns the start state for the search problem 
+     """
+     </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+    
+  </span><span style="color: blue; font-weight: bold">def </span>isGoalState<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>state<span style="font-weight: bold">):
+     </span><span style="color: darkred">"""
+       state: Search state
+    
+     Returns True if and only if the state is a valid goal state
+     """
+     </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+
+  </span><span style="color: blue; font-weight: bold">def </span>getSuccessors<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>state<span style="font-weight: bold">):
+     </span><span style="color: darkred">"""
+       state: Search state
+     
+     For a given state, this should return a list of triples, 
+     (successor, action, stepCost), where 'successor' is a 
+     successor to the current state, 'action' is the action
+     required to get there, and 'stepCost' is the incremental 
+     cost of expanding to that successor
+     """
+     </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+
+  </span><span style="color: blue; font-weight: bold">def </span>getCostOfActions<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>actions<span style="font-weight: bold">):
+     </span><span style="color: darkred">"""
+      actions: A list of actions to take
+ 
+     This method returns the total cost of a particular sequence of actions.  The sequence must
+     be composed of legal moves
+     """
+     </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+           
+
+</span><span style="color: blue; font-weight: bold">def </span>tinyMazeSearch<span style="font-weight: bold">(</span>problem<span style="font-weight: bold">):
+  </span><span style="color: darkred">"""
+  Returns a sequence of moves that solves tinyMaze.  For any other
+  maze, the sequence of moves will be incorrect, so only use this for tinyMaze
+  """
+  </span><span style="color: blue; font-weight: bold">from </span>game <span style="color: blue; font-weight: bold">import </span>Directions
+  s <span style="font-weight: bold">= </span>Directions<span style="font-weight: bold">.</span>SOUTH
+  w <span style="font-weight: bold">= </span>Directions<span style="font-weight: bold">.</span>WEST
+  <span style="color: blue; font-weight: bold">return  </span><span style="font-weight: bold">[</span>s<span style="font-weight: bold">,</span>s<span style="font-weight: bold">,</span>w<span style="font-weight: bold">,</span>s<span style="font-weight: bold">,</span>w<span style="font-weight: bold">,</span>w<span style="font-weight: bold">,</span>s<span style="font-weight: bold">,</span>w<span style="font-weight: bold">]
+
+</span><span style="color: blue; font-weight: bold">def </span>depthFirstSearch<span style="font-weight: bold">(</span>problem<span style="font-weight: bold">):
+  </span><span style="color: darkred">"""
+  Search the deepest nodes in the search tree first [p 85].
+  
+  Your search algorithm needs to return a list of actions that reaches
+  the goal.  Make sure to implement a graph search algorithm [Fig. 3.7].
+  
+  To get started, you might want to try some of these simple commands to
+  understand the search problem that is being passed in:
+  
+  print "Start:", problem.getStartState()
+  print "Is the start a goal?", problem.isGoalState(problem.getStartState())
+  print "Start's successors:", problem.getSuccessors(problem.getStartState())
+  """
+  </span><span style="color: red">"*** YOUR CODE HERE ***"
+  </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+
+</span><span style="color: blue; font-weight: bold">def </span>breadthFirstSearch<span style="font-weight: bold">(</span>problem<span style="font-weight: bold">):
+  </span><span style="color: red">"Search the shallowest nodes in the search tree first. [p 81]"
+  "*** YOUR CODE HERE ***"
+  </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+      
+</span><span style="color: blue; font-weight: bold">def </span>uniformCostSearch<span style="font-weight: bold">(</span>problem<span style="font-weight: bold">):
+  </span><span style="color: red">"Search the node of least total cost first. "
+  "*** YOUR CODE HERE ***"
+  </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+
+</span><span style="color: blue; font-weight: bold">def </span>nullHeuristic<span style="font-weight: bold">(</span>state<span style="font-weight: bold">, </span>problem<span style="font-weight: bold">=</span><span style="color: blue">None</span><span style="font-weight: bold">):
+  </span><span style="color: darkred">"""
+  A heuristic function estimates the cost from the current state to the nearest
+  goal in the provided SearchProblem.  This heuristic is trivial.
+  """
+  </span><span style="color: blue; font-weight: bold">return </span><span style="color: red">0
+
+</span><span style="color: blue; font-weight: bold">def </span>aStarSearch<span style="font-weight: bold">(</span>problem<span style="font-weight: bold">, </span>heuristic<span style="font-weight: bold">=</span>nullHeuristic<span style="font-weight: bold">):
+  </span><span style="color: red">"Search the node that has the lowest combined cost and heuristic first."
+  "*** YOUR CODE HERE ***"
+  </span>util<span style="font-weight: bold">.</span>raiseNotDefined<span style="font-weight: bold">()
+    
+  
+</span><span style="color: green; font-style: italic"># Abbreviations
+</span>bfs <span style="font-weight: bold">= </span>breadthFirstSearch
+dfs <span style="font-weight: bold">= </span>depthFirstSearch
+astar <span style="font-weight: bold">= </span>aStarSearch
+ucs <span style="font-weight: bold">= </span>uniformCostSearch
+  </pre>
+  </body>
+  </html>
+  

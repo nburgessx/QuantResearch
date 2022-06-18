@@ -1,0 +1,32 @@
+<html>
+  <head>
+  <title>quickSort.py</title>
+  </head>
+  <body>
+  <h3>quickSort.py (<a href="../quickSort.py">original</a>)</h3>
+  <hr>
+  <pre>
+<span style="color: green; font-style: italic"># quickSort.py
+# ------------
+# Licensing Information: Please do not distribute or publish solutions to this
+# project. You are free to use and extend these projects for educational
+# purposes. The Pacman AI projects were developed at UC Berkeley, primarily by
+# John DeNero (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# For more info, see http://inst.eecs.berkeley.edu/~cs188/sp09/pacman.html
+
+</span><span style="color: blue; font-weight: bold">def </span>quickSort<span style="font-weight: bold">(</span>lst<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">if </span>len<span style="font-weight: bold">(</span>lst<span style="font-weight: bold">) &lt;= </span><span style="color: red">1</span><span style="font-weight: bold">: 
+        </span><span style="color: blue; font-weight: bold">return </span>lst
+    smaller <span style="font-weight: bold">= [</span>x <span style="color: blue; font-weight: bold">for </span>x <span style="color: blue; font-weight: bold">in </span>lst<span style="font-weight: bold">[</span><span style="color: red">1</span><span style="font-weight: bold">:] </span><span style="color: blue; font-weight: bold">if </span>x <span style="font-weight: bold">&lt; </span>lst<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">]]
+    </span>larger <span style="font-weight: bold">= [</span>x <span style="color: blue; font-weight: bold">for </span>x <span style="color: blue; font-weight: bold">in </span>lst<span style="font-weight: bold">[</span><span style="color: red">1</span><span style="font-weight: bold">:] </span><span style="color: blue; font-weight: bold">if </span>x <span style="font-weight: bold">&gt;= </span>lst<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">]]
+    </span><span style="color: blue; font-weight: bold">return </span>quickSort<span style="font-weight: bold">(</span>smaller<span style="font-weight: bold">) + [</span>lst<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">]] + </span>quickSort<span style="font-weight: bold">(</span>larger<span style="font-weight: bold">)
+
+</span><span style="color: green; font-style: italic"># Main Function
+</span><span style="color: blue; font-weight: bold">if </span>__name__ <span style="font-weight: bold">== </span><span style="color: red">'__main__'</span><span style="font-weight: bold">:    
+    </span>lst <span style="font-weight: bold">= [</span><span style="color: red">2</span><span style="font-weight: bold">,</span><span style="color: red">4</span><span style="font-weight: bold">,</span><span style="color: red">5</span><span style="font-weight: bold">,</span><span style="color: red">1</span><span style="font-weight: bold">]
+    </span><span style="color: blue; font-weight: bold">print </span>quickSort<span style="font-weight: bold">(</span>lst<span style="font-weight: bold">)    
+    </span>
+  </pre>
+  </body>
+  </html>
+  

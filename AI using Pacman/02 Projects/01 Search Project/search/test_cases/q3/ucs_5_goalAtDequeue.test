@@ -1,0 +1,35 @@
+class: "GraphSearchTest"
+algorithm: "uniformCostSearch"
+
+diagram: """
+    1      1      1
+*A ---> B ---> C ---> [G]
+ |                     ^
+ |         10          |
+ \---------------------/
+
+A is the start state, G is the goal.  Arrows mark possible state 
+transitions.  The number next to the arrow is the cost of that transition.
+
+If you fail this test case, you may be incorrectly testing if a node is a goal 
+before adding it into the queue, instead of testing when you remove the node 
+from the queue.  See the algorithm pseudo
+"""
+
+# A simple graph-search problem, in which the agent can move east and west,
+# where moving east takes the agent directly to the goal at a high cost, and
+# moving west takes him slowly to the goal at a low cost. In queue-based
+# search algorithms, if you incorrectly check for goal states when producing 
+# successors, the agent will go east. If you correctly check for goal states 
+# only when a node is being dequeued/expanded, the agent will move west.
+graph: """
+start_state: A
+goal_states: G
+A East G 10.0
+A West B 1.0
+B West C 1.0
+C West D 1.0
+"""
+# We only care about the solution, not the expansion order.
+exactExpansionOrder: "False"
+

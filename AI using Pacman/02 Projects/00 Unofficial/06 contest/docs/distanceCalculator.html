@@ -1,0 +1,164 @@
+<html>
+  <head>
+  <title>distanceCalculator.py</title>
+  </head>
+  <body>
+  <h3>distanceCalculator.py (<a href="../distanceCalculator.py">original</a>)</h3>
+  <hr>
+  <pre>
+<span style="color: green; font-style: italic"># distanceCalculator.py
+# ---------------------
+# Licensing Information: Please do not distribute or publish solutions to this
+# project. You are free to use and extend these projects for educational
+# purposes. The Pacman AI projects were developed at UC Berkeley, primarily by
+# John DeNero (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# For more info, see http://inst.eecs.berkeley.edu/~cs188/sp09/pacman.html
+
+</span><span style="color: darkred">"""
+This file contains a Distancer object which computes and 
+caches the shortest path between any two points in the maze. 
+
+Example:
+distancer = Distancer(gameState.data.layout)
+distancer.getDistance( (1,1), (10,10) )
+"""
+
+</span><span style="color: blue; font-weight: bold">import </span>sys<span style="font-weight: bold">, </span>time<span style="font-weight: bold">, </span>random
+
+<span style="color: blue; font-weight: bold">class </span>Distancer<span style="font-weight: bold">:
+  </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>layout<span style="font-weight: bold">, </span>default <span style="font-weight: bold">= </span><span style="color: red">10000</span><span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Initialize with Distancer(layout).  Changing default is unnecessary.    
+    """
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>_distances <span style="font-weight: bold">= </span><span style="color: blue">None
+    self</span><span style="font-weight: bold">.</span>default <span style="font-weight: bold">= </span>default    
+    <span style="color: blue">self</span><span style="font-weight: bold">.</span>dc <span style="font-weight: bold">= </span>DistanceCalculator<span style="font-weight: bold">(</span>layout<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">, </span>default<span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>getMazeDistances<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>dc<span style="font-weight: bold">.</span>run<span style="font-weight: bold">()
+    
+  </span><span style="color: blue; font-weight: bold">def </span>getDistance<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>pos1<span style="font-weight: bold">, </span>pos2<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    The getDistance function is the only one you'll need after you create the object.
+    """
+    </span><span style="color: blue; font-weight: bold">if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>_distances <span style="font-weight: bold">== </span><span style="color: blue">None</span><span style="font-weight: bold">:
+      </span><span style="color: blue; font-weight: bold">return </span>manhattanDistance<span style="font-weight: bold">(</span>pos1<span style="font-weight: bold">, </span>pos2<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">if </span>isInt<span style="font-weight: bold">(</span>pos1<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">and </span>isInt<span style="font-weight: bold">(</span>pos2<span style="font-weight: bold">):
+      </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>getDistanceOnGrid<span style="font-weight: bold">(</span>pos1<span style="font-weight: bold">, </span>pos2<span style="font-weight: bold">)
+    </span>pos1Grids <span style="font-weight: bold">= </span>getGrids2D<span style="font-weight: bold">(</span>pos1<span style="font-weight: bold">)
+    </span>pos2Grids <span style="font-weight: bold">= </span>getGrids2D<span style="font-weight: bold">(</span>pos2<span style="font-weight: bold">)
+    </span>bestDistance <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>default
+    <span style="color: blue; font-weight: bold">for </span>pos1Snap<span style="font-weight: bold">, </span>snap1Distance <span style="color: blue; font-weight: bold">in </span>pos1Grids<span style="font-weight: bold">:
+      </span><span style="color: blue; font-weight: bold">for </span>pos2Snap<span style="font-weight: bold">, </span>snap2Distance <span style="color: blue; font-weight: bold">in </span>pos2Grids<span style="font-weight: bold">:
+        </span>gridDistance <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>getDistanceOnGrid<span style="font-weight: bold">(</span>pos1Snap<span style="font-weight: bold">, </span>pos2Snap<span style="font-weight: bold">)
+        </span>distance <span style="font-weight: bold">= </span>gridDistance <span style="font-weight: bold">+ </span>snap1Distance <span style="font-weight: bold">+ </span>snap2Distance
+        <span style="color: blue; font-weight: bold">if </span>bestDistance <span style="font-weight: bold">&gt; </span>distance<span style="font-weight: bold">:
+          </span>bestDistance <span style="font-weight: bold">= </span>distance
+    <span style="color: blue; font-weight: bold">return </span>bestDistance
+
+  <span style="color: blue; font-weight: bold">def </span>getDistanceOnGrid<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>pos1<span style="font-weight: bold">, </span>pos2<span style="font-weight: bold">):
+    </span>key <span style="font-weight: bold">= (</span>pos1<span style="font-weight: bold">, </span>pos2<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">if </span>key <span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>_distances<span style="font-weight: bold">:
+      </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>_distances<span style="font-weight: bold">[</span>key<span style="font-weight: bold">]
+    </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+      </span><span style="color: blue; font-weight: bold">raise </span>Exception<span style="font-weight: bold">(</span><span style="color: red">"Positions not in grid: " </span><span style="font-weight: bold">+ </span>str<span style="font-weight: bold">(</span>key<span style="font-weight: bold">))
+
+  </span><span style="color: blue; font-weight: bold">def </span>isReadyForMazeDistance<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>_distances <span style="font-weight: bold">!= </span><span style="color: blue">None
+
+</span><span style="color: blue; font-weight: bold">def </span>manhattanDistance<span style="font-weight: bold">(</span>x<span style="font-weight: bold">, </span>y <span style="font-weight: bold">):
+  </span><span style="color: blue; font-weight: bold">return </span>abs<span style="font-weight: bold">( </span>x<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">] - </span>y<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">] ) + </span>abs<span style="font-weight: bold">( </span>x<span style="font-weight: bold">[</span><span style="color: red">1</span><span style="font-weight: bold">] - </span>y<span style="font-weight: bold">[</span><span style="color: red">1</span><span style="font-weight: bold">] )
+
+</span><span style="color: blue; font-weight: bold">def </span>isInt<span style="font-weight: bold">(</span>pos<span style="font-weight: bold">):
+  </span>x<span style="font-weight: bold">, </span>y <span style="font-weight: bold">= </span>pos
+  <span style="color: blue; font-weight: bold">return </span>x <span style="font-weight: bold">== </span>int<span style="font-weight: bold">(</span>x<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">and </span>y <span style="font-weight: bold">== </span>int<span style="font-weight: bold">(</span>y<span style="font-weight: bold">)
+
+</span><span style="color: blue; font-weight: bold">def </span>getGrids2D<span style="font-weight: bold">(</span>pos<span style="font-weight: bold">):
+  </span>grids <span style="font-weight: bold">= []
+  </span><span style="color: blue; font-weight: bold">for </span>x<span style="font-weight: bold">, </span>xDistance <span style="color: blue; font-weight: bold">in </span>getGrids1D<span style="font-weight: bold">(</span>pos<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">]):
+    </span><span style="color: blue; font-weight: bold">for </span>y<span style="font-weight: bold">, </span>yDistance <span style="color: blue; font-weight: bold">in </span>getGrids1D<span style="font-weight: bold">(</span>pos<span style="font-weight: bold">[</span><span style="color: red">1</span><span style="font-weight: bold">]):
+      </span>grids<span style="font-weight: bold">.</span>append<span style="font-weight: bold">(((</span>x<span style="font-weight: bold">, </span>y<span style="font-weight: bold">), </span>xDistance <span style="font-weight: bold">+ </span>yDistance<span style="font-weight: bold">))
+  </span><span style="color: blue; font-weight: bold">return </span>grids
+  
+<span style="color: blue; font-weight: bold">def </span>getGrids1D<span style="font-weight: bold">(</span>x<span style="font-weight: bold">):
+  </span>intX <span style="font-weight: bold">= </span>int<span style="font-weight: bold">(</span>x<span style="font-weight: bold">)
+  </span><span style="color: blue; font-weight: bold">if </span>x <span style="font-weight: bold">== </span>int<span style="font-weight: bold">(</span>x<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">return </span><span style="font-weight: bold">[(</span>x<span style="font-weight: bold">, </span><span style="color: red">0</span><span style="font-weight: bold">)]
+  </span><span style="color: blue; font-weight: bold">return </span><span style="font-weight: bold">[(</span>intX<span style="font-weight: bold">, </span>x<span style="font-weight: bold">-</span>intX<span style="font-weight: bold">), (</span>intX<span style="font-weight: bold">+</span><span style="color: red">1</span><span style="font-weight: bold">, </span>intX<span style="font-weight: bold">+</span><span style="color: red">1</span><span style="font-weight: bold">-</span>x<span style="font-weight: bold">)]
+  
+</span><span style="color: green; font-style: italic">##########################################
+# MACHINERY FOR COMPUTING MAZE DISTANCES #
+##########################################
+
+</span>distanceMap <span style="font-weight: bold">= {}
+
+</span><span style="color: blue; font-weight: bold">class </span>DistanceCalculator<span style="font-weight: bold">:
+  </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>layout<span style="font-weight: bold">, </span>distancer<span style="font-weight: bold">, </span>default <span style="font-weight: bold">= </span><span style="color: red">10000</span><span style="font-weight: bold">):
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>layout <span style="font-weight: bold">= </span>layout
+    <span style="color: blue">self</span><span style="font-weight: bold">.</span>distancer <span style="font-weight: bold">= </span>distancer
+    <span style="color: blue">self</span><span style="font-weight: bold">.</span>default <span style="font-weight: bold">= </span>default
+  
+  <span style="color: blue; font-weight: bold">def </span>run<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">global </span>distanceMap
+
+    <span style="color: blue; font-weight: bold">if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>layout<span style="font-weight: bold">.</span>walls <span style="color: blue; font-weight: bold">not in </span>distanceMap<span style="font-weight: bold">:
+      </span>distances <span style="font-weight: bold">= </span>computeDistances<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>layout<span style="font-weight: bold">)
+      </span>distanceMap<span style="font-weight: bold">[</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>layout<span style="font-weight: bold">.</span>walls<span style="font-weight: bold">] = </span>distances
+    <span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+      </span>distances <span style="font-weight: bold">= </span>distanceMap<span style="font-weight: bold">[</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>layout<span style="font-weight: bold">.</span>walls<span style="font-weight: bold">]
+
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>distancer<span style="font-weight: bold">.</span>_distances <span style="font-weight: bold">= </span>distances  
+
+<span style="color: blue; font-weight: bold">def </span>computeDistances<span style="font-weight: bold">(</span>layout<span style="font-weight: bold">):
+    </span><span style="color: red">"Runs UCS to all other positions from each position"
+    </span>distances <span style="font-weight: bold">= {}
+    </span>allNodes <span style="font-weight: bold">= </span>layout<span style="font-weight: bold">.</span>walls<span style="font-weight: bold">.</span>asList<span style="font-weight: bold">(</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">for </span>source <span style="color: blue; font-weight: bold">in </span>allNodes<span style="font-weight: bold">:
+        </span>dist <span style="font-weight: bold">= {}
+        </span>closed <span style="font-weight: bold">= {}
+        </span><span style="color: blue; font-weight: bold">for </span>node <span style="color: blue; font-weight: bold">in </span>allNodes<span style="font-weight: bold">:
+            </span>dist<span style="font-weight: bold">[</span>node<span style="font-weight: bold">] = </span>sys<span style="font-weight: bold">.</span>maxint
+        <span style="color: blue; font-weight: bold">import </span>util
+        queue <span style="font-weight: bold">= </span>util<span style="font-weight: bold">.</span>PriorityQueue<span style="font-weight: bold">()
+        </span>queue<span style="font-weight: bold">.</span>push<span style="font-weight: bold">(</span>source<span style="font-weight: bold">, </span><span style="color: red">0</span><span style="font-weight: bold">)
+        </span>dist<span style="font-weight: bold">[</span>source<span style="font-weight: bold">] = </span><span style="color: red">0
+        </span><span style="color: blue; font-weight: bold">while not </span>queue<span style="font-weight: bold">.</span>isEmpty<span style="font-weight: bold">():
+            </span>node <span style="font-weight: bold">= </span>queue<span style="font-weight: bold">.</span>pop<span style="font-weight: bold">()
+            </span><span style="color: blue; font-weight: bold">if </span>node <span style="color: blue; font-weight: bold">in </span>closed<span style="font-weight: bold">:
+                </span><span style="color: blue; font-weight: bold">continue
+            </span>closed<span style="font-weight: bold">[</span>node<span style="font-weight: bold">] = </span><span style="color: blue; font-weight: bold">True
+            </span>nodeDist <span style="font-weight: bold">= </span>dist<span style="font-weight: bold">[</span>node<span style="font-weight: bold">]
+            </span>adjacent <span style="font-weight: bold">= []
+            </span>x<span style="font-weight: bold">, </span>y <span style="font-weight: bold">= </span>node
+            <span style="color: blue; font-weight: bold">if not </span>layout<span style="font-weight: bold">.</span>isWall<span style="font-weight: bold">((</span>x<span style="font-weight: bold">,</span>y<span style="font-weight: bold">+</span><span style="color: red">1</span><span style="font-weight: bold">)):
+                </span>adjacent<span style="font-weight: bold">.</span>append<span style="font-weight: bold">((</span>x<span style="font-weight: bold">,</span>y<span style="font-weight: bold">+</span><span style="color: red">1</span><span style="font-weight: bold">))
+            </span><span style="color: blue; font-weight: bold">if not </span>layout<span style="font-weight: bold">.</span>isWall<span style="font-weight: bold">((</span>x<span style="font-weight: bold">,</span>y<span style="font-weight: bold">-</span><span style="color: red">1</span><span style="font-weight: bold">)):
+                </span>adjacent<span style="font-weight: bold">.</span>append<span style="font-weight: bold">((</span>x<span style="font-weight: bold">,</span>y<span style="font-weight: bold">-</span><span style="color: red">1</span><span style="font-weight: bold">) )
+            </span><span style="color: blue; font-weight: bold">if not </span>layout<span style="font-weight: bold">.</span>isWall<span style="font-weight: bold">((</span>x<span style="font-weight: bold">+</span><span style="color: red">1</span><span style="font-weight: bold">,</span>y<span style="font-weight: bold">)):
+                </span>adjacent<span style="font-weight: bold">.</span>append<span style="font-weight: bold">((</span>x<span style="font-weight: bold">+</span><span style="color: red">1</span><span style="font-weight: bold">,</span>y<span style="font-weight: bold">) )
+            </span><span style="color: blue; font-weight: bold">if not </span>layout<span style="font-weight: bold">.</span>isWall<span style="font-weight: bold">((</span>x<span style="font-weight: bold">-</span><span style="color: red">1</span><span style="font-weight: bold">,</span>y<span style="font-weight: bold">)):
+                </span>adjacent<span style="font-weight: bold">.</span>append<span style="font-weight: bold">((</span>x<span style="font-weight: bold">-</span><span style="color: red">1</span><span style="font-weight: bold">,</span>y<span style="font-weight: bold">))
+            </span><span style="color: blue; font-weight: bold">for </span>other <span style="color: blue; font-weight: bold">in </span>adjacent<span style="font-weight: bold">:
+                </span><span style="color: blue; font-weight: bold">if not </span>other <span style="color: blue; font-weight: bold">in </span>dist<span style="font-weight: bold">:
+                    </span><span style="color: blue; font-weight: bold">continue
+                </span>oldDist <span style="font-weight: bold">= </span>dist<span style="font-weight: bold">[</span>other<span style="font-weight: bold">]
+                </span>newDist <span style="font-weight: bold">= </span>nodeDist<span style="font-weight: bold">+</span><span style="color: red">1
+                </span><span style="color: blue; font-weight: bold">if </span>newDist <span style="font-weight: bold">&lt; </span>oldDist<span style="font-weight: bold">:
+                    </span>dist<span style="font-weight: bold">[</span>other<span style="font-weight: bold">] = </span>newDist
+                    queue<span style="font-weight: bold">.</span>push<span style="font-weight: bold">(</span>other<span style="font-weight: bold">, </span>newDist<span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">for </span>target <span style="color: blue; font-weight: bold">in </span>allNodes<span style="font-weight: bold">:
+            </span>distances<span style="font-weight: bold">[(</span>target<span style="font-weight: bold">, </span>source<span style="font-weight: bold">)] = </span>dist<span style="font-weight: bold">[</span>target<span style="font-weight: bold">]
+    </span><span style="color: blue; font-weight: bold">return </span>distances
+    
+
+<span style="color: blue; font-weight: bold">def </span>getDistanceOnGrid<span style="font-weight: bold">(</span>distances<span style="font-weight: bold">, </span>pos1<span style="font-weight: bold">, </span>pos2<span style="font-weight: bold">):
+    </span>key <span style="font-weight: bold">= (</span>pos1<span style="font-weight: bold">, </span>pos2<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">if </span>key <span style="color: blue; font-weight: bold">in </span>distances<span style="font-weight: bold">:
+      </span><span style="color: blue; font-weight: bold">return </span>distances<span style="font-weight: bold">[</span>key<span style="font-weight: bold">]
+    </span><span style="color: blue; font-weight: bold">return </span><span style="color: red">100000
+  
+</span>
+  </pre>
+  </body>
+  </html>
+  

@@ -1,0 +1,680 @@
+<html>
+  <head>
+  <title>pacman.py</title>
+  </head>
+  <body>
+  <h3>pacman.py (<a href="../pacman.py">original</a>)</h3>
+  <hr>
+  <pre>
+<span style="color: green; font-style: italic"># pacman.py
+# ---------
+# Licensing Information: Please do not distribute or publish solutions to this
+# project. You are free to use and extend these projects for educational
+# purposes. The Pacman AI projects were developed at UC Berkeley, primarily by
+# John DeNero (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# For more info, see http://inst.eecs.berkeley.edu/~cs188/sp09/pacman.html
+
+</span><span style="color: darkred">"""
+Pacman.py holds the logic for the classic pacman game along with the main
+code to run a game.  This file is divided into three sections:
+
+  (i)  Your interface to the pacman world:
+          Pacman is a complex environment.  You probably don't want to
+          read through all of the code we wrote to make the game runs
+          correctly.  This section contains the parts of the code
+          that you will need to understand in order to complete the
+          project.  There is also some code in game.py that you should
+          understand.
+
+  (ii)  The hidden secrets of pacman:
+          This section contains all of the logic code that the pacman
+          environment uses to decide who can move where, who dies when
+          things collide, etc.  You shouldn't need to read this section
+          of code, but you can if you want.
+
+  (iii) Framework to start a game:
+          The final section contains the code for reading the command
+          you use to set up the game, then starting up a new game, along with
+          linking in all the external parts (agent functions, graphics).
+          Check this section out to see all the options available to you.
+
+To play your first game, type 'python pacman.py' from the command line.
+The keys are 'a', 's', 'd', and 'w' to move (or arrow keys).  Have fun!
+"""
+</span><span style="color: blue; font-weight: bold">from </span>game <span style="color: blue; font-weight: bold">import </span>GameStateData
+<span style="color: blue; font-weight: bold">from </span>game <span style="color: blue; font-weight: bold">import </span>Game
+<span style="color: blue; font-weight: bold">from </span>game <span style="color: blue; font-weight: bold">import </span>Directions
+<span style="color: blue; font-weight: bold">from </span>game <span style="color: blue; font-weight: bold">import </span>Actions
+<span style="color: blue; font-weight: bold">from </span>util <span style="color: blue; font-weight: bold">import </span>nearestPoint
+<span style="color: blue; font-weight: bold">from </span>util <span style="color: blue; font-weight: bold">import </span>manhattanDistance
+<span style="color: blue; font-weight: bold">import </span>util<span style="font-weight: bold">, </span>layout
+<span style="color: blue; font-weight: bold">import </span>sys<span style="font-weight: bold">, </span>types<span style="font-weight: bold">, </span>time<span style="font-weight: bold">, </span>random<span style="font-weight: bold">, </span>os
+
+<span style="color: green; font-style: italic">###################################################
+# YOUR INTERFACE TO THE PACMAN WORLD: A GameState #
+###################################################
+
+</span><span style="color: blue; font-weight: bold">class </span>GameState<span style="font-weight: bold">:
+  </span><span style="color: darkred">"""
+  A GameState specifies the full game state, including the food, capsules,
+  agent configurations and score changes.
+
+  GameStates are used by the Game object to capture the actual state of the game and
+  can be used by agents to reason about the game.
+
+  Much of the information in a GameState is stored in a GameStateData object.  We
+  strongly suggest that you access that data via the accessor methods below rather
+  than referring to the GameStateData object directly.
+
+  Note that in classic Pacman, Pacman is always agent 0.
+  """
+
+  </span><span style="color: green; font-style: italic">####################################################
+  # Accessor methods: use these to access state data #
+  ####################################################
+
+  </span><span style="color: blue; font-weight: bold">def </span>getLegalActions<span style="font-weight: bold">( </span><span style="color: blue">self</span><span style="font-weight: bold">, </span>agentIndex<span style="font-weight: bold">=</span><span style="color: red">0 </span><span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Returns the legal actions for the agent specified.
+    """
+    </span><span style="color: blue; font-weight: bold">if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>isWin<span style="font-weight: bold">() </span><span style="color: blue; font-weight: bold">or </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>isLose<span style="font-weight: bold">(): </span><span style="color: blue; font-weight: bold">return </span><span style="font-weight: bold">[]
+
+    </span><span style="color: blue; font-weight: bold">if </span>agentIndex <span style="font-weight: bold">== </span><span style="color: red">0</span><span style="font-weight: bold">:  </span><span style="color: green; font-style: italic"># Pacman is moving
+      </span><span style="color: blue; font-weight: bold">return </span>PacmanRules<span style="font-weight: bold">.</span>getLegalActions<span style="font-weight: bold">( </span><span style="color: blue">self </span><span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+      </span><span style="color: blue; font-weight: bold">return </span>GhostRules<span style="font-weight: bold">.</span>getLegalActions<span style="font-weight: bold">( </span><span style="color: blue">self</span><span style="font-weight: bold">, </span>agentIndex <span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>generateSuccessor<span style="font-weight: bold">( </span><span style="color: blue">self</span><span style="font-weight: bold">, </span>agentIndex<span style="font-weight: bold">, </span>action<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Returns the successor state after the specified agent takes the action.
+    """
+    </span><span style="color: green; font-style: italic"># Check that successors exist
+    </span><span style="color: blue; font-weight: bold">if </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>isWin<span style="font-weight: bold">() </span><span style="color: blue; font-weight: bold">or </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>isLose<span style="font-weight: bold">(): </span><span style="color: blue; font-weight: bold">raise </span>Exception<span style="font-weight: bold">(</span><span style="color: red">'Can\'t generate a successor of a terminal state.'</span><span style="font-weight: bold">)
+
+    </span><span style="color: green; font-style: italic"># Copy current state
+    </span>state <span style="font-weight: bold">= </span>GameState<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">)
+
+    </span><span style="color: green; font-style: italic"># Let agent's logic deal with its action's effects on the board
+    </span><span style="color: blue; font-weight: bold">if </span>agentIndex <span style="font-weight: bold">== </span><span style="color: red">0</span><span style="font-weight: bold">:  </span><span style="color: green; font-style: italic"># Pacman is moving
+      </span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>_eaten <span style="font-weight: bold">= [</span><span style="color: blue; font-weight: bold">False for </span>i <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span>state<span style="font-weight: bold">.</span>getNumAgents<span style="font-weight: bold">())]
+      </span>PacmanRules<span style="font-weight: bold">.</span>applyAction<span style="font-weight: bold">( </span>state<span style="font-weight: bold">, </span>action <span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:                </span><span style="color: green; font-style: italic"># A ghost is moving
+      </span>GhostRules<span style="font-weight: bold">.</span>applyAction<span style="font-weight: bold">( </span>state<span style="font-weight: bold">, </span>action<span style="font-weight: bold">, </span>agentIndex <span style="font-weight: bold">)
+
+    </span><span style="color: green; font-style: italic"># Time passes
+    </span><span style="color: blue; font-weight: bold">if </span>agentIndex <span style="font-weight: bold">== </span><span style="color: red">0</span><span style="font-weight: bold">:
+      </span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>scoreChange <span style="font-weight: bold">+= -</span>TIME_PENALTY <span style="color: green; font-style: italic"># Penalty for waiting around
+    </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+      </span>GhostRules<span style="font-weight: bold">.</span>decrementTimer<span style="font-weight: bold">( </span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>agentStates<span style="font-weight: bold">[</span>agentIndex<span style="font-weight: bold">] )
+
+    </span><span style="color: green; font-style: italic"># Resolve multi-agent effects
+    </span>GhostRules<span style="font-weight: bold">.</span>checkDeath<span style="font-weight: bold">( </span>state<span style="font-weight: bold">, </span>agentIndex <span style="font-weight: bold">)
+
+    </span><span style="color: green; font-style: italic"># Book keeping
+    </span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>_agentMoved <span style="font-weight: bold">= </span>agentIndex
+    state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>score <span style="font-weight: bold">+= </span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>scoreChange
+    <span style="color: blue; font-weight: bold">return </span>state
+
+  <span style="color: blue; font-weight: bold">def </span>getLegalPacmanActions<span style="font-weight: bold">( </span><span style="color: blue">self </span><span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>getLegalActions<span style="font-weight: bold">( </span><span style="color: red">0 </span><span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>generatePacmanSuccessor<span style="font-weight: bold">( </span><span style="color: blue">self</span><span style="font-weight: bold">, </span>action <span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Generates the successor state after the specified pacman move
+    """
+    </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>generateSuccessor<span style="font-weight: bold">( </span><span style="color: red">0</span><span style="font-weight: bold">, </span>action <span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>getPacmanState<span style="font-weight: bold">( </span><span style="color: blue">self </span><span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Returns an AgentState object for pacman (in game.py)
+
+    state.pos gives the current position
+    state.direction gives the travel vector
+    """
+    </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>agentStates<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">].</span>copy<span style="font-weight: bold">()
+
+  </span><span style="color: blue; font-weight: bold">def </span>getPacmanPosition<span style="font-weight: bold">( </span><span style="color: blue">self </span><span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>agentStates<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">].</span>getPosition<span style="font-weight: bold">()
+
+  </span><span style="color: blue; font-weight: bold">def </span>getGhostStates<span style="font-weight: bold">( </span><span style="color: blue">self </span><span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>agentStates<span style="font-weight: bold">[</span><span style="color: red">1</span><span style="font-weight: bold">:]
+
+  </span><span style="color: blue; font-weight: bold">def </span>getGhostState<span style="font-weight: bold">( </span><span style="color: blue">self</span><span style="font-weight: bold">, </span>agentIndex <span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">if </span>agentIndex <span style="font-weight: bold">== </span><span style="color: red">0 </span><span style="color: blue; font-weight: bold">or </span>agentIndex <span style="font-weight: bold">&gt;= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>getNumAgents<span style="font-weight: bold">():
+      </span><span style="color: blue; font-weight: bold">raise </span>Exception<span style="font-weight: bold">(</span><span style="color: red">"Invalid index passed to getGhostState"</span><span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>agentStates<span style="font-weight: bold">[</span>agentIndex<span style="font-weight: bold">]
+
+  </span><span style="color: blue; font-weight: bold">def </span>getGhostPosition<span style="font-weight: bold">( </span><span style="color: blue">self</span><span style="font-weight: bold">, </span>agentIndex <span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">if </span>agentIndex <span style="font-weight: bold">== </span><span style="color: red">0</span><span style="font-weight: bold">:
+      </span><span style="color: blue; font-weight: bold">raise </span>Exception<span style="font-weight: bold">(</span><span style="color: red">"Pacman's index passed to getGhostPosition"</span><span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>agentStates<span style="font-weight: bold">[</span>agentIndex<span style="font-weight: bold">].</span>getPosition<span style="font-weight: bold">()
+
+  </span><span style="color: blue; font-weight: bold">def </span>getGhostPositions<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">return </span><span style="font-weight: bold">[</span>s<span style="font-weight: bold">.</span>getPosition<span style="font-weight: bold">() </span><span style="color: blue; font-weight: bold">for </span>s <span style="color: blue; font-weight: bold">in </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>getGhostStates<span style="font-weight: bold">()]
+
+  </span><span style="color: blue; font-weight: bold">def </span>getNumAgents<span style="font-weight: bold">( </span><span style="color: blue">self </span><span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">return </span>len<span style="font-weight: bold">( </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>agentStates <span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>getScore<span style="font-weight: bold">( </span><span style="color: blue">self </span><span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>score
+
+  <span style="color: blue; font-weight: bold">def </span>getCapsules<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Returns a list of positions (x,y) of the remaining capsules.
+    """
+    </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>capsules
+
+  <span style="color: blue; font-weight: bold">def </span>getNumFood<span style="font-weight: bold">( </span><span style="color: blue">self </span><span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>food<span style="font-weight: bold">.</span>count<span style="font-weight: bold">()
+
+  </span><span style="color: blue; font-weight: bold">def </span>getFood<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Returns a Grid of boolean food indicator variables.
+
+    Grids can be accessed via list notation, so to check
+    if there is food at (x,y), just call
+
+    currentFood = state.getFood()
+    if currentFood[x][y] == True: ...
+    """
+    </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>food
+
+  <span style="color: blue; font-weight: bold">def </span>getWalls<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Returns a Grid of boolean wall indicator variables.
+
+    Grids can be accessed via list notation, so to check
+    if there is food at (x,y), just call
+
+    walls = state.getWalls()
+    if walls[x][y] == True: ...
+    """
+    </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>layout<span style="font-weight: bold">.</span>walls
+
+  <span style="color: blue; font-weight: bold">def </span>hasFood<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>x<span style="font-weight: bold">, </span>y<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>food<span style="font-weight: bold">[</span>x<span style="font-weight: bold">][</span>y<span style="font-weight: bold">]
+
+  </span><span style="color: blue; font-weight: bold">def </span>hasWall<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>x<span style="font-weight: bold">, </span>y<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>layout<span style="font-weight: bold">.</span>walls<span style="font-weight: bold">[</span>x<span style="font-weight: bold">][</span>y<span style="font-weight: bold">]
+
+  </span><span style="color: blue; font-weight: bold">def </span>isLose<span style="font-weight: bold">( </span><span style="color: blue">self </span><span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>_lose
+
+  <span style="color: blue; font-weight: bold">def </span>isWin<span style="font-weight: bold">( </span><span style="color: blue">self </span><span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>_win
+
+  <span style="color: green; font-style: italic">#############################################
+  #             Helper methods:               #
+  # You shouldn't need to call these directly #
+  #############################################
+
+  </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">( </span><span style="color: blue">self</span><span style="font-weight: bold">, </span>prevState <span style="font-weight: bold">= </span><span style="color: blue">None </span><span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Generates a new state by copying information from its predecessor.
+    """
+    </span><span style="color: blue; font-weight: bold">if </span>prevState <span style="font-weight: bold">!= </span><span style="color: blue">None</span><span style="font-weight: bold">: </span><span style="color: green; font-style: italic"># Initial state
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>data <span style="font-weight: bold">= </span>GameStateData<span style="font-weight: bold">(</span>prevState<span style="font-weight: bold">.</span>data<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>data <span style="font-weight: bold">= </span>GameStateData<span style="font-weight: bold">()
+
+  </span><span style="color: blue; font-weight: bold">def </span>deepCopy<span style="font-weight: bold">( </span><span style="color: blue">self </span><span style="font-weight: bold">):
+    </span>state <span style="font-weight: bold">= </span>GameState<span style="font-weight: bold">( </span><span style="color: blue">self </span><span style="font-weight: bold">)
+    </span>state<span style="font-weight: bold">.</span>data <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>deepCopy<span style="font-weight: bold">()
+    </span><span style="color: blue; font-weight: bold">return </span>state
+
+  <span style="color: blue; font-weight: bold">def </span>__eq__<span style="font-weight: bold">( </span><span style="color: blue">self</span><span style="font-weight: bold">, </span>other <span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Allows two states to be compared.
+    """
+    </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>data <span style="font-weight: bold">== </span>other<span style="font-weight: bold">.</span>data
+
+  <span style="color: blue; font-weight: bold">def </span>__hash__<span style="font-weight: bold">( </span><span style="color: blue">self </span><span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Allows states to be keys of dictionaries.
+    """
+    </span><span style="color: blue; font-weight: bold">return </span>hash<span style="font-weight: bold">( </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>data <span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>__str__<span style="font-weight: bold">( </span><span style="color: blue">self </span><span style="font-weight: bold">):
+
+    </span><span style="color: blue; font-weight: bold">return </span>str<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>data<span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>initialize<span style="font-weight: bold">( </span><span style="color: blue">self</span><span style="font-weight: bold">, </span>layout<span style="font-weight: bold">, </span>numGhostAgents<span style="font-weight: bold">=</span><span style="color: red">1000 </span><span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Creates an initial game state from a layout array (see layout.py).
+    """
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>initialize<span style="font-weight: bold">(</span>layout<span style="font-weight: bold">, </span>numGhostAgents<span style="font-weight: bold">)
+
+</span><span style="color: green; font-style: italic">############################################################################
+#                     THE HIDDEN SECRETS OF PACMAN                         #
+#                                                                          #
+# You shouldn't need to look through the code in this section of the file. #
+############################################################################
+
+</span>SCARED_TIME <span style="font-weight: bold">= </span><span style="color: red">40    </span><span style="color: green; font-style: italic"># Moves ghosts are scared
+</span>COLLISION_TOLERANCE <span style="font-weight: bold">= </span><span style="color: red">0.7 </span><span style="color: green; font-style: italic"># How close ghosts must be to Pacman to kill
+</span>TIME_PENALTY <span style="font-weight: bold">= </span><span style="color: red">1 </span><span style="color: green; font-style: italic"># Number of points lost each round
+
+</span><span style="color: blue; font-weight: bold">class </span>ClassicGameRules<span style="font-weight: bold">:
+  </span><span style="color: darkred">"""
+  These game rules manage the control flow of a game, deciding when
+  and how the game starts and ends.
+  """
+  </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>timeout<span style="font-weight: bold">=</span><span style="color: red">30</span><span style="font-weight: bold">):
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>timeout <span style="font-weight: bold">= </span>timeout
+
+  <span style="color: blue; font-weight: bold">def </span>newGame<span style="font-weight: bold">( </span><span style="color: blue">self</span><span style="font-weight: bold">, </span>layout<span style="font-weight: bold">, </span>pacmanAgent<span style="font-weight: bold">, </span>ghostAgents<span style="font-weight: bold">, </span>display<span style="font-weight: bold">, </span>quiet <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">, </span>catchExceptions<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">):
+    </span>agents <span style="font-weight: bold">= [</span>pacmanAgent<span style="font-weight: bold">] + </span>ghostAgents<span style="font-weight: bold">[:</span>layout<span style="font-weight: bold">.</span>getNumGhosts<span style="font-weight: bold">()]
+    </span>initState <span style="font-weight: bold">= </span>GameState<span style="font-weight: bold">()
+    </span>initState<span style="font-weight: bold">.</span>initialize<span style="font-weight: bold">( </span>layout<span style="font-weight: bold">, </span>len<span style="font-weight: bold">(</span>ghostAgents<span style="font-weight: bold">) )
+    </span>game <span style="font-weight: bold">= </span>Game<span style="font-weight: bold">(</span>agents<span style="font-weight: bold">, </span>display<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">, </span>catchExceptions<span style="font-weight: bold">=</span>catchExceptions<span style="font-weight: bold">)
+    </span>game<span style="font-weight: bold">.</span>state <span style="font-weight: bold">= </span>initState
+    <span style="color: blue">self</span><span style="font-weight: bold">.</span>initialState <span style="font-weight: bold">= </span>initState<span style="font-weight: bold">.</span>deepCopy<span style="font-weight: bold">()
+    </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>quiet <span style="font-weight: bold">= </span>quiet
+    <span style="color: blue; font-weight: bold">return </span>game
+
+  <span style="color: blue; font-weight: bold">def </span>process<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>state<span style="font-weight: bold">, </span>game<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Checks to see whether it is time to end the game.
+    """
+    </span><span style="color: blue; font-weight: bold">if </span>state<span style="font-weight: bold">.</span>isWin<span style="font-weight: bold">(): </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>win<span style="font-weight: bold">(</span>state<span style="font-weight: bold">, </span>game<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">if </span>state<span style="font-weight: bold">.</span>isLose<span style="font-weight: bold">(): </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>lose<span style="font-weight: bold">(</span>state<span style="font-weight: bold">, </span>game<span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>win<span style="font-weight: bold">( </span><span style="color: blue">self</span><span style="font-weight: bold">, </span>state<span style="font-weight: bold">, </span>game <span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">if not </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>quiet<span style="font-weight: bold">: </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"Pacman emerges victorious! Score: %d" </span><span style="font-weight: bold">% </span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>score
+    game<span style="font-weight: bold">.</span>gameOver <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">True
+
+  def </span>lose<span style="font-weight: bold">( </span><span style="color: blue">self</span><span style="font-weight: bold">, </span>state<span style="font-weight: bold">, </span>game <span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">if not </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>quiet<span style="font-weight: bold">: </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"Pacman died! Score: %d" </span><span style="font-weight: bold">% </span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>score
+    game<span style="font-weight: bold">.</span>gameOver <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">True
+
+  def </span>getProgress<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>game<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">return </span>float<span style="font-weight: bold">(</span>game<span style="font-weight: bold">.</span>state<span style="font-weight: bold">.</span>getNumFood<span style="font-weight: bold">()) / </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>initialState<span style="font-weight: bold">.</span>getNumFood<span style="font-weight: bold">()
+
+  </span><span style="color: blue; font-weight: bold">def </span>agentCrash<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>game<span style="font-weight: bold">, </span>agentIndex<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">if </span>agentIndex <span style="font-weight: bold">== </span><span style="color: red">0</span><span style="font-weight: bold">:
+      </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"Pacman crashed"
+    </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+      </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"A ghost crashed"
+
+  </span><span style="color: blue; font-weight: bold">def </span>getMaxTotalTime<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>agentIndex<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>timeout
+
+  <span style="color: blue; font-weight: bold">def </span>getMaxStartupTime<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>agentIndex<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>timeout
+
+  <span style="color: blue; font-weight: bold">def </span>getMoveWarningTime<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>agentIndex<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>timeout
+
+  <span style="color: blue; font-weight: bold">def </span>getMoveTimeout<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>agentIndex<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>timeout
+
+  <span style="color: blue; font-weight: bold">def </span>getMaxTimeWarnings<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>agentIndex<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">return </span><span style="color: red">0
+
+</span><span style="color: blue; font-weight: bold">class </span>PacmanRules<span style="font-weight: bold">:
+  </span><span style="color: darkred">"""
+  These functions govern how pacman interacts with his environment under
+  the classic game rules.
+  """
+  </span>PACMAN_SPEED<span style="font-weight: bold">=</span><span style="color: red">1
+
+  </span><span style="color: blue; font-weight: bold">def </span>getLegalActions<span style="font-weight: bold">( </span>state <span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Returns a list of possible actions.
+    """
+    </span><span style="color: blue; font-weight: bold">return </span>Actions<span style="font-weight: bold">.</span>getPossibleActions<span style="font-weight: bold">( </span>state<span style="font-weight: bold">.</span>getPacmanState<span style="font-weight: bold">().</span>configuration<span style="font-weight: bold">, </span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>layout<span style="font-weight: bold">.</span>walls <span style="font-weight: bold">)
+  </span>getLegalActions <span style="font-weight: bold">= </span>staticmethod<span style="font-weight: bold">( </span>getLegalActions <span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>applyAction<span style="font-weight: bold">( </span>state<span style="font-weight: bold">, </span>action <span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Edits the state to reflect the results of the action.
+    """
+    </span>legal <span style="font-weight: bold">= </span>PacmanRules<span style="font-weight: bold">.</span>getLegalActions<span style="font-weight: bold">( </span>state <span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">if </span>action <span style="color: blue; font-weight: bold">not in </span>legal<span style="font-weight: bold">:
+      </span><span style="color: blue; font-weight: bold">raise </span>Exception<span style="font-weight: bold">(</span><span style="color: red">"Illegal action " </span><span style="font-weight: bold">+ </span>str<span style="font-weight: bold">(</span>action<span style="font-weight: bold">))
+
+    </span>pacmanState <span style="font-weight: bold">= </span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>agentStates<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">]
+
+    </span><span style="color: green; font-style: italic"># Update Configuration
+    </span>vector <span style="font-weight: bold">= </span>Actions<span style="font-weight: bold">.</span>directionToVector<span style="font-weight: bold">( </span>action<span style="font-weight: bold">, </span>PacmanRules<span style="font-weight: bold">.</span>PACMAN_SPEED <span style="font-weight: bold">)
+    </span>pacmanState<span style="font-weight: bold">.</span>configuration <span style="font-weight: bold">= </span>pacmanState<span style="font-weight: bold">.</span>configuration<span style="font-weight: bold">.</span>generateSuccessor<span style="font-weight: bold">( </span>vector <span style="font-weight: bold">)
+
+    </span><span style="color: green; font-style: italic"># Eat
+    </span>next <span style="font-weight: bold">= </span>pacmanState<span style="font-weight: bold">.</span>configuration<span style="font-weight: bold">.</span>getPosition<span style="font-weight: bold">()
+    </span>nearest <span style="font-weight: bold">= </span>nearestPoint<span style="font-weight: bold">( </span>next <span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">if </span>manhattanDistance<span style="font-weight: bold">( </span>nearest<span style="font-weight: bold">, </span>next <span style="font-weight: bold">) &lt;= </span><span style="color: red">0.5 </span><span style="font-weight: bold">:
+      </span><span style="color: green; font-style: italic"># Remove food
+      </span>PacmanRules<span style="font-weight: bold">.</span>consume<span style="font-weight: bold">( </span>nearest<span style="font-weight: bold">, </span>state <span style="font-weight: bold">)
+  </span>applyAction <span style="font-weight: bold">= </span>staticmethod<span style="font-weight: bold">( </span>applyAction <span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>consume<span style="font-weight: bold">( </span>position<span style="font-weight: bold">, </span>state <span style="font-weight: bold">):
+    </span>x<span style="font-weight: bold">,</span>y <span style="font-weight: bold">= </span>position
+    <span style="color: green; font-style: italic"># Eat food
+    </span><span style="color: blue; font-weight: bold">if </span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>food<span style="font-weight: bold">[</span>x<span style="font-weight: bold">][</span>y<span style="font-weight: bold">]:
+      </span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>scoreChange <span style="font-weight: bold">+= </span><span style="color: red">10
+      </span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>food <span style="font-weight: bold">= </span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>food<span style="font-weight: bold">.</span>copy<span style="font-weight: bold">()
+      </span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>food<span style="font-weight: bold">[</span>x<span style="font-weight: bold">][</span>y<span style="font-weight: bold">] = </span><span style="color: blue; font-weight: bold">False
+      </span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>_foodEaten <span style="font-weight: bold">= </span>position
+      <span style="color: green; font-style: italic"># TODO: cache numFood?
+      </span>numFood <span style="font-weight: bold">= </span>state<span style="font-weight: bold">.</span>getNumFood<span style="font-weight: bold">()
+      </span><span style="color: blue; font-weight: bold">if </span>numFood <span style="font-weight: bold">== </span><span style="color: red">0 </span><span style="color: blue; font-weight: bold">and not </span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>_lose<span style="font-weight: bold">:
+        </span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>scoreChange <span style="font-weight: bold">+= </span><span style="color: red">500
+        </span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>_win <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">True
+    </span><span style="color: green; font-style: italic"># Eat capsule
+    </span><span style="color: blue; font-weight: bold">if</span><span style="font-weight: bold">( </span>position <span style="color: blue; font-weight: bold">in </span>state<span style="font-weight: bold">.</span>getCapsules<span style="font-weight: bold">() ):
+      </span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>capsules<span style="font-weight: bold">.</span>remove<span style="font-weight: bold">( </span>position <span style="font-weight: bold">)
+      </span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>_capsuleEaten <span style="font-weight: bold">= </span>position
+      <span style="color: green; font-style: italic"># Reset all ghosts' scared timers
+      </span><span style="color: blue; font-weight: bold">for </span>index <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">( </span><span style="color: red">1</span><span style="font-weight: bold">, </span>len<span style="font-weight: bold">( </span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>agentStates <span style="font-weight: bold">) ):
+        </span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>agentStates<span style="font-weight: bold">[</span>index<span style="font-weight: bold">].</span>scaredTimer <span style="font-weight: bold">= </span>SCARED_TIME
+  consume <span style="font-weight: bold">= </span>staticmethod<span style="font-weight: bold">( </span>consume <span style="font-weight: bold">)
+
+</span><span style="color: blue; font-weight: bold">class </span>GhostRules<span style="font-weight: bold">:
+  </span><span style="color: darkred">"""
+  These functions dictate how ghosts interact with their environment.
+  """
+  </span>GHOST_SPEED<span style="font-weight: bold">=</span><span style="color: red">1.0
+  </span><span style="color: blue; font-weight: bold">def </span>getLegalActions<span style="font-weight: bold">( </span>state<span style="font-weight: bold">, </span>ghostIndex <span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+    Ghosts cannot stop, and cannot turn around unless they
+    reach a dead end, but can turn 90 degrees at intersections.
+    """
+    </span>conf <span style="font-weight: bold">= </span>state<span style="font-weight: bold">.</span>getGhostState<span style="font-weight: bold">( </span>ghostIndex <span style="font-weight: bold">).</span>configuration
+    possibleActions <span style="font-weight: bold">= </span>Actions<span style="font-weight: bold">.</span>getPossibleActions<span style="font-weight: bold">( </span>conf<span style="font-weight: bold">, </span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>layout<span style="font-weight: bold">.</span>walls <span style="font-weight: bold">)
+    </span>reverse <span style="font-weight: bold">= </span>Actions<span style="font-weight: bold">.</span>reverseDirection<span style="font-weight: bold">( </span>conf<span style="font-weight: bold">.</span>direction <span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">if </span>Directions<span style="font-weight: bold">.</span>STOP <span style="color: blue; font-weight: bold">in </span>possibleActions<span style="font-weight: bold">:
+      </span>possibleActions<span style="font-weight: bold">.</span>remove<span style="font-weight: bold">( </span>Directions<span style="font-weight: bold">.</span>STOP <span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">if </span>reverse <span style="color: blue; font-weight: bold">in </span>possibleActions <span style="color: blue; font-weight: bold">and </span>len<span style="font-weight: bold">( </span>possibleActions <span style="font-weight: bold">) &gt; </span><span style="color: red">1</span><span style="font-weight: bold">:
+      </span>possibleActions<span style="font-weight: bold">.</span>remove<span style="font-weight: bold">( </span>reverse <span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">return </span>possibleActions
+  getLegalActions <span style="font-weight: bold">= </span>staticmethod<span style="font-weight: bold">( </span>getLegalActions <span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>applyAction<span style="font-weight: bold">( </span>state<span style="font-weight: bold">, </span>action<span style="font-weight: bold">, </span>ghostIndex<span style="font-weight: bold">):
+
+    </span>legal <span style="font-weight: bold">= </span>GhostRules<span style="font-weight: bold">.</span>getLegalActions<span style="font-weight: bold">( </span>state<span style="font-weight: bold">, </span>ghostIndex <span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">if </span>action <span style="color: blue; font-weight: bold">not in </span>legal<span style="font-weight: bold">:
+      </span><span style="color: blue; font-weight: bold">raise </span>Exception<span style="font-weight: bold">(</span><span style="color: red">"Illegal ghost action " </span><span style="font-weight: bold">+ </span>str<span style="font-weight: bold">(</span>action<span style="font-weight: bold">))
+
+    </span>ghostState <span style="font-weight: bold">= </span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>agentStates<span style="font-weight: bold">[</span>ghostIndex<span style="font-weight: bold">]
+    </span>speed <span style="font-weight: bold">= </span>GhostRules<span style="font-weight: bold">.</span>GHOST_SPEED
+    <span style="color: blue; font-weight: bold">if </span>ghostState<span style="font-weight: bold">.</span>scaredTimer <span style="font-weight: bold">&gt; </span><span style="color: red">0</span><span style="font-weight: bold">: </span>speed <span style="font-weight: bold">/= </span><span style="color: red">2.0
+    </span>vector <span style="font-weight: bold">= </span>Actions<span style="font-weight: bold">.</span>directionToVector<span style="font-weight: bold">( </span>action<span style="font-weight: bold">, </span>speed <span style="font-weight: bold">)
+    </span>ghostState<span style="font-weight: bold">.</span>configuration <span style="font-weight: bold">= </span>ghostState<span style="font-weight: bold">.</span>configuration<span style="font-weight: bold">.</span>generateSuccessor<span style="font-weight: bold">( </span>vector <span style="font-weight: bold">)
+  </span>applyAction <span style="font-weight: bold">= </span>staticmethod<span style="font-weight: bold">( </span>applyAction <span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>decrementTimer<span style="font-weight: bold">( </span>ghostState<span style="font-weight: bold">):
+    </span>timer <span style="font-weight: bold">= </span>ghostState<span style="font-weight: bold">.</span>scaredTimer
+    <span style="color: blue; font-weight: bold">if </span>timer <span style="font-weight: bold">== </span><span style="color: red">1</span><span style="font-weight: bold">:
+      </span>ghostState<span style="font-weight: bold">.</span>configuration<span style="font-weight: bold">.</span>pos <span style="font-weight: bold">= </span>nearestPoint<span style="font-weight: bold">( </span>ghostState<span style="font-weight: bold">.</span>configuration<span style="font-weight: bold">.</span>pos <span style="font-weight: bold">)
+    </span>ghostState<span style="font-weight: bold">.</span>scaredTimer <span style="font-weight: bold">= </span>max<span style="font-weight: bold">( </span><span style="color: red">0</span><span style="font-weight: bold">, </span>timer <span style="font-weight: bold">- </span><span style="color: red">1 </span><span style="font-weight: bold">)
+  </span>decrementTimer <span style="font-weight: bold">= </span>staticmethod<span style="font-weight: bold">( </span>decrementTimer <span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>checkDeath<span style="font-weight: bold">( </span>state<span style="font-weight: bold">, </span>agentIndex<span style="font-weight: bold">):
+    </span>pacmanPosition <span style="font-weight: bold">= </span>state<span style="font-weight: bold">.</span>getPacmanPosition<span style="font-weight: bold">()
+    </span><span style="color: blue; font-weight: bold">if </span>agentIndex <span style="font-weight: bold">== </span><span style="color: red">0</span><span style="font-weight: bold">: </span><span style="color: green; font-style: italic"># Pacman just moved; Anyone can kill him
+      </span><span style="color: blue; font-weight: bold">for </span>index <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">( </span><span style="color: red">1</span><span style="font-weight: bold">, </span>len<span style="font-weight: bold">( </span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>agentStates <span style="font-weight: bold">) ):
+        </span>ghostState <span style="font-weight: bold">= </span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>agentStates<span style="font-weight: bold">[</span>index<span style="font-weight: bold">]
+        </span>ghostPosition <span style="font-weight: bold">= </span>ghostState<span style="font-weight: bold">.</span>configuration<span style="font-weight: bold">.</span>getPosition<span style="font-weight: bold">()
+        </span><span style="color: blue; font-weight: bold">if </span>GhostRules<span style="font-weight: bold">.</span>canKill<span style="font-weight: bold">( </span>pacmanPosition<span style="font-weight: bold">, </span>ghostPosition <span style="font-weight: bold">):
+          </span>GhostRules<span style="font-weight: bold">.</span>collide<span style="font-weight: bold">( </span>state<span style="font-weight: bold">, </span>ghostState<span style="font-weight: bold">, </span>index <span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+      </span>ghostState <span style="font-weight: bold">= </span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>agentStates<span style="font-weight: bold">[</span>agentIndex<span style="font-weight: bold">]
+      </span>ghostPosition <span style="font-weight: bold">= </span>ghostState<span style="font-weight: bold">.</span>configuration<span style="font-weight: bold">.</span>getPosition<span style="font-weight: bold">()
+      </span><span style="color: blue; font-weight: bold">if </span>GhostRules<span style="font-weight: bold">.</span>canKill<span style="font-weight: bold">( </span>pacmanPosition<span style="font-weight: bold">, </span>ghostPosition <span style="font-weight: bold">):
+        </span>GhostRules<span style="font-weight: bold">.</span>collide<span style="font-weight: bold">( </span>state<span style="font-weight: bold">, </span>ghostState<span style="font-weight: bold">, </span>agentIndex <span style="font-weight: bold">)
+  </span>checkDeath <span style="font-weight: bold">= </span>staticmethod<span style="font-weight: bold">( </span>checkDeath <span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>collide<span style="font-weight: bold">( </span>state<span style="font-weight: bold">, </span>ghostState<span style="font-weight: bold">, </span>agentIndex<span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">if </span>ghostState<span style="font-weight: bold">.</span>scaredTimer <span style="font-weight: bold">&gt; </span><span style="color: red">0</span><span style="font-weight: bold">:
+      </span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>scoreChange <span style="font-weight: bold">+= </span><span style="color: red">200
+      </span>GhostRules<span style="font-weight: bold">.</span>placeGhost<span style="font-weight: bold">(</span>state<span style="font-weight: bold">, </span>ghostState<span style="font-weight: bold">)
+      </span>ghostState<span style="font-weight: bold">.</span>scaredTimer <span style="font-weight: bold">= </span><span style="color: red">0
+      </span><span style="color: green; font-style: italic"># Added for first-person
+      </span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>_eaten<span style="font-weight: bold">[</span>agentIndex<span style="font-weight: bold">] = </span><span style="color: blue; font-weight: bold">True
+    else</span><span style="font-weight: bold">:
+      </span><span style="color: blue; font-weight: bold">if not </span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>_win<span style="font-weight: bold">:
+        </span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>scoreChange <span style="font-weight: bold">-= </span><span style="color: red">500
+        </span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">.</span>_lose <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">True
+  </span>collide <span style="font-weight: bold">= </span>staticmethod<span style="font-weight: bold">( </span>collide <span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>canKill<span style="font-weight: bold">( </span>pacmanPosition<span style="font-weight: bold">, </span>ghostPosition <span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">return </span>manhattanDistance<span style="font-weight: bold">( </span>ghostPosition<span style="font-weight: bold">, </span>pacmanPosition <span style="font-weight: bold">) &lt;= </span>COLLISION_TOLERANCE
+  canKill <span style="font-weight: bold">= </span>staticmethod<span style="font-weight: bold">( </span>canKill <span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">def </span>placeGhost<span style="font-weight: bold">(</span>state<span style="font-weight: bold">, </span>ghostState<span style="font-weight: bold">):
+    </span>ghostState<span style="font-weight: bold">.</span>configuration <span style="font-weight: bold">= </span>ghostState<span style="font-weight: bold">.</span>start
+  placeGhost <span style="font-weight: bold">= </span>staticmethod<span style="font-weight: bold">( </span>placeGhost <span style="font-weight: bold">)
+
+</span><span style="color: green; font-style: italic">#############################
+# FRAMEWORK TO START A GAME #
+#############################
+
+</span><span style="color: blue; font-weight: bold">def </span>default<span style="font-weight: bold">(</span>str<span style="font-weight: bold">):
+  </span><span style="color: blue; font-weight: bold">return </span>str <span style="font-weight: bold">+ </span><span style="color: red">' [Default: %default]'
+
+</span><span style="color: blue; font-weight: bold">def </span>parseAgentArgs<span style="font-weight: bold">(</span>str<span style="font-weight: bold">):
+  </span><span style="color: blue; font-weight: bold">if </span>str <span style="font-weight: bold">== </span><span style="color: blue">None</span><span style="font-weight: bold">: </span><span style="color: blue; font-weight: bold">return </span><span style="font-weight: bold">{}
+  </span>pieces <span style="font-weight: bold">= </span>str<span style="font-weight: bold">.</span>split<span style="font-weight: bold">(</span><span style="color: red">','</span><span style="font-weight: bold">)
+  </span>opts <span style="font-weight: bold">= {}
+  </span><span style="color: blue; font-weight: bold">for </span>p <span style="color: blue; font-weight: bold">in </span>pieces<span style="font-weight: bold">:
+    </span><span style="color: blue; font-weight: bold">if </span><span style="color: red">'=' </span><span style="color: blue; font-weight: bold">in </span>p<span style="font-weight: bold">:
+      </span>key<span style="font-weight: bold">, </span>val <span style="font-weight: bold">= </span>p<span style="font-weight: bold">.</span>split<span style="font-weight: bold">(</span><span style="color: red">'='</span><span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+      </span>key<span style="font-weight: bold">,</span>val <span style="font-weight: bold">= </span>p<span style="font-weight: bold">, </span><span style="color: red">1
+    </span>opts<span style="font-weight: bold">[</span>key<span style="font-weight: bold">] = </span>val
+  <span style="color: blue; font-weight: bold">return </span>opts
+
+<span style="color: blue; font-weight: bold">def </span>readCommand<span style="font-weight: bold">( </span>argv <span style="font-weight: bold">):
+  </span><span style="color: darkred">"""
+  Processes the command used to run pacman from the command line.
+  """
+  </span><span style="color: blue; font-weight: bold">from </span>optparse <span style="color: blue; font-weight: bold">import </span>OptionParser
+  usageStr <span style="font-weight: bold">= </span><span style="color: darkred">"""
+  USAGE:      python pacman.py &lt;options&gt;
+  EXAMPLES:   (1) python pacman.py
+                  - starts an interactive game
+              (2) python pacman.py --layout smallClassic --zoom 2
+              OR  python pacman.py -l smallClassic -z 2
+                  - starts an interactive game on a smaller board, zoomed in
+  """
+  </span>parser <span style="font-weight: bold">= </span>OptionParser<span style="font-weight: bold">(</span>usageStr<span style="font-weight: bold">)
+
+  </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'-n'</span><span style="font-weight: bold">, </span><span style="color: red">'--numGames'</span><span style="font-weight: bold">, </span>dest<span style="font-weight: bold">=</span><span style="color: red">'numGames'</span><span style="font-weight: bold">, </span>type<span style="font-weight: bold">=</span><span style="color: red">'int'</span><span style="font-weight: bold">,
+                    </span>help<span style="font-weight: bold">=</span>default<span style="font-weight: bold">(</span><span style="color: red">'the number of GAMES to play'</span><span style="font-weight: bold">), </span>metavar<span style="font-weight: bold">=</span><span style="color: red">'GAMES'</span><span style="font-weight: bold">, </span>default<span style="font-weight: bold">=</span><span style="color: red">1</span><span style="font-weight: bold">)
+  </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'-l'</span><span style="font-weight: bold">, </span><span style="color: red">'--layout'</span><span style="font-weight: bold">, </span>dest<span style="font-weight: bold">=</span><span style="color: red">'layout'</span><span style="font-weight: bold">,
+                    </span>help<span style="font-weight: bold">=</span>default<span style="font-weight: bold">(</span><span style="color: red">'the LAYOUT_FILE from which to load the map layout'</span><span style="font-weight: bold">),
+                    </span>metavar<span style="font-weight: bold">=</span><span style="color: red">'LAYOUT_FILE'</span><span style="font-weight: bold">, </span>default<span style="font-weight: bold">=</span><span style="color: red">'mediumClassic'</span><span style="font-weight: bold">)
+  </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'-p'</span><span style="font-weight: bold">, </span><span style="color: red">'--pacman'</span><span style="font-weight: bold">, </span>dest<span style="font-weight: bold">=</span><span style="color: red">'pacman'</span><span style="font-weight: bold">,
+                    </span>help<span style="font-weight: bold">=</span>default<span style="font-weight: bold">(</span><span style="color: red">'the agent TYPE in the pacmanAgents module to use'</span><span style="font-weight: bold">),
+                    </span>metavar<span style="font-weight: bold">=</span><span style="color: red">'TYPE'</span><span style="font-weight: bold">, </span>default<span style="font-weight: bold">=</span><span style="color: red">'KeyboardAgent'</span><span style="font-weight: bold">)
+  </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'-t'</span><span style="font-weight: bold">, </span><span style="color: red">'--textGraphics'</span><span style="font-weight: bold">, </span>action<span style="font-weight: bold">=</span><span style="color: red">'store_true'</span><span style="font-weight: bold">, </span>dest<span style="font-weight: bold">=</span><span style="color: red">'textGraphics'</span><span style="font-weight: bold">,
+                    </span>help<span style="font-weight: bold">=</span><span style="color: red">'Display output as text only'</span><span style="font-weight: bold">, </span>default<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">)
+  </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'-q'</span><span style="font-weight: bold">, </span><span style="color: red">'--quietTextGraphics'</span><span style="font-weight: bold">, </span>action<span style="font-weight: bold">=</span><span style="color: red">'store_true'</span><span style="font-weight: bold">, </span>dest<span style="font-weight: bold">=</span><span style="color: red">'quietGraphics'</span><span style="font-weight: bold">,
+                    </span>help<span style="font-weight: bold">=</span><span style="color: red">'Generate minimal output and no graphics'</span><span style="font-weight: bold">, </span>default<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">)
+  </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'-g'</span><span style="font-weight: bold">, </span><span style="color: red">'--ghosts'</span><span style="font-weight: bold">, </span>dest<span style="font-weight: bold">=</span><span style="color: red">'ghost'</span><span style="font-weight: bold">,
+                    </span>help<span style="font-weight: bold">=</span>default<span style="font-weight: bold">(</span><span style="color: red">'the ghost agent TYPE in the ghostAgents module to use'</span><span style="font-weight: bold">),
+                    </span>metavar <span style="font-weight: bold">= </span><span style="color: red">'TYPE'</span><span style="font-weight: bold">, </span>default<span style="font-weight: bold">=</span><span style="color: red">'RandomGhost'</span><span style="font-weight: bold">)
+  </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'-k'</span><span style="font-weight: bold">, </span><span style="color: red">'--numghosts'</span><span style="font-weight: bold">, </span>type<span style="font-weight: bold">=</span><span style="color: red">'int'</span><span style="font-weight: bold">, </span>dest<span style="font-weight: bold">=</span><span style="color: red">'numGhosts'</span><span style="font-weight: bold">,
+                    </span>help<span style="font-weight: bold">=</span>default<span style="font-weight: bold">(</span><span style="color: red">'The maximum number of ghosts to use'</span><span style="font-weight: bold">), </span>default<span style="font-weight: bold">=</span><span style="color: red">4</span><span style="font-weight: bold">)
+  </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'-z'</span><span style="font-weight: bold">, </span><span style="color: red">'--zoom'</span><span style="font-weight: bold">, </span>type<span style="font-weight: bold">=</span><span style="color: red">'float'</span><span style="font-weight: bold">, </span>dest<span style="font-weight: bold">=</span><span style="color: red">'zoom'</span><span style="font-weight: bold">,
+                    </span>help<span style="font-weight: bold">=</span>default<span style="font-weight: bold">(</span><span style="color: red">'Zoom the size of the graphics window'</span><span style="font-weight: bold">), </span>default<span style="font-weight: bold">=</span><span style="color: red">1.0</span><span style="font-weight: bold">)
+  </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'-f'</span><span style="font-weight: bold">, </span><span style="color: red">'--fixRandomSeed'</span><span style="font-weight: bold">, </span>action<span style="font-weight: bold">=</span><span style="color: red">'store_true'</span><span style="font-weight: bold">, </span>dest<span style="font-weight: bold">=</span><span style="color: red">'fixRandomSeed'</span><span style="font-weight: bold">,
+                    </span>help<span style="font-weight: bold">=</span><span style="color: red">'Fixes the random seed to always play the same game'</span><span style="font-weight: bold">, </span>default<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">)
+  </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'-r'</span><span style="font-weight: bold">, </span><span style="color: red">'--recordActions'</span><span style="font-weight: bold">, </span>action<span style="font-weight: bold">=</span><span style="color: red">'store_true'</span><span style="font-weight: bold">, </span>dest<span style="font-weight: bold">=</span><span style="color: red">'record'</span><span style="font-weight: bold">,
+                    </span>help<span style="font-weight: bold">=</span><span style="color: red">'Writes game histories to a file (named by the time they were played)'</span><span style="font-weight: bold">, </span>default<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">)
+  </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'--replay'</span><span style="font-weight: bold">, </span>dest<span style="font-weight: bold">=</span><span style="color: red">'gameToReplay'</span><span style="font-weight: bold">,
+                    </span>help<span style="font-weight: bold">=</span><span style="color: red">'A recorded game file (pickle) to replay'</span><span style="font-weight: bold">, </span>default<span style="font-weight: bold">=</span><span style="color: blue">None</span><span style="font-weight: bold">)
+  </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'-a'</span><span style="font-weight: bold">,</span><span style="color: red">'--agentArgs'</span><span style="font-weight: bold">,</span>dest<span style="font-weight: bold">=</span><span style="color: red">'agentArgs'</span><span style="font-weight: bold">,
+                    </span>help<span style="font-weight: bold">=</span><span style="color: red">'Comma separated values sent to agent. e.g. "opt1=val1,opt2,opt3=val3"'</span><span style="font-weight: bold">)
+  </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'-x'</span><span style="font-weight: bold">, </span><span style="color: red">'--numTraining'</span><span style="font-weight: bold">, </span>dest<span style="font-weight: bold">=</span><span style="color: red">'numTraining'</span><span style="font-weight: bold">, </span>type<span style="font-weight: bold">=</span><span style="color: red">'int'</span><span style="font-weight: bold">,
+                    </span>help<span style="font-weight: bold">=</span>default<span style="font-weight: bold">(</span><span style="color: red">'How many episodes are training (suppresses output)'</span><span style="font-weight: bold">), </span>default<span style="font-weight: bold">=</span><span style="color: red">0</span><span style="font-weight: bold">)
+  </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'--frameTime'</span><span style="font-weight: bold">, </span>dest<span style="font-weight: bold">=</span><span style="color: red">'frameTime'</span><span style="font-weight: bold">, </span>type<span style="font-weight: bold">=</span><span style="color: red">'float'</span><span style="font-weight: bold">,
+                    </span>help<span style="font-weight: bold">=</span>default<span style="font-weight: bold">(</span><span style="color: red">'Time to delay between frames; &lt;0 means keyboard'</span><span style="font-weight: bold">), </span>default<span style="font-weight: bold">=</span><span style="color: red">0.1</span><span style="font-weight: bold">)
+  </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'-c'</span><span style="font-weight: bold">, </span><span style="color: red">'--catchExceptions'</span><span style="font-weight: bold">, </span>action<span style="font-weight: bold">=</span><span style="color: red">'store_true'</span><span style="font-weight: bold">, </span>dest<span style="font-weight: bold">=</span><span style="color: red">'catchExceptions'</span><span style="font-weight: bold">, 
+                    </span>help<span style="font-weight: bold">=</span><span style="color: red">'Turns on exception handling and timeouts during games'</span><span style="font-weight: bold">, </span>default<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">)
+  </span>parser<span style="font-weight: bold">.</span>add_option<span style="font-weight: bold">(</span><span style="color: red">'--timeout'</span><span style="font-weight: bold">, </span>dest<span style="font-weight: bold">=</span><span style="color: red">'timeout'</span><span style="font-weight: bold">, </span>type<span style="font-weight: bold">=</span><span style="color: red">'int'</span><span style="font-weight: bold">,
+                    </span>help<span style="font-weight: bold">=</span>default<span style="font-weight: bold">(</span><span style="color: red">'Maximum length of time an agent can spend computing in a single game'</span><span style="font-weight: bold">), </span>default<span style="font-weight: bold">=</span><span style="color: red">30</span><span style="font-weight: bold">)
+
+  </span>options<span style="font-weight: bold">, </span>otherjunk <span style="font-weight: bold">= </span>parser<span style="font-weight: bold">.</span>parse_args<span style="font-weight: bold">(</span>argv<span style="font-weight: bold">)
+  </span><span style="color: blue; font-weight: bold">if </span>len<span style="font-weight: bold">(</span>otherjunk<span style="font-weight: bold">) != </span><span style="color: red">0</span><span style="font-weight: bold">:
+    </span><span style="color: blue; font-weight: bold">raise </span>Exception<span style="font-weight: bold">(</span><span style="color: red">'Command line input not understood: ' </span><span style="font-weight: bold">+ </span>str<span style="font-weight: bold">(</span>otherjunk<span style="font-weight: bold">))
+  </span>args <span style="font-weight: bold">= </span>dict<span style="font-weight: bold">()
+
+  </span><span style="color: green; font-style: italic"># Fix the random seed
+  </span><span style="color: blue; font-weight: bold">if </span>options<span style="font-weight: bold">.</span>fixRandomSeed<span style="font-weight: bold">: </span>random<span style="font-weight: bold">.</span>seed<span style="font-weight: bold">(</span><span style="color: red">'cs188'</span><span style="font-weight: bold">)
+
+  </span><span style="color: green; font-style: italic"># Choose a layout
+  </span>args<span style="font-weight: bold">[</span><span style="color: red">'layout'</span><span style="font-weight: bold">] = </span>layout<span style="font-weight: bold">.</span>getLayout<span style="font-weight: bold">( </span>options<span style="font-weight: bold">.</span>layout <span style="font-weight: bold">)
+  </span><span style="color: blue; font-weight: bold">if </span>args<span style="font-weight: bold">[</span><span style="color: red">'layout'</span><span style="font-weight: bold">] == </span><span style="color: blue">None</span><span style="font-weight: bold">: </span><span style="color: blue; font-weight: bold">raise </span>Exception<span style="font-weight: bold">(</span><span style="color: red">"The layout " </span><span style="font-weight: bold">+ </span>options<span style="font-weight: bold">.</span>layout <span style="font-weight: bold">+ </span><span style="color: red">" cannot be found"</span><span style="font-weight: bold">)
+
+  </span><span style="color: green; font-style: italic"># Choose a Pacman agent
+  </span>noKeyboard <span style="font-weight: bold">= </span>options<span style="font-weight: bold">.</span>gameToReplay <span style="font-weight: bold">== </span><span style="color: blue">None </span><span style="color: blue; font-weight: bold">and </span><span style="font-weight: bold">(</span>options<span style="font-weight: bold">.</span>textGraphics <span style="color: blue; font-weight: bold">or </span>options<span style="font-weight: bold">.</span>quietGraphics<span style="font-weight: bold">)
+  </span>pacmanType <span style="font-weight: bold">= </span>loadAgent<span style="font-weight: bold">(</span>options<span style="font-weight: bold">.</span>pacman<span style="font-weight: bold">, </span>noKeyboard<span style="font-weight: bold">)
+  </span>agentOpts <span style="font-weight: bold">= </span>parseAgentArgs<span style="font-weight: bold">(</span>options<span style="font-weight: bold">.</span>agentArgs<span style="font-weight: bold">)
+  </span><span style="color: blue; font-weight: bold">if </span>options<span style="font-weight: bold">.</span>numTraining <span style="font-weight: bold">&gt; </span><span style="color: red">0</span><span style="font-weight: bold">:
+    </span>args<span style="font-weight: bold">[</span><span style="color: red">'numTraining'</span><span style="font-weight: bold">] = </span>options<span style="font-weight: bold">.</span>numTraining
+    <span style="color: blue; font-weight: bold">if </span><span style="color: red">'numTraining' </span><span style="color: blue; font-weight: bold">not in </span>agentOpts<span style="font-weight: bold">: </span>agentOpts<span style="font-weight: bold">[</span><span style="color: red">'numTraining'</span><span style="font-weight: bold">] = </span>options<span style="font-weight: bold">.</span>numTraining
+  pacman <span style="font-weight: bold">= </span>pacmanType<span style="font-weight: bold">(**</span>agentOpts<span style="font-weight: bold">) </span><span style="color: green; font-style: italic"># Instantiate Pacman with agentArgs
+  </span>args<span style="font-weight: bold">[</span><span style="color: red">'pacman'</span><span style="font-weight: bold">] = </span>pacman
+
+  <span style="color: green; font-style: italic"># Don't display training games
+  </span><span style="color: blue; font-weight: bold">if </span><span style="color: red">'numTrain' </span><span style="color: blue; font-weight: bold">in </span>agentOpts<span style="font-weight: bold">:
+    </span>options<span style="font-weight: bold">.</span>numQuiet <span style="font-weight: bold">= </span>int<span style="font-weight: bold">(</span>agentOpts<span style="font-weight: bold">[</span><span style="color: red">'numTrain'</span><span style="font-weight: bold">])
+    </span>options<span style="font-weight: bold">.</span>numIgnore <span style="font-weight: bold">= </span>int<span style="font-weight: bold">(</span>agentOpts<span style="font-weight: bold">[</span><span style="color: red">'numTrain'</span><span style="font-weight: bold">])
+
+  </span><span style="color: green; font-style: italic"># Choose a ghost agent
+  </span>ghostType <span style="font-weight: bold">= </span>loadAgent<span style="font-weight: bold">(</span>options<span style="font-weight: bold">.</span>ghost<span style="font-weight: bold">, </span>noKeyboard<span style="font-weight: bold">)
+  </span>args<span style="font-weight: bold">[</span><span style="color: red">'ghosts'</span><span style="font-weight: bold">] = [</span>ghostType<span style="font-weight: bold">( </span>i<span style="font-weight: bold">+</span><span style="color: red">1 </span><span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">( </span>options<span style="font-weight: bold">.</span>numGhosts <span style="font-weight: bold">)]
+
+  </span><span style="color: green; font-style: italic"># Choose a display format
+  </span><span style="color: blue; font-weight: bold">if </span>options<span style="font-weight: bold">.</span>quietGraphics<span style="font-weight: bold">:
+      </span><span style="color: blue; font-weight: bold">import </span>textDisplay
+      args<span style="font-weight: bold">[</span><span style="color: red">'display'</span><span style="font-weight: bold">] = </span>textDisplay<span style="font-weight: bold">.</span>NullGraphics<span style="font-weight: bold">()
+  </span><span style="color: blue; font-weight: bold">elif </span>options<span style="font-weight: bold">.</span>textGraphics<span style="font-weight: bold">:
+    </span><span style="color: blue; font-weight: bold">import </span>textDisplay
+    textDisplay<span style="font-weight: bold">.</span>SLEEP_TIME <span style="font-weight: bold">= </span>options<span style="font-weight: bold">.</span>frameTime
+    args<span style="font-weight: bold">[</span><span style="color: red">'display'</span><span style="font-weight: bold">] = </span>textDisplay<span style="font-weight: bold">.</span>PacmanGraphics<span style="font-weight: bold">()
+  </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+    </span><span style="color: blue; font-weight: bold">import </span>graphicsDisplay
+    args<span style="font-weight: bold">[</span><span style="color: red">'display'</span><span style="font-weight: bold">] = </span>graphicsDisplay<span style="font-weight: bold">.</span>PacmanGraphics<span style="font-weight: bold">(</span>options<span style="font-weight: bold">.</span>zoom<span style="font-weight: bold">, </span>frameTime <span style="font-weight: bold">= </span>options<span style="font-weight: bold">.</span>frameTime<span style="font-weight: bold">)
+  </span>args<span style="font-weight: bold">[</span><span style="color: red">'numGames'</span><span style="font-weight: bold">] = </span>options<span style="font-weight: bold">.</span>numGames
+  args<span style="font-weight: bold">[</span><span style="color: red">'record'</span><span style="font-weight: bold">] = </span>options<span style="font-weight: bold">.</span>record
+  args<span style="font-weight: bold">[</span><span style="color: red">'catchExceptions'</span><span style="font-weight: bold">] = </span>options<span style="font-weight: bold">.</span>catchExceptions
+  args<span style="font-weight: bold">[</span><span style="color: red">'timeout'</span><span style="font-weight: bold">] = </span>options<span style="font-weight: bold">.</span>timeout
+
+  <span style="color: green; font-style: italic"># Special case: recorded games don't use the runGames method or args structure
+  </span><span style="color: blue; font-weight: bold">if </span>options<span style="font-weight: bold">.</span>gameToReplay <span style="font-weight: bold">!= </span><span style="color: blue">None</span><span style="font-weight: bold">:
+    </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'Replaying recorded game %s.' </span><span style="font-weight: bold">% </span>options<span style="font-weight: bold">.</span>gameToReplay
+    <span style="color: blue; font-weight: bold">import </span>cPickle
+    f <span style="font-weight: bold">= </span>open<span style="font-weight: bold">(</span>options<span style="font-weight: bold">.</span>gameToReplay<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">try</span><span style="font-weight: bold">: </span>recorded <span style="font-weight: bold">= </span>cPickle<span style="font-weight: bold">.</span>load<span style="font-weight: bold">(</span>f<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">finally</span><span style="font-weight: bold">: </span>f<span style="font-weight: bold">.</span>close<span style="font-weight: bold">()
+    </span>recorded<span style="font-weight: bold">[</span><span style="color: red">'display'</span><span style="font-weight: bold">] = </span>args<span style="font-weight: bold">[</span><span style="color: red">'display'</span><span style="font-weight: bold">]
+    </span>replayGame<span style="font-weight: bold">(**</span>recorded<span style="font-weight: bold">)
+    </span>sys<span style="font-weight: bold">.</span>exit<span style="font-weight: bold">(</span><span style="color: red">0</span><span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">return </span>args
+
+<span style="color: blue; font-weight: bold">def </span>loadAgent<span style="font-weight: bold">(</span>pacman<span style="font-weight: bold">, </span>nographics<span style="font-weight: bold">):
+  </span><span style="color: green; font-style: italic"># Looks through all pythonPath Directories for the right module,
+  </span>pythonPathStr <span style="font-weight: bold">= </span>os<span style="font-weight: bold">.</span>path<span style="font-weight: bold">.</span>expandvars<span style="font-weight: bold">(</span><span style="color: red">"$PYTHONPATH"</span><span style="font-weight: bold">)
+  </span><span style="color: blue; font-weight: bold">if </span>pythonPathStr<span style="font-weight: bold">.</span>find<span style="font-weight: bold">(</span><span style="color: red">';'</span><span style="font-weight: bold">) == -</span><span style="color: red">1</span><span style="font-weight: bold">:
+    </span>pythonPathDirs <span style="font-weight: bold">= </span>pythonPathStr<span style="font-weight: bold">.</span>split<span style="font-weight: bold">(</span><span style="color: red">':'</span><span style="font-weight: bold">)
+  </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+    </span>pythonPathDirs <span style="font-weight: bold">= </span>pythonPathStr<span style="font-weight: bold">.</span>split<span style="font-weight: bold">(</span><span style="color: red">';'</span><span style="font-weight: bold">)
+  </span>pythonPathDirs<span style="font-weight: bold">.</span>append<span style="font-weight: bold">(</span><span style="color: red">'.'</span><span style="font-weight: bold">)
+
+  </span><span style="color: blue; font-weight: bold">for </span>moduleDir <span style="color: blue; font-weight: bold">in </span>pythonPathDirs<span style="font-weight: bold">:
+    </span><span style="color: blue; font-weight: bold">if not </span>os<span style="font-weight: bold">.</span>path<span style="font-weight: bold">.</span>isdir<span style="font-weight: bold">(</span>moduleDir<span style="font-weight: bold">): </span><span style="color: blue; font-weight: bold">continue
+    </span>moduleNames <span style="font-weight: bold">= [</span>f <span style="color: blue; font-weight: bold">for </span>f <span style="color: blue; font-weight: bold">in </span>os<span style="font-weight: bold">.</span>listdir<span style="font-weight: bold">(</span>moduleDir<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">if </span>f<span style="font-weight: bold">.</span>endswith<span style="font-weight: bold">(</span><span style="color: red">'gents.py'</span><span style="font-weight: bold">)]
+    </span><span style="color: blue; font-weight: bold">for </span>modulename <span style="color: blue; font-weight: bold">in </span>moduleNames<span style="font-weight: bold">:
+      </span><span style="color: blue; font-weight: bold">try</span><span style="font-weight: bold">:
+        </span>module <span style="font-weight: bold">= </span>__import__<span style="font-weight: bold">(</span>modulename<span style="font-weight: bold">[:-</span><span style="color: red">3</span><span style="font-weight: bold">])
+      </span><span style="color: blue; font-weight: bold">except </span>ImportError<span style="font-weight: bold">:
+        </span><span style="color: blue; font-weight: bold">continue
+      if </span>pacman <span style="color: blue; font-weight: bold">in </span>dir<span style="font-weight: bold">(</span>module<span style="font-weight: bold">):
+        </span><span style="color: blue; font-weight: bold">if </span>nographics <span style="color: blue; font-weight: bold">and </span>modulename <span style="font-weight: bold">== </span><span style="color: red">'keyboardAgents.py'</span><span style="font-weight: bold">:
+          </span><span style="color: blue; font-weight: bold">raise </span>Exception<span style="font-weight: bold">(</span><span style="color: red">'Using the keyboard requires graphics (not text display)'</span><span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">return </span>getattr<span style="font-weight: bold">(</span>module<span style="font-weight: bold">, </span>pacman<span style="font-weight: bold">)
+  </span><span style="color: blue; font-weight: bold">raise </span>Exception<span style="font-weight: bold">(</span><span style="color: red">'The agent ' </span><span style="font-weight: bold">+ </span>pacman <span style="font-weight: bold">+ </span><span style="color: red">' is not specified in any *Agents.py.'</span><span style="font-weight: bold">)
+
+</span><span style="color: blue; font-weight: bold">def </span>replayGame<span style="font-weight: bold">( </span>layout<span style="font-weight: bold">, </span>actions<span style="font-weight: bold">, </span>display <span style="font-weight: bold">):
+    </span><span style="color: blue; font-weight: bold">import </span>pacmanAgents<span style="font-weight: bold">, </span>ghostAgents
+    rules <span style="font-weight: bold">= </span>ClassicGameRules<span style="font-weight: bold">()
+    </span>agents <span style="font-weight: bold">= [</span>pacmanAgents<span style="font-weight: bold">.</span>GreedyAgent<span style="font-weight: bold">()] + [</span>ghostAgents<span style="font-weight: bold">.</span>RandomGhost<span style="font-weight: bold">(</span>i<span style="font-weight: bold">+</span><span style="color: red">1</span><span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span>layout<span style="font-weight: bold">.</span>getNumGhosts<span style="font-weight: bold">())]
+    </span>game <span style="font-weight: bold">= </span>rules<span style="font-weight: bold">.</span>newGame<span style="font-weight: bold">( </span>layout<span style="font-weight: bold">, </span>agents<span style="font-weight: bold">[</span><span style="color: red">0</span><span style="font-weight: bold">], </span>agents<span style="font-weight: bold">[</span><span style="color: red">1</span><span style="font-weight: bold">:], </span>display <span style="font-weight: bold">)
+    </span>state <span style="font-weight: bold">= </span>game<span style="font-weight: bold">.</span>state
+    display<span style="font-weight: bold">.</span>initialize<span style="font-weight: bold">(</span>state<span style="font-weight: bold">.</span>data<span style="font-weight: bold">)
+
+    </span><span style="color: blue; font-weight: bold">for </span>action <span style="color: blue; font-weight: bold">in </span>actions<span style="font-weight: bold">:
+      </span><span style="color: green; font-style: italic"># Execute the action
+      </span>state <span style="font-weight: bold">= </span>state<span style="font-weight: bold">.</span>generateSuccessor<span style="font-weight: bold">( *</span>action <span style="font-weight: bold">)
+      </span><span style="color: green; font-style: italic"># Change the display
+      </span>display<span style="font-weight: bold">.</span>update<span style="font-weight: bold">( </span>state<span style="font-weight: bold">.</span>data <span style="font-weight: bold">)
+      </span><span style="color: green; font-style: italic"># Allow for game specific conditions (winning, losing, etc.)
+      </span>rules<span style="font-weight: bold">.</span>process<span style="font-weight: bold">(</span>state<span style="font-weight: bold">, </span>game<span style="font-weight: bold">)
+
+    </span>display<span style="font-weight: bold">.</span>finish<span style="font-weight: bold">()
+
+</span><span style="color: blue; font-weight: bold">def </span>runGames<span style="font-weight: bold">( </span>layout<span style="font-weight: bold">, </span>pacman<span style="font-weight: bold">, </span>ghosts<span style="font-weight: bold">, </span>display<span style="font-weight: bold">, </span>numGames<span style="font-weight: bold">, </span>record<span style="font-weight: bold">, </span>numTraining <span style="font-weight: bold">= </span><span style="color: red">0</span><span style="font-weight: bold">, </span>catchExceptions<span style="font-weight: bold">=</span><span style="color: blue; font-weight: bold">False</span><span style="font-weight: bold">, </span>timeout<span style="font-weight: bold">=</span><span style="color: red">30 </span><span style="font-weight: bold">):
+  </span><span style="color: blue; font-weight: bold">import </span>__main__
+  __main__<span style="font-weight: bold">.</span>__dict__<span style="font-weight: bold">[</span><span style="color: red">'_display'</span><span style="font-weight: bold">] = </span>display
+
+  rules <span style="font-weight: bold">= </span>ClassicGameRules<span style="font-weight: bold">(</span>timeout<span style="font-weight: bold">)
+  </span>games <span style="font-weight: bold">= []
+
+  </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">( </span>numGames <span style="font-weight: bold">):
+    </span>beQuiet <span style="font-weight: bold">= </span>i <span style="font-weight: bold">&lt; </span>numTraining
+    <span style="color: blue; font-weight: bold">if </span>beQuiet<span style="font-weight: bold">:
+        </span><span style="color: green; font-style: italic"># Suppress output and graphics
+        </span><span style="color: blue; font-weight: bold">import </span>textDisplay
+        gameDisplay <span style="font-weight: bold">= </span>textDisplay<span style="font-weight: bold">.</span>NullGraphics<span style="font-weight: bold">()
+        </span>rules<span style="font-weight: bold">.</span>quiet <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">True
+    else</span><span style="font-weight: bold">:
+        </span>gameDisplay <span style="font-weight: bold">= </span>display
+        rules<span style="font-weight: bold">.</span>quiet <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">False
+    </span>game <span style="font-weight: bold">= </span>rules<span style="font-weight: bold">.</span>newGame<span style="font-weight: bold">( </span>layout<span style="font-weight: bold">, </span>pacman<span style="font-weight: bold">, </span>ghosts<span style="font-weight: bold">, </span>gameDisplay<span style="font-weight: bold">, </span>beQuiet<span style="font-weight: bold">, </span>catchExceptions<span style="font-weight: bold">)
+    </span>game<span style="font-weight: bold">.</span>run<span style="font-weight: bold">()
+    </span><span style="color: blue; font-weight: bold">if not </span>beQuiet<span style="font-weight: bold">: </span>games<span style="font-weight: bold">.</span>append<span style="font-weight: bold">(</span>game<span style="font-weight: bold">)
+
+    </span><span style="color: blue; font-weight: bold">if </span>record<span style="font-weight: bold">:
+      </span><span style="color: blue; font-weight: bold">import </span>time<span style="font-weight: bold">, </span>cPickle
+      fname <span style="font-weight: bold">= (</span><span style="color: red">'recorded-game-%d' </span><span style="font-weight: bold">% (</span>i <span style="font-weight: bold">+ </span><span style="color: red">1</span><span style="font-weight: bold">)) +  </span><span style="color: red">'-'</span><span style="font-weight: bold">.</span>join<span style="font-weight: bold">([</span>str<span style="font-weight: bold">(</span>t<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">for </span>t <span style="color: blue; font-weight: bold">in </span>time<span style="font-weight: bold">.</span>localtime<span style="font-weight: bold">()[</span><span style="color: red">1</span><span style="font-weight: bold">:</span><span style="color: red">6</span><span style="font-weight: bold">]])
+      </span>f <span style="font-weight: bold">= </span>file<span style="font-weight: bold">(</span>fname<span style="font-weight: bold">, </span><span style="color: red">'w'</span><span style="font-weight: bold">)
+      </span>components <span style="font-weight: bold">= {</span><span style="color: red">'layout'</span><span style="font-weight: bold">: </span>layout<span style="font-weight: bold">, </span><span style="color: red">'actions'</span><span style="font-weight: bold">: </span>game<span style="font-weight: bold">.</span>moveHistory<span style="font-weight: bold">}
+      </span>cPickle<span style="font-weight: bold">.</span>dump<span style="font-weight: bold">(</span>components<span style="font-weight: bold">, </span>f<span style="font-weight: bold">)
+      </span>f<span style="font-weight: bold">.</span>close<span style="font-weight: bold">()
+
+  </span><span style="color: blue; font-weight: bold">if </span><span style="font-weight: bold">(</span>numGames<span style="font-weight: bold">-</span>numTraining<span style="font-weight: bold">) &gt; </span><span style="color: red">0</span><span style="font-weight: bold">:
+    </span>scores <span style="font-weight: bold">= [</span>game<span style="font-weight: bold">.</span>state<span style="font-weight: bold">.</span>getScore<span style="font-weight: bold">() </span><span style="color: blue; font-weight: bold">for </span>game <span style="color: blue; font-weight: bold">in </span>games<span style="font-weight: bold">]
+    </span>wins <span style="font-weight: bold">= [</span>game<span style="font-weight: bold">.</span>state<span style="font-weight: bold">.</span>isWin<span style="font-weight: bold">() </span><span style="color: blue; font-weight: bold">for </span>game <span style="color: blue; font-weight: bold">in </span>games<span style="font-weight: bold">]
+    </span>winRate <span style="font-weight: bold">= </span>wins<span style="font-weight: bold">.</span>count<span style="font-weight: bold">(</span><span style="color: blue; font-weight: bold">True</span><span style="font-weight: bold">)/ </span>float<span style="font-weight: bold">(</span>len<span style="font-weight: bold">(</span>wins<span style="font-weight: bold">))
+    </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'Average Score:'</span><span style="font-weight: bold">, </span>sum<span style="font-weight: bold">(</span>scores<span style="font-weight: bold">) / </span>float<span style="font-weight: bold">(</span>len<span style="font-weight: bold">(</span>scores<span style="font-weight: bold">))
+    </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'Scores:       '</span><span style="font-weight: bold">, </span><span style="color: red">', '</span><span style="font-weight: bold">.</span>join<span style="font-weight: bold">([</span>str<span style="font-weight: bold">(</span>score<span style="font-weight: bold">) </span><span style="color: blue; font-weight: bold">for </span>score <span style="color: blue; font-weight: bold">in </span>scores<span style="font-weight: bold">])
+    </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'Win Rate:      %d/%d (%.2f)' </span><span style="font-weight: bold">% (</span>wins<span style="font-weight: bold">.</span>count<span style="font-weight: bold">(</span><span style="color: blue; font-weight: bold">True</span><span style="font-weight: bold">), </span>len<span style="font-weight: bold">(</span>wins<span style="font-weight: bold">), </span>winRate<span style="font-weight: bold">)
+    </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'Record:       '</span><span style="font-weight: bold">, </span><span style="color: red">', '</span><span style="font-weight: bold">.</span>join<span style="font-weight: bold">([ [</span><span style="color: red">'Loss'</span><span style="font-weight: bold">, </span><span style="color: red">'Win'</span><span style="font-weight: bold">][</span>int<span style="font-weight: bold">(</span>w<span style="font-weight: bold">)] </span><span style="color: blue; font-weight: bold">for </span>w <span style="color: blue; font-weight: bold">in </span>wins<span style="font-weight: bold">])
+
+  </span><span style="color: blue; font-weight: bold">return </span>games
+
+<span style="color: blue; font-weight: bold">if </span>__name__ <span style="font-weight: bold">== </span><span style="color: red">'__main__'</span><span style="font-weight: bold">:
+  </span><span style="color: darkred">"""
+  The main function called when pacman.py is run
+  from the command line:
+
+  &gt; python pacman.py
+
+  See the usage string for more details.
+
+  &gt; python pacman.py --help
+  """
+  </span>args <span style="font-weight: bold">= </span>readCommand<span style="font-weight: bold">( </span>sys<span style="font-weight: bold">.</span>argv<span style="font-weight: bold">[</span><span style="color: red">1</span><span style="font-weight: bold">:] ) </span><span style="color: green; font-style: italic"># Get game components based on input
+  </span>runGames<span style="font-weight: bold">( **</span>args <span style="font-weight: bold">)
+
+  </span><span style="color: green; font-style: italic"># import cProfile
+  # cProfile.run("runGames( **args )")
+  </span><span style="color: blue; font-weight: bold">pass
+</span>
+  </pre>
+  </body>
+  </html>
+  

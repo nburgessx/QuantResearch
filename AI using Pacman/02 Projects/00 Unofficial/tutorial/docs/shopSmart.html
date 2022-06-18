@@ -1,0 +1,51 @@
+<html>
+  <head>
+  <title>shopSmart.py</title>
+  </head>
+  <body>
+  <h3>shopSmart.py (<a href="../shopSmart.py">original</a>)</h3>
+  <hr>
+  <pre>
+<span style="color: green; font-style: italic"># shopSmart.py
+# ------------
+# Licensing Information: Please do not distribute or publish solutions to this
+# project. You are free to use and extend these projects for educational
+# purposes. The Pacman AI projects were developed at UC Berkeley, primarily by
+# John DeNero (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# For more info, see http://inst.eecs.berkeley.edu/~cs188/sp09/pacman.html
+
+</span><span style="color: darkred">"""
+Here's the intended output of this script, once you fill it in:
+
+Welcome to shop1 fruit shop
+Welcome to shop2 fruit shop
+For orders:  [('apples', 1.0), ('oranges', 3.0)] best shop is shop1
+For orders:  [('apples', 3.0)] best shop is shop2
+"""
+
+</span><span style="color: blue; font-weight: bold">import </span>shop
+
+<span style="color: blue; font-weight: bold">def </span>shopSmart<span style="font-weight: bold">(</span>orderList<span style="font-weight: bold">, </span>fruitShops<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+        orderList: List of (fruit, numPound) tuples
+        fruitShops: List of FruitShops
+    """    
+    </span><span style="color: red">"*** YOUR CODE HERE ***"
+    </span><span style="color: blue; font-weight: bold">return </span><span style="color: blue">None
+    
+</span><span style="color: blue; font-weight: bold">if </span>__name__ <span style="font-weight: bold">== </span><span style="color: red">'__main__'</span><span style="font-weight: bold">:
+  </span><span style="color: red">"This code runs when you invoke the script from the command line"
+  </span>orders <span style="font-weight: bold">= [(</span><span style="color: red">'apples'</span><span style="font-weight: bold">,</span><span style="color: red">1.0</span><span style="font-weight: bold">), (</span><span style="color: red">'oranges'</span><span style="font-weight: bold">,</span><span style="color: red">3.0</span><span style="font-weight: bold">)]
+  </span>dir1 <span style="font-weight: bold">= {</span><span style="color: red">'apples'</span><span style="font-weight: bold">: </span><span style="color: red">2.0</span><span style="font-weight: bold">, </span><span style="color: red">'oranges'</span><span style="font-weight: bold">:</span><span style="color: red">1.0</span><span style="font-weight: bold">}
+  </span>shop1 <span style="font-weight: bold">=  </span>shop<span style="font-weight: bold">.</span>FruitShop<span style="font-weight: bold">(</span><span style="color: red">'shop1'</span><span style="font-weight: bold">,</span>dir1<span style="font-weight: bold">)
+  </span>dir2 <span style="font-weight: bold">= {</span><span style="color: red">'apples'</span><span style="font-weight: bold">: </span><span style="color: red">1.0</span><span style="font-weight: bold">, </span><span style="color: red">'oranges'</span><span style="font-weight: bold">: </span><span style="color: red">5.0</span><span style="font-weight: bold">}
+  </span>shop2 <span style="font-weight: bold">= </span>shop<span style="font-weight: bold">.</span>FruitShop<span style="font-weight: bold">(</span><span style="color: red">'shop2'</span><span style="font-weight: bold">,</span>dir2<span style="font-weight: bold">)
+  </span>shops <span style="font-weight: bold">= [</span>shop1<span style="font-weight: bold">, </span>shop2<span style="font-weight: bold">]
+  </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"For orders "</span><span style="font-weight: bold">, </span>orders<span style="font-weight: bold">, </span><span style="color: red">", the best shop is"</span><span style="font-weight: bold">, </span>shopSmart<span style="font-weight: bold">(</span>orders<span style="font-weight: bold">, </span>shops<span style="font-weight: bold">).</span>getName<span style="font-weight: bold">()
+  </span>orders <span style="font-weight: bold">= [(</span><span style="color: red">'apples'</span><span style="font-weight: bold">,</span><span style="color: red">3.0</span><span style="font-weight: bold">)]
+  </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">"For orders: "</span><span style="font-weight: bold">, </span>orders<span style="font-weight: bold">, </span><span style="color: red">", the best shop is"</span><span style="font-weight: bold">, </span>shopSmart<span style="font-weight: bold">(</span>orders<span style="font-weight: bold">, </span>shops<span style="font-weight: bold">).</span>getName<span style="font-weight: bold">()
+</span>
+  </pre>
+  </body>
+  </html>
+  

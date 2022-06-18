@@ -1,0 +1,326 @@
+<html>
+  <head>
+  <title>graphicsCrawlerDisplay.py</title>
+  </head>
+  <body>
+  <h3>graphicsCrawlerDisplay.py (<a href="../graphicsCrawlerDisplay.py">original</a>)</h3>
+  <hr>
+  <pre>
+<span style="color: green; font-style: italic"># graphicsCrawlerDisplay.py
+# -------------------------
+# Licensing Information: Please do not distribute or publish solutions to this
+# project. You are free to use and extend these projects for educational
+# purposes. The Pacman AI projects were developed at UC Berkeley, primarily by
+# John DeNero (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# For more info, see http://inst.eecs.berkeley.edu/~cs188/sp09/pacman.html
+
+</span><span style="color: blue; font-weight: bold">import </span>Tkinter
+<span style="color: blue; font-weight: bold">import </span>qlearningAgents
+<span style="color: blue; font-weight: bold">import </span>time
+<span style="color: blue; font-weight: bold">import </span>threading
+<span style="color: blue; font-weight: bold">import </span>sys
+<span style="color: blue; font-weight: bold">import </span>crawler
+<span style="color: green; font-style: italic">#import pendulum
+</span><span style="color: blue; font-weight: bold">import </span>math
+<span style="color: blue; font-weight: bold">from </span>math <span style="color: blue; font-weight: bold">import </span>pi as PI
+
+robotType <span style="font-weight: bold">= </span><span style="color: red">'crawler'
+
+</span><span style="color: blue; font-weight: bold">class </span>Application<span style="font-weight: bold">:
+
+    </span><span style="color: blue; font-weight: bold">def </span>sigmoid<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>x<span style="font-weight: bold">):
+        </span><span style="color: blue; font-weight: bold">return </span><span style="color: red">1.0 </span><span style="font-weight: bold">/ (</span><span style="color: red">1.0 </span><span style="font-weight: bold">+ </span><span style="color: red">2.0 </span><span style="font-weight: bold">** (-</span>x<span style="font-weight: bold">))
+
+    </span><span style="color: blue; font-weight: bold">def </span>incrementSpeed<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>inc<span style="font-weight: bold">):
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>tickTime <span style="font-weight: bold">*= </span>inc        
+<span style="color: green; font-style: italic">#        self.epsilon = min(1.0, self.epsilon)
+#        self.epsilon = max(0.0,self.epsilon)    
+#        self.learner.setSpeed(self.epsilon)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>speed_label<span style="font-weight: bold">[</span><span style="color: red">'text'</span><span style="font-weight: bold">] = </span><span style="color: red">'Step Delay: %.5f' </span><span style="font-weight: bold">% (</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>tickTime<span style="font-weight: bold">)
+
+    </span><span style="color: blue; font-weight: bold">def </span>incrementEpsilon<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>inc<span style="font-weight: bold">):
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>ep <span style="font-weight: bold">+= </span>inc     
+        <span style="color: blue">self</span><span style="font-weight: bold">.</span>epsilon <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>sigmoid<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>ep<span style="font-weight: bold">)   
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>learner<span style="font-weight: bold">.</span>setEpsilon<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>epsilon<span style="font-weight: bold">)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>epsilon_label<span style="font-weight: bold">[</span><span style="color: red">'text'</span><span style="font-weight: bold">] = </span><span style="color: red">'Epsilon: %.3f' </span><span style="font-weight: bold">% (</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>epsilon<span style="font-weight: bold">)
+                           
+    </span><span style="color: blue; font-weight: bold">def </span>incrementGamma<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>inc<span style="font-weight: bold">):
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>ga <span style="font-weight: bold">+= </span>inc     
+        <span style="color: blue">self</span><span style="font-weight: bold">.</span>gamma <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>sigmoid<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>ga<span style="font-weight: bold">)   
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>learner<span style="font-weight: bold">.</span>setDiscount<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gamma<span style="font-weight: bold">)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gamma_label<span style="font-weight: bold">[</span><span style="color: red">'text'</span><span style="font-weight: bold">] = </span><span style="color: red">'Discount: %.3f' </span><span style="font-weight: bold">% (</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gamma<span style="font-weight: bold">)
+                
+    </span><span style="color: blue; font-weight: bold">def </span>incrementAlpha<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>inc<span style="font-weight: bold">):
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>al <span style="font-weight: bold">+= </span>inc     
+        <span style="color: blue">self</span><span style="font-weight: bold">.</span>alpha <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>sigmoid<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>al<span style="font-weight: bold">)   
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>learner<span style="font-weight: bold">.</span>setLearningRate<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>alpha<span style="font-weight: bold">)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>alpha_label<span style="font-weight: bold">[</span><span style="color: red">'text'</span><span style="font-weight: bold">] = </span><span style="color: red">'Learning Rate: %.3f' </span><span style="font-weight: bold">% (</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>alpha<span style="font-weight: bold">)
+        
+    </span><span style="color: blue; font-weight: bold">def </span>__initGUI<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>win<span style="font-weight: bold">):
+        </span><span style="color: green; font-style: italic">## Window ##
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>win <span style="font-weight: bold">= </span>win
+        
+        <span style="color: green; font-style: italic">## Initialize Frame ##    
+        </span>win<span style="font-weight: bold">.</span>grid<span style="font-weight: bold">()
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>dec <span style="font-weight: bold">= -.</span><span style="color: red">5
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>inc <span style="font-weight: bold">= .</span><span style="color: red">5
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>tickTime <span style="font-weight: bold">= </span><span style="color: red">0.1
+
+        </span><span style="color: green; font-style: italic">## Epsilon Button + Label ##
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>setupSpeedButtonAndLabel<span style="font-weight: bold">(</span>win<span style="font-weight: bold">)
+        
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>setupEpsilonButtonAndLabel<span style="font-weight: bold">(</span>win<span style="font-weight: bold">)
+        
+        </span><span style="color: green; font-style: italic">## Gamma Button + Label ##
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>setUpGammaButtonAndLabel<span style="font-weight: bold">(</span>win<span style="font-weight: bold">)
+        
+        </span><span style="color: green; font-style: italic">## Alpha Button + Label ##
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>setupAlphaButtonAndLabel<span style="font-weight: bold">(</span>win<span style="font-weight: bold">)
+        
+        </span><span style="color: green; font-style: italic">## Exit Button ##
+        #self.exit_button = Tkinter.Button(win,text='Quit', command=self.exit)
+        #self.exit_button.grid(row=0, column=9)
+        
+        ## Simulation Buttons ##
+#        self.setupSimulationButtons(win)
+        
+         ## Canvas ##
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>canvas <span style="font-weight: bold">= </span>Tkinter<span style="font-weight: bold">.</span>Canvas<span style="font-weight: bold">(</span>root<span style="font-weight: bold">, </span>height<span style="font-weight: bold">=</span><span style="color: red">200</span><span style="font-weight: bold">, </span>width<span style="font-weight: bold">=</span><span style="color: red">1000</span><span style="font-weight: bold">)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>canvas<span style="font-weight: bold">.</span>grid<span style="font-weight: bold">(</span>row<span style="font-weight: bold">=</span><span style="color: red">2</span><span style="font-weight: bold">,</span>columnspan<span style="font-weight: bold">=</span><span style="color: red">10</span><span style="font-weight: bold">)
+
+    </span><span style="color: blue; font-weight: bold">def </span>setupAlphaButtonAndLabel<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>win<span style="font-weight: bold">):
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>alpha_minus <span style="font-weight: bold">= </span>Tkinter<span style="font-weight: bold">.</span>Button<span style="font-weight: bold">(</span>win<span style="font-weight: bold">, 
+        </span>text<span style="font-weight: bold">=</span><span style="color: red">"-"</span><span style="font-weight: bold">,</span>command<span style="font-weight: bold">=(</span><span style="color: blue; font-weight: bold">lambda</span><span style="font-weight: bold">: </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>incrementAlpha<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>dec<span style="font-weight: bold">)))                
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>alpha_minus<span style="font-weight: bold">.</span>grid<span style="font-weight: bold">(</span>row<span style="font-weight: bold">=</span><span style="color: red">1</span><span style="font-weight: bold">, </span>column<span style="font-weight: bold">=</span><span style="color: red">3</span><span style="font-weight: bold">, </span>padx<span style="font-weight: bold">=</span><span style="color: red">10</span><span style="font-weight: bold">)
+        
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>alpha <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>sigmoid<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>al<span style="font-weight: bold">)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>alpha_label <span style="font-weight: bold">= </span>Tkinter<span style="font-weight: bold">.</span>Label<span style="font-weight: bold">(</span>win<span style="font-weight: bold">, </span>text<span style="font-weight: bold">=</span><span style="color: red">'Learning Rate: %.3f' </span><span style="font-weight: bold">% (</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>alpha<span style="font-weight: bold">))
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>alpha_label<span style="font-weight: bold">.</span>grid<span style="font-weight: bold">(</span>row<span style="font-weight: bold">=</span><span style="color: red">1</span><span style="font-weight: bold">, </span>column<span style="font-weight: bold">=</span><span style="color: red">4</span><span style="font-weight: bold">)
+        
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>alpha_plus <span style="font-weight: bold">= </span>Tkinter<span style="font-weight: bold">.</span>Button<span style="font-weight: bold">(</span>win<span style="font-weight: bold">, 
+        </span>text<span style="font-weight: bold">=</span><span style="color: red">"+"</span><span style="font-weight: bold">,</span>command<span style="font-weight: bold">=(</span><span style="color: blue; font-weight: bold">lambda</span><span style="font-weight: bold">: </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>incrementAlpha<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>inc<span style="font-weight: bold">)))        
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>alpha_plus<span style="font-weight: bold">.</span>grid<span style="font-weight: bold">(</span>row<span style="font-weight: bold">=</span><span style="color: red">1</span><span style="font-weight: bold">, </span>column<span style="font-weight: bold">=</span><span style="color: red">5</span><span style="font-weight: bold">, </span>padx<span style="font-weight: bold">=</span><span style="color: red">10</span><span style="font-weight: bold">)
+
+    </span><span style="color: blue; font-weight: bold">def </span>setUpGammaButtonAndLabel<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>win<span style="font-weight: bold">):
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gamma_minus <span style="font-weight: bold">= </span>Tkinter<span style="font-weight: bold">.</span>Button<span style="font-weight: bold">(</span>win<span style="font-weight: bold">, 
+        </span>text<span style="font-weight: bold">=</span><span style="color: red">"-"</span><span style="font-weight: bold">,</span>command<span style="font-weight: bold">=(</span><span style="color: blue; font-weight: bold">lambda</span><span style="font-weight: bold">: </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>incrementGamma<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>dec<span style="font-weight: bold">)))                
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gamma_minus<span style="font-weight: bold">.</span>grid<span style="font-weight: bold">(</span>row<span style="font-weight: bold">=</span><span style="color: red">1</span><span style="font-weight: bold">, </span>column<span style="font-weight: bold">=</span><span style="color: red">0</span><span style="font-weight: bold">, </span>padx<span style="font-weight: bold">=</span><span style="color: red">10</span><span style="font-weight: bold">)
+        
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gamma <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>sigmoid<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>ga<span style="font-weight: bold">)   
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gamma_label <span style="font-weight: bold">= </span>Tkinter<span style="font-weight: bold">.</span>Label<span style="font-weight: bold">(</span>win<span style="font-weight: bold">, </span>text<span style="font-weight: bold">=</span><span style="color: red">'Discount: %.3f' </span><span style="font-weight: bold">% (</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gamma<span style="font-weight: bold">))
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gamma_label<span style="font-weight: bold">.</span>grid<span style="font-weight: bold">(</span>row<span style="font-weight: bold">=</span><span style="color: red">1</span><span style="font-weight: bold">, </span>column<span style="font-weight: bold">=</span><span style="color: red">1</span><span style="font-weight: bold">)
+        
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gamma_plus <span style="font-weight: bold">= </span>Tkinter<span style="font-weight: bold">.</span>Button<span style="font-weight: bold">(</span>win<span style="font-weight: bold">, 
+        </span>text<span style="font-weight: bold">=</span><span style="color: red">"+"</span><span style="font-weight: bold">,</span>command<span style="font-weight: bold">=(</span><span style="color: blue; font-weight: bold">lambda</span><span style="font-weight: bold">: </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>incrementGamma<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>inc<span style="font-weight: bold">)))        
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gamma_plus<span style="font-weight: bold">.</span>grid<span style="font-weight: bold">(</span>row<span style="font-weight: bold">=</span><span style="color: red">1</span><span style="font-weight: bold">, </span>column<span style="font-weight: bold">=</span><span style="color: red">2</span><span style="font-weight: bold">, </span>padx<span style="font-weight: bold">=</span><span style="color: red">10</span><span style="font-weight: bold">)
+
+    </span><span style="color: blue; font-weight: bold">def </span>setupEpsilonButtonAndLabel<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>win<span style="font-weight: bold">):
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>epsilon_minus <span style="font-weight: bold">= </span>Tkinter<span style="font-weight: bold">.</span>Button<span style="font-weight: bold">(</span>win<span style="font-weight: bold">, 
+        </span>text<span style="font-weight: bold">=</span><span style="color: red">"-"</span><span style="font-weight: bold">,</span>command<span style="font-weight: bold">=(</span><span style="color: blue; font-weight: bold">lambda</span><span style="font-weight: bold">: </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>incrementEpsilon<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>dec<span style="font-weight: bold">)))                
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>epsilon_minus<span style="font-weight: bold">.</span>grid<span style="font-weight: bold">(</span>row<span style="font-weight: bold">=</span><span style="color: red">0</span><span style="font-weight: bold">, </span>column<span style="font-weight: bold">=</span><span style="color: red">3</span><span style="font-weight: bold">)
+        
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>epsilon <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>sigmoid<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>ep<span style="font-weight: bold">)   
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>epsilon_label <span style="font-weight: bold">= </span>Tkinter<span style="font-weight: bold">.</span>Label<span style="font-weight: bold">(</span>win<span style="font-weight: bold">, </span>text<span style="font-weight: bold">=</span><span style="color: red">'Epsilon: %.3f' </span><span style="font-weight: bold">% (</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>epsilon<span style="font-weight: bold">))
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>epsilon_label<span style="font-weight: bold">.</span>grid<span style="font-weight: bold">(</span>row<span style="font-weight: bold">=</span><span style="color: red">0</span><span style="font-weight: bold">, </span>column<span style="font-weight: bold">=</span><span style="color: red">4</span><span style="font-weight: bold">)
+        
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>epsilon_plus <span style="font-weight: bold">= </span>Tkinter<span style="font-weight: bold">.</span>Button<span style="font-weight: bold">(</span>win<span style="font-weight: bold">, 
+        </span>text<span style="font-weight: bold">=</span><span style="color: red">"+"</span><span style="font-weight: bold">,</span>command<span style="font-weight: bold">=(</span><span style="color: blue; font-weight: bold">lambda</span><span style="font-weight: bold">: </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>incrementEpsilon<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>inc<span style="font-weight: bold">)))        
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>epsilon_plus<span style="font-weight: bold">.</span>grid<span style="font-weight: bold">(</span>row<span style="font-weight: bold">=</span><span style="color: red">0</span><span style="font-weight: bold">, </span>column<span style="font-weight: bold">=</span><span style="color: red">5</span><span style="font-weight: bold">)
+
+    </span><span style="color: blue; font-weight: bold">def </span>setupSpeedButtonAndLabel<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>win<span style="font-weight: bold">):
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>speed_minus <span style="font-weight: bold">= </span>Tkinter<span style="font-weight: bold">.</span>Button<span style="font-weight: bold">(</span>win<span style="font-weight: bold">, 
+        </span>text<span style="font-weight: bold">=</span><span style="color: red">"-"</span><span style="font-weight: bold">,</span>command<span style="font-weight: bold">=(</span><span style="color: blue; font-weight: bold">lambda</span><span style="font-weight: bold">: </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>incrementSpeed<span style="font-weight: bold">(.</span><span style="color: red">5</span><span style="font-weight: bold">)))                
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>speed_minus<span style="font-weight: bold">.</span>grid<span style="font-weight: bold">(</span>row<span style="font-weight: bold">=</span><span style="color: red">0</span><span style="font-weight: bold">, </span>column<span style="font-weight: bold">=</span><span style="color: red">0</span><span style="font-weight: bold">)
+        
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>speed_label <span style="font-weight: bold">= </span>Tkinter<span style="font-weight: bold">.</span>Label<span style="font-weight: bold">(</span>win<span style="font-weight: bold">, </span>text<span style="font-weight: bold">=</span><span style="color: red">'Step Delay: %.5f' </span><span style="font-weight: bold">% (</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>tickTime<span style="font-weight: bold">))
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>speed_label<span style="font-weight: bold">.</span>grid<span style="font-weight: bold">(</span>row<span style="font-weight: bold">=</span><span style="color: red">0</span><span style="font-weight: bold">, </span>column<span style="font-weight: bold">=</span><span style="color: red">1</span><span style="font-weight: bold">)
+        
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>speed_plus <span style="font-weight: bold">= </span>Tkinter<span style="font-weight: bold">.</span>Button<span style="font-weight: bold">(</span>win<span style="font-weight: bold">, 
+        </span>text<span style="font-weight: bold">=</span><span style="color: red">"+"</span><span style="font-weight: bold">,</span>command<span style="font-weight: bold">=(</span><span style="color: blue; font-weight: bold">lambda</span><span style="font-weight: bold">: </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>incrementSpeed<span style="font-weight: bold">(</span><span style="color: red">2</span><span style="font-weight: bold">)))        
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>speed_plus<span style="font-weight: bold">.</span>grid<span style="font-weight: bold">(</span>row<span style="font-weight: bold">=</span><span style="color: red">0</span><span style="font-weight: bold">, </span>column<span style="font-weight: bold">=</span><span style="color: red">2</span><span style="font-weight: bold">)
+
+        
+                           
+                
+        
+        
+                                               
+    </span><span style="color: blue; font-weight: bold">def </span>skip5kSteps<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>stepsToSkip <span style="font-weight: bold">= </span><span style="color: red">5000
+
+    </span><span style="color: blue; font-weight: bold">def </span>__init__<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">, </span>win<span style="font-weight: bold">):
+    
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>ep <span style="font-weight: bold">= </span><span style="color: red">0
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>ga <span style="font-weight: bold">= </span><span style="color: red">2
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>al <span style="font-weight: bold">= </span><span style="color: red">2
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>stepCount <span style="font-weight: bold">= </span><span style="color: red">0
+        </span><span style="color: green; font-style: italic">## Init Gui        
+            
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>__initGUI<span style="font-weight: bold">(</span>win<span style="font-weight: bold">)
+
+        </span><span style="color: green; font-style: italic"># Init environment
+        </span><span style="color: blue; font-weight: bold">if </span>robotType <span style="font-weight: bold">== </span><span style="color: red">'crawler'</span><span style="font-weight: bold">:
+            </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>robot <span style="font-weight: bold">= </span>crawler<span style="font-weight: bold">.</span>CrawlingRobot<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>canvas<span style="font-weight: bold">)                                        
+            </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>robotEnvironment <span style="font-weight: bold">= </span>crawler<span style="font-weight: bold">.</span>CrawlingRobotEnvironment<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>robot<span style="font-weight: bold">)            
+        </span><span style="color: blue; font-weight: bold">elif </span>robotType <span style="font-weight: bold">== </span><span style="color: red">'pendulum'</span><span style="font-weight: bold">:
+            </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>robot <span style="font-weight: bold">= </span>pendulum<span style="font-weight: bold">.</span>PendulumRobot<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>canvas<span style="font-weight: bold">)
+            </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>robotEnvironment <span style="font-weight: bold">= </span>\
+                pendulum<span style="font-weight: bold">.</span>PendulumRobotEnvironment<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>robot<span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+            </span><span style="color: blue; font-weight: bold">raise </span><span style="color: red">"Unknown RobotType"
+  
+        </span><span style="color: green; font-style: italic"># Init Agent      
+        </span>simulationFn <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">lambda </span>agent<span style="font-weight: bold">: </span>\
+          simulation<span style="font-weight: bold">.</span>SimulationEnvironment<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>robotEnvironment<span style="font-weight: bold">,</span>agent<span style="font-weight: bold">)        
+        </span>actionFn <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">lambda </span>state<span style="font-weight: bold">: </span>\
+          <span style="color: blue">self</span><span style="font-weight: bold">.</span>robotEnvironment<span style="font-weight: bold">.</span>getPossibleActions<span style="font-weight: bold">(</span>state<span style="font-weight: bold">)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>learner <span style="font-weight: bold">= </span>qlearningAgents<span style="font-weight: bold">.</span>QLearningAgent<span style="font-weight: bold">(</span>actionFn<span style="font-weight: bold">=</span>actionFn<span style="font-weight: bold">)
+        
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>learner<span style="font-weight: bold">.</span>setEpsilon<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>epsilon<span style="font-weight: bold">)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>learner<span style="font-weight: bold">.</span>setLearningRate<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>alpha<span style="font-weight: bold">)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>learner<span style="font-weight: bold">.</span>setDiscount<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>gamma<span style="font-weight: bold">)
+        
+        </span><span style="color: green; font-style: italic"># Start GUI
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>running <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">True
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>stopped <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">False
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>stepsToSkip <span style="font-weight: bold">= </span><span style="color: red">0
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>thread <span style="font-weight: bold">= </span>threading<span style="font-weight: bold">.</span>Thread<span style="font-weight: bold">(</span>target<span style="font-weight: bold">=</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>run<span style="font-weight: bold">)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>thread<span style="font-weight: bold">.</span>start<span style="font-weight: bold">()
+
+
+    </span><span style="color: blue; font-weight: bold">def </span>exit<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>running <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">False
+      for </span>i <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span><span style="color: red">5</span><span style="font-weight: bold">):
+        </span><span style="color: blue; font-weight: bold">if not </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>stopped<span style="font-weight: bold">:
+</span><span style="color: green; font-style: italic">#          print "Waiting for thread to die..."
+          </span>time<span style="font-weight: bold">.</span>sleep<span style="font-weight: bold">(</span><span style="color: red">0.1</span><span style="font-weight: bold">)
+      </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>win<span style="font-weight: bold">.</span>destroy<span style="font-weight: bold">()      
+      </span>sys<span style="font-weight: bold">.</span>exit<span style="font-weight: bold">(</span><span style="color: red">0</span><span style="font-weight: bold">)
+      
+    </span><span style="color: blue; font-weight: bold">def </span>step<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+        
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>stepCount <span style="font-weight: bold">+= </span><span style="color: red">1
+        
+        </span>state <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>robotEnvironment<span style="font-weight: bold">.</span>getCurrentState<span style="font-weight: bold">()
+        </span>actions <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>robotEnvironment<span style="font-weight: bold">.</span>getPossibleActions<span style="font-weight: bold">(</span>state<span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">if </span>len<span style="font-weight: bold">(</span>actions<span style="font-weight: bold">) == </span><span style="color: red">0.0</span><span style="font-weight: bold">:
+            </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>robotEnvironment<span style="font-weight: bold">.</span>reset<span style="font-weight: bold">()
+            </span>state <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>robotEnvironment<span style="font-weight: bold">.</span>getCurrentState<span style="font-weight: bold">()
+            </span>actions <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>robotEnvironment<span style="font-weight: bold">.</span>getPossibleActions<span style="font-weight: bold">(</span>state<span style="font-weight: bold">)        
+            </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'Reset!'
+        </span>action <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>learner<span style="font-weight: bold">.</span>getAction<span style="font-weight: bold">(</span>state<span style="font-weight: bold">)
+        </span><span style="color: blue; font-weight: bold">if </span>action <span style="font-weight: bold">== </span><span style="color: blue">None</span><span style="font-weight: bold">:
+            </span><span style="color: blue; font-weight: bold">raise </span><span style="color: red">'None action returned: Code Not Complete'
+        </span>nextState<span style="font-weight: bold">, </span>reward <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>robotEnvironment<span style="font-weight: bold">.</span>doAction<span style="font-weight: bold">(</span>action<span style="font-weight: bold">)
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>learner<span style="font-weight: bold">.</span>observeTransition<span style="font-weight: bold">(</span>state<span style="font-weight: bold">, </span>action<span style="font-weight: bold">, </span>nextState<span style="font-weight: bold">, </span>reward<span style="font-weight: bold">)
+        
+    </span><span style="color: blue; font-weight: bold">def </span>animatePolicy<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+        </span><span style="color: blue; font-weight: bold">if </span>robotType <span style="font-weight: bold">!= </span><span style="color: red">'pendulum'</span><span style="font-weight: bold">:
+            </span><span style="color: blue; font-weight: bold">raise </span><span style="color: red">'Only pendulum can animatePolicy'
+        
+
+        </span>totWidth <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>canvas<span style="font-weight: bold">.</span>winfo_reqwidth<span style="font-weight: bold">()
+        </span>totHeight <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>canvas<span style="font-weight: bold">.</span>winfo_reqheight<span style="font-weight: bold">()
+        
+        </span>length <span style="font-weight: bold">= </span><span style="color: red">0.48 </span><span style="font-weight: bold">* </span>min<span style="font-weight: bold">(</span>totWidth<span style="font-weight: bold">, </span>totHeight<span style="font-weight: bold">)
+        </span>x<span style="font-weight: bold">,</span>y <span style="font-weight: bold">= </span>totWidth<span style="font-weight: bold">-</span>length<span style="font-weight: bold">-</span><span style="color: red">30</span><span style="font-weight: bold">, </span>length<span style="font-weight: bold">+</span><span style="color: red">10
+    
+        
+    
+        </span>angleMin<span style="font-weight: bold">, </span>angleMax <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>robot<span style="font-weight: bold">.</span>getMinAndMaxAngle<span style="font-weight: bold">()
+        </span>velMin<span style="font-weight: bold">, </span>velMax <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>robot<span style="font-weight: bold">.</span>getMinAndMaxAngleVelocity<span style="font-weight: bold">()
+        
+        </span><span style="color: blue; font-weight: bold">if not </span><span style="color: red">'animatePolicyBox' </span><span style="color: blue; font-weight: bold">in </span>dir<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+            </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>canvas<span style="font-weight: bold">.</span>create_line<span style="font-weight: bold">(</span>x<span style="font-weight: bold">,</span>y<span style="font-weight: bold">,</span>x<span style="font-weight: bold">+</span>length<span style="font-weight: bold">,</span>y<span style="font-weight: bold">)
+            </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>canvas<span style="font-weight: bold">.</span>create_line<span style="font-weight: bold">(</span>x<span style="font-weight: bold">+</span>length<span style="font-weight: bold">,</span>y<span style="font-weight: bold">,</span>x<span style="font-weight: bold">+</span>length<span style="font-weight: bold">,</span>y<span style="font-weight: bold">-</span>length<span style="font-weight: bold">)
+            </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>canvas<span style="font-weight: bold">.</span>create_line<span style="font-weight: bold">(</span>x<span style="font-weight: bold">+</span>length<span style="font-weight: bold">,</span>y<span style="font-weight: bold">-</span>length<span style="font-weight: bold">,</span>x<span style="font-weight: bold">,</span>y<span style="font-weight: bold">-</span>length<span style="font-weight: bold">)
+            </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>canvas<span style="font-weight: bold">.</span>create_line<span style="font-weight: bold">(</span>x<span style="font-weight: bold">,</span>y<span style="font-weight: bold">-</span>length<span style="font-weight: bold">,</span>x<span style="font-weight: bold">,</span>y<span style="font-weight: bold">)
+            </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>animatePolicyBox <span style="font-weight: bold">= </span><span style="color: red">1
+            </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>canvas<span style="font-weight: bold">.</span>create_text<span style="font-weight: bold">(</span>x<span style="font-weight: bold">+</span>length<span style="font-weight: bold">/</span><span style="color: red">2</span><span style="font-weight: bold">,</span>y<span style="font-weight: bold">+</span><span style="color: red">10</span><span style="font-weight: bold">,</span>text<span style="font-weight: bold">=</span><span style="color: red">'angle'</span><span style="font-weight: bold">)
+            </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>canvas<span style="font-weight: bold">.</span>create_text<span style="font-weight: bold">(</span>x<span style="font-weight: bold">-</span><span style="color: red">30</span><span style="font-weight: bold">,</span>y<span style="font-weight: bold">-</span>length<span style="font-weight: bold">/</span><span style="color: red">2</span><span style="font-weight: bold">,</span>text<span style="font-weight: bold">=</span><span style="color: red">'velocity'</span><span style="font-weight: bold">)
+            </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>canvas<span style="font-weight: bold">.</span>create_text<span style="font-weight: bold">(</span>x<span style="font-weight: bold">-</span><span style="color: red">60</span><span style="font-weight: bold">,</span>y<span style="font-weight: bold">-</span>length<span style="font-weight: bold">/</span><span style="color: red">4</span><span style="font-weight: bold">,</span>text<span style="font-weight: bold">=</span><span style="color: red">'Blue = kickLeft'</span><span style="font-weight: bold">)
+            </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>canvas<span style="font-weight: bold">.</span>create_text<span style="font-weight: bold">(</span>x<span style="font-weight: bold">-</span><span style="color: red">60</span><span style="font-weight: bold">,</span>y<span style="font-weight: bold">-</span>length<span style="font-weight: bold">/</span><span style="color: red">4</span><span style="font-weight: bold">+</span><span style="color: red">20</span><span style="font-weight: bold">,</span>text<span style="font-weight: bold">=</span><span style="color: red">'Red = kickRight'</span><span style="font-weight: bold">)
+            </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>canvas<span style="font-weight: bold">.</span>create_text<span style="font-weight: bold">(</span>x<span style="font-weight: bold">-</span><span style="color: red">60</span><span style="font-weight: bold">,</span>y<span style="font-weight: bold">-</span>length<span style="font-weight: bold">/</span><span style="color: red">4</span><span style="font-weight: bold">+</span><span style="color: red">40</span><span style="font-weight: bold">,</span>text<span style="font-weight: bold">=</span><span style="color: red">'White = doNothing'</span><span style="font-weight: bold">)
+            
+            
+        
+        </span>angleDelta <span style="font-weight: bold">= (</span>angleMax<span style="font-weight: bold">-</span>angleMin<span style="font-weight: bold">) / </span><span style="color: red">100
+        </span>velDelta <span style="font-weight: bold">= (</span>velMax<span style="font-weight: bold">-</span>velMin<span style="font-weight: bold">) / </span><span style="color: red">100
+        </span><span style="color: blue; font-weight: bold">for </span>i <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span><span style="color: red">100</span><span style="font-weight: bold">):
+            </span>angle <span style="font-weight: bold">= </span>angleMin <span style="font-weight: bold">+ </span>i <span style="font-weight: bold">* </span>angleDelta
+ 
+            <span style="color: blue; font-weight: bold">for </span>j <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span><span style="color: red">100</span><span style="font-weight: bold">):
+                </span>vel <span style="font-weight: bold">= </span>velMin <span style="font-weight: bold">+ </span>j <span style="font-weight: bold">* </span>velDelta
+                state <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>robotEnvironment<span style="font-weight: bold">.</span>getState<span style="font-weight: bold">(</span>angle<span style="font-weight: bold">,</span>vel<span style="font-weight: bold">)
+                </span>max<span style="font-weight: bold">, </span>argMax <span style="font-weight: bold">= </span><span style="color: blue">None</span><span style="font-weight: bold">, </span><span style="color: blue">None
+                </span><span style="color: blue; font-weight: bold">if not </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>learner<span style="font-weight: bold">.</span>seenState<span style="font-weight: bold">(</span>state<span style="font-weight: bold">):
+                    </span>argMax <span style="font-weight: bold">= </span><span style="color: red">'unseen'
+                </span><span style="color: blue; font-weight: bold">else</span><span style="font-weight: bold">:
+                     </span><span style="color: blue; font-weight: bold">for </span>action <span style="color: blue; font-weight: bold">in </span><span style="font-weight: bold">(</span><span style="color: red">'kickLeft'</span><span style="font-weight: bold">,</span><span style="color: red">'kickRight'</span><span style="font-weight: bold">,</span><span style="color: red">'doNothing'</span><span style="font-weight: bold">):
+                         </span>qVal <span style="font-weight: bold">= </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>learner<span style="font-weight: bold">.</span>getQValue<span style="font-weight: bold">(</span>state<span style="font-weight: bold">, </span>action<span style="font-weight: bold">)
+                         </span><span style="color: blue; font-weight: bold">if </span>max <span style="font-weight: bold">== </span><span style="color: blue">None </span><span style="color: blue; font-weight: bold">or </span>qVal <span style="font-weight: bold">&gt; </span>max<span style="font-weight: bold">:
+                             </span>max<span style="font-weight: bold">, </span>argMax <span style="font-weight: bold">= </span>qVal<span style="font-weight: bold">, </span>action
+                <span style="color: blue; font-weight: bold">if </span>argMax <span style="font-weight: bold">!= </span><span style="color: red">'unseen'</span><span style="font-weight: bold">:
+                    </span><span style="color: blue; font-weight: bold">if </span>argMax <span style="font-weight: bold">== </span><span style="color: red">'kickLeft'</span><span style="font-weight: bold">:
+                        </span>color <span style="font-weight: bold">= </span><span style="color: red">'blue'
+                    </span><span style="color: blue; font-weight: bold">elif </span>argMax <span style="font-weight: bold">== </span><span style="color: red">'kickRight'</span><span style="font-weight: bold">:
+                        </span>color <span style="font-weight: bold">= </span><span style="color: red">'red'
+                    </span><span style="color: blue; font-weight: bold">elif </span>argMax <span style="font-weight: bold">== </span><span style="color: red">'doNothing'</span><span style="font-weight: bold">:
+                        </span>color <span style="font-weight: bold">= </span><span style="color: red">'white'
+                    </span>dx <span style="font-weight: bold">= </span>length <span style="font-weight: bold">/ </span><span style="color: red">100.0
+                    </span>dy <span style="font-weight: bold">= </span>length <span style="font-weight: bold">/ </span><span style="color: red">100.0
+                    </span>x0<span style="font-weight: bold">, </span>y0 <span style="font-weight: bold">= </span>x<span style="font-weight: bold">+</span>i<span style="font-weight: bold">*</span>dx<span style="font-weight: bold">, </span>y<span style="font-weight: bold">-</span>j<span style="font-weight: bold">*</span>dy
+                    <span style="color: blue">self</span><span style="font-weight: bold">.</span>canvas<span style="font-weight: bold">.</span>create_rectangle<span style="font-weight: bold">(</span>x0<span style="font-weight: bold">,</span>y0<span style="font-weight: bold">,</span>x0<span style="font-weight: bold">+</span>dx<span style="font-weight: bold">,</span>y0<span style="font-weight: bold">+</span>dy<span style="font-weight: bold">,</span>fill<span style="font-weight: bold">=</span>color<span style="font-weight: bold">)
+                   
+                    
+                        
+        
+    </span><span style="color: blue; font-weight: bold">def </span>run<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>stepCount <span style="font-weight: bold">= </span><span style="color: red">0
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>learner<span style="font-weight: bold">.</span>startEpisode<span style="font-weight: bold">()
+        </span><span style="color: blue; font-weight: bold">while True</span><span style="font-weight: bold">:
+          </span>minSleep <span style="font-weight: bold">= .</span><span style="color: red">01
+          </span>tm <span style="font-weight: bold">= </span>max<span style="font-weight: bold">(</span>minSleep<span style="font-weight: bold">, </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>tickTime<span style="font-weight: bold">)
+          </span>time<span style="font-weight: bold">.</span>sleep<span style="font-weight: bold">(</span>tm<span style="font-weight: bold">)
+          </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>stepsToSkip <span style="font-weight: bold">= </span>int<span style="font-weight: bold">(</span>tm <span style="font-weight: bold">/ </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>tickTime<span style="font-weight: bold">) - </span><span style="color: red">1
+
+          </span><span style="color: blue; font-weight: bold">if not </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>running<span style="font-weight: bold">:
+            </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>stopped <span style="font-weight: bold">= </span><span style="color: blue; font-weight: bold">True
+            return
+          for </span>i <span style="color: blue; font-weight: bold">in </span>range<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">.</span>stepsToSkip<span style="font-weight: bold">):
+              </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>step<span style="font-weight: bold">()  
+          </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>stepsToSkip <span style="font-weight: bold">= </span><span style="color: red">0       
+          </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>step<span style="font-weight: bold">()
+</span><span style="color: green; font-style: italic">#          self.robot.draw()
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>learner<span style="font-weight: bold">.</span>stopEpisode<span style="font-weight: bold">()                                                      
+    
+    </span><span style="color: blue; font-weight: bold">def </span>start<span style="font-weight: bold">(</span><span style="color: blue">self</span><span style="font-weight: bold">):
+        </span><span style="color: blue">self</span><span style="font-weight: bold">.</span>win<span style="font-weight: bold">.</span>mainloop<span style="font-weight: bold">()
+
+
+
+
+
+</span><span style="color: blue; font-weight: bold">def </span>run<span style="font-weight: bold">():
+  </span><span style="color: blue; font-weight: bold">global </span>root
+  root <span style="font-weight: bold">= </span>Tkinter<span style="font-weight: bold">.</span>Tk<span style="font-weight: bold">()
+  </span>root<span style="font-weight: bold">.</span>title<span style="font-weight: bold">( </span><span style="color: red">'Crawler GUI' </span><span style="font-weight: bold">)
+  </span>root<span style="font-weight: bold">.</span>resizable<span style="font-weight: bold">( </span><span style="color: red">0</span><span style="font-weight: bold">, </span><span style="color: red">0 </span><span style="font-weight: bold">)
+
+</span><span style="color: green; font-style: italic">#  root.mainloop()
+
+
+  </span>app <span style="font-weight: bold">= </span>Application<span style="font-weight: bold">(</span>root<span style="font-weight: bold">)
+  </span><span style="color: blue; font-weight: bold">def </span>update_gui<span style="font-weight: bold">():
+    </span>app<span style="font-weight: bold">.</span>robot<span style="font-weight: bold">.</span>draw<span style="font-weight: bold">(</span>app<span style="font-weight: bold">.</span>stepCount<span style="font-weight: bold">, </span>app<span style="font-weight: bold">.</span>tickTime<span style="font-weight: bold">)
+    </span>root<span style="font-weight: bold">.</span>after<span style="font-weight: bold">(</span><span style="color: red">10</span><span style="font-weight: bold">, </span>update_gui<span style="font-weight: bold">)
+  </span>update_gui<span style="font-weight: bold">()
+
+  </span>root<span style="font-weight: bold">.</span>protocol<span style="font-weight: bold">( </span><span style="color: red">'WM_DELETE_WINDOW'</span><span style="font-weight: bold">, </span>app<span style="font-weight: bold">.</span>exit<span style="font-weight: bold">)
+  </span>app<span style="font-weight: bold">.</span>start<span style="font-weight: bold">()
+
+</span>
+  </pre>
+  </body>
+  </html>
+  

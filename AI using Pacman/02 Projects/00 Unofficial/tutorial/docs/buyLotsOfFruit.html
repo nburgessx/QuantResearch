@@ -1,0 +1,49 @@
+<html>
+  <head>
+  <title>buyLotsOfFruit.py</title>
+  </head>
+  <body>
+  <h3>buyLotsOfFruit.py (<a href="../buyLotsOfFruit.py">original</a>)</h3>
+  <hr>
+  <pre>
+<span style="color: green; font-style: italic"># buyLotsOfFruit.py
+# -----------------
+# Licensing Information: Please do not distribute or publish solutions to this
+# project. You are free to use and extend these projects for educational
+# purposes. The Pacman AI projects were developed at UC Berkeley, primarily by
+# John DeNero (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# For more info, see http://inst.eecs.berkeley.edu/~cs188/sp09/pacman.html
+
+</span><span style="color: darkred">"""
+To run this script, type
+
+  python buyLotsOfFruit.py
+  
+Once you have correctly implemented the buyLotsOfFruit function,
+the script should produce the output:
+
+Cost of [('apples', 2.0), ('pears', 3.0), ('limes', 4.0)] is 12.25
+"""
+
+</span>fruitPrices <span style="font-weight: bold">= {</span><span style="color: red">'apples'</span><span style="font-weight: bold">:</span><span style="color: red">2.00</span><span style="font-weight: bold">, </span><span style="color: red">'oranges'</span><span style="font-weight: bold">: </span><span style="color: red">1.50</span><span style="font-weight: bold">, </span><span style="color: red">'pears'</span><span style="font-weight: bold">: </span><span style="color: red">1.75</span><span style="font-weight: bold">,
+              </span><span style="color: red">'limes'</span><span style="font-weight: bold">:</span><span style="color: red">0.75</span><span style="font-weight: bold">, </span><span style="color: red">'strawberries'</span><span style="font-weight: bold">:</span><span style="color: red">1.00</span><span style="font-weight: bold">}
+
+</span><span style="color: blue; font-weight: bold">def </span>buyLotsOfFruit<span style="font-weight: bold">(</span>orderList<span style="font-weight: bold">):
+    </span><span style="color: darkred">"""
+        orderList: List of (fruit, numPounds) tuples
+            
+    Returns cost of order
+    """ 
+    </span>totalCost <span style="font-weight: bold">= </span><span style="color: red">0.0             
+    "*** YOUR CODE HERE ***"
+    </span><span style="color: blue; font-weight: bold">return </span>totalCost
+    
+<span style="color: green; font-style: italic"># Main Method    
+</span><span style="color: blue; font-weight: bold">if </span>__name__ <span style="font-weight: bold">== </span><span style="color: red">'__main__'</span><span style="font-weight: bold">:
+    </span><span style="color: red">"This code runs when you invoke the script from the command line"
+    </span>orderList <span style="font-weight: bold">= [ (</span><span style="color: red">'apples'</span><span style="font-weight: bold">, </span><span style="color: red">2.0</span><span style="font-weight: bold">), (</span><span style="color: red">'pears'</span><span style="font-weight: bold">, </span><span style="color: red">3.0</span><span style="font-weight: bold">), (</span><span style="color: red">'limes'</span><span style="font-weight: bold">, </span><span style="color: red">4.0</span><span style="font-weight: bold">) ]
+    </span><span style="color: blue; font-weight: bold">print </span><span style="color: red">'Cost of'</span><span style="font-weight: bold">, </span>orderList<span style="font-weight: bold">, </span><span style="color: red">'is'</span><span style="font-weight: bold">, </span>buyLotsOfFruit<span style="font-weight: bold">(</span>orderList<span style="font-weight: bold">)</span>
+  </pre>
+  </body>
+  </html>
+  
