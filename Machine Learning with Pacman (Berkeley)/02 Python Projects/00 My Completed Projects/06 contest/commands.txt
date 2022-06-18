@@ -1,7 +1,0 @@
-python capture.py
-python capture.py --help
-python capture.py -r BaselineAgents -b BaselineAgents 
-python capture.py --redOpts first=keys
-python pacclient.py
-python pacclient.py -g MyCoolGame
-
