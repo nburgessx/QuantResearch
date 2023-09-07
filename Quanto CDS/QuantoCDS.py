@@ -123,10 +123,10 @@ print("CDS PV: {:0.2f}".format(cds.cdsPV()))
 print("")
 
 # Quanto CDS
-fx_jump = 0.1     # 10% FX crash risk on default
-correlation = 0.3 # 0.3 correlation between underlying credit and FX
-credit_vol = 0.15 # 15% credit volatility in Hazard Rate
-fx_vol = 0.1      # 10% FX volatility
+fx_jump = -0.25     # -25% FX crash risk on default
+correlation = -0.3  # -0.3 correlation between underlying credit and FX
+credit_vol = 0.15   # 15% credit volatility in Hazard Rate
+fx_vol = 0.1        # 10% FX volatility
 
 qcds = CreditDefaultSwap(is_buy, notional, cds_spread, frequency, time_to_maturity, recovery_rate, hazard_rate, zero_rate, fx_jump, correlation, credit_vol, fx_vol)
 
