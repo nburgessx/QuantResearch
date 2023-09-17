@@ -7,6 +7,7 @@ Monte Carlo Pricing
 
 import math
 import numpy as np
+import scipy.stats as stats
 
 # Black-Scholes Geometric Brownian Motion
 # s(t) = s(0) * exp( ( r - 0.5 * sigma**2 ) * dt) + sigma*sqrt(dt)*x )
@@ -20,7 +21,7 @@ sigma = 0.2
 
 # Monte Carlo Settings
 nSimulations = 100000
-nTimeSteps = 100
+nTimeSteps = 500
 dt = t / nTimeSteps
 
 # Discount Factor
@@ -30,8 +31,9 @@ print(f"Discount Factor: {df}")
 # Random Numbers (Mersenne Twister)
 np.random.seed(100)
 rn = np.random.standard_normal((nTimeSteps+1, nSimulations))
-print(f"Expected Value(Random Variates): {rn.mean():.6f}")
+print(f"Mean(Random Variates): {rn.mean():.6f}")
 print(f"Variance(Random Variates): {rn.var():.6f}")
+print(f"Excess Kurtosis(Random Variates): {stats.kurtosis(rn.flatten()):.6f}")
 
 # Stock Price Process
 s = np.zeros_like(rn)
@@ -51,10 +53,11 @@ plt.plot(s[:,:20]);
 # Histogram to Distribution of Stock Price at Maturity, t
 
 nStdDevs = 2 # Set Plot Boundary for +/- Number of Standard Deviations
+nBins = 200
 
 s_t = s[-1]
 plt.figure(figsize=(10,6))
-plt.hist(s_t, bins=35, color="b", label="frequency")
+plt.hist(s_t, bins=nBins, color="b", label="frequency")
 plt.axvline(s_t.mean(), color="r", label="mean")
 plt.axvline(s_t.mean() + nStdDevs*s_t.std(), color="g", label=f"+{nStdDevs} Standard Deviation(s)")
 plt.axvline(s_t.mean() - nStdDevs*s_t.std(), color="g", label=f"-{nStdDevs} Standard Deviation(s)")
