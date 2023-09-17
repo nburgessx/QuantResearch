@@ -50,14 +50,14 @@ plt.plot(s[:,:20]);
 
 # Histogram to Distribution of Stock Price at Maturity, t
 
-nStdDevs = 2 # Plot Boundary for +/- nStdDevs
+nStdDevs = 2 # Set Plot Boundary for +/- Number of Standard Deviations
 
 s_t = s[-1]
 plt.figure(figsize=(10,6))
 plt.hist(s_t, bins=35, color="b", label="frequency")
 plt.axvline(s_t.mean(), color="r", label="mean")
-plt.axvline(s_t.mean() + nStdDevs*s_t.std(), color="g", label="+1SD")
-plt.axvline(s_t.mean() - nStdDevs*s_t.std(), color="g", label="-1SD")
+plt.axvline(s_t.mean() + nStdDevs*s_t.std(), color="g", label=f"+{nStdDevs} Standard Deviation(s)")
+plt.axvline(s_t.mean() - nStdDevs*s_t.std(), color="g", label=f"-{nStdDevs} Standard Deviation(s)")
 plt.legend(loc=0);
 
 
