@@ -8,6 +8,7 @@ Monte Carlo Pricing
 import math
 import numpy as np
 import scipy.stats as stats
+import matplotlib.pyplot as plt
 
 # Black-Scholes Geometric Brownian Motion
 # s(t) = s(0) * exp( ( r - 0.5 * sigma**2 ) * dt) + sigma*sqrt(dt)*x )
@@ -42,8 +43,8 @@ for i in range(1, nTimeSteps+1):
     s[i] = s[i-1] * np.exp((r-0.5*sigma**2)*dt + sigma*math.sqrt(dt)*rn[i])
 
 # Plot Monte Carlo Simulations
-import matplotlib.pyplot as plt
-plt.style.use("seaborn-v0_8")
+
+plt.style.use("seaborn")
 plt.rcParams["font.family"] = "serif"
 plt.rcParams["savefig.dpi"] = 300
 
