@@ -102,51 +102,6 @@ EQ_DRIFT = EQ_MU - 0.5 * EQ_SIGMA ** 2
 # SIMULATION FUNCTIONS
 # ============================================================
 
-def simulate_paths(antithetic=True):
-    """
-    Simulate correlated Hull–White, CIR, and GBM paths.
-
-    Antithetic variance reduction is implemented: 
-    for each random draw z, we also use -z and average the outcomes.
-    This halves variance without increasing memory cost.
-    """
-    rates = np.zeros((N_PATHS, T_STEPS + 1))
-    hazards = np.zeros((N_PATHS, T_STEPS + 1))
-    equities = np.zeros((N_PATHS, T_STEPS + 1))
-
-    rates[:, 0] = HW_R0
-    hazards[:, 0] = CIR_L0
-    equities[:, 0] = EQ_SPOT
-    sqrt_dt = np.sqrt(DT)
-
-    for t in range(T_STEPS):
-        z = np.random.normal(size=(N_PATHS, 3))
-        dW_pos = z @ CHOLESKY.T
-        dW_neg = -z @ CHOLESKY.T if antithetic else None
-
-        # --- Hull–White (mean-reverting short rate) ---
-        dr_pos = HW_A * (HW_R0 - rates[:, t]) * DT + HW_SIGMA * dW_pos[:, 0] * sqrt_dt
-        dr_neg = HW_A * (HW_R0 - rates[:, t]) * DT + HW_SIGMA * dW_neg[:, 0] * sqrt_dt if antithetic else dr_pos
-
-        # --- CIR (hazard rate, positive process) ---
-        sqrt_h = np.sqrt(np.maximum(hazards[:, t], 0))
-        dh_pos = CIR_K * (CIR_THETA - hazards[:, t]) * DT + CIR_SIGMA * sqrt_h * dW_pos[:, 1] * sqrt_dt
-        dh_neg = CIR_K * (CIR_THETA - hazards[:, t]) * DT + CIR_SIGMA * sqrt_h * dW_neg[:, 1] * sqrt_dt if antithetic else dh_pos
-
-        # --- GBM (CET1 proxy) ---
-        dE_pos = (EQ_MU - 0.5 * EQ_SIGMA**2) * DT + EQ_SIGMA * sqrt_dt * dW_pos[:, 2]
-        dE_neg = (EQ_MU - 0.5 * EQ_SIGMA**2) * DT + EQ_SIGMA * sqrt_dt * dW_neg[:, 2] if antithetic else dE_pos
-
-        # Average both antithetic legs
-        dr = 0.5 * (dr_pos + dr_neg)
-        dh = 0.5 * (dh_pos + dh_neg)
-        dE = 0.5 * (dE_pos + dE_neg)
-
-        rates[:, t + 1] = rates[:, t] + dr
-        hazards[:, t + 1] = np.maximum(hazards[:, t] + dh, 0)
-        equities[:, t + 1] = equities[:, t] * np.exp(dE)
-
-    return rates, hazards, equities
 
 def simulate_paths(num_paths=N_PATHS, antithetic=ANTITHETIC):
     """
@@ -255,53 +210,43 @@ def run_diagnostics(df, convergence_data):
 
 def plot_curves(rates, hazards, equities, num_paths_plot=30):
     """
-    Plot Monte Carlo paths for interest rates, hazard rates, and CET1 proxy vertically.
-
-    Parameters
-    ----------
-    rates : np.ndarray
-        Interest rate paths (N x T)
-    hazards : np.ndarray
-        Hazard rate paths (N x T)
-    equities : np.ndarray
-        CET1 proxy paths (N x T)
-    num_paths_plot : int
-        Number of sample paths to show per process
+    Plot Monte Carlo paths for interest rates, hazard rates, and CET1 proxy
+    as three separate figures for clarity.
     """
     num_paths_plot = min(num_paths_plot, rates.shape[0])
     num_steps = rates.shape[1]
     time_grid = np.linspace(0, T_MATURITY, num_steps)
 
-    # --- Interest Rate Paths (Hull–White) ---
-    plt.figure(figsize=(10, 5))
+    # --- Hull–White Short Rate Paths ---
+    plt.figure(figsize=(10, 4))
     for i in range(num_paths_plot):
         plt.plot(time_grid, rates[i, :], alpha=0.3, linewidth=0.8)
-    plt.title("Interest Rate Paths (Hull–White)")
+    plt.title("Interest Rate Paths (Hull–White Model)")
     plt.xlabel("Time (Years)")
-    plt.ylabel("Rate")
+    plt.ylabel("Short Rate")
     plt.grid(True, linestyle="--", alpha=0.6)
     plt.tight_layout()
     plt.show()
 
-    # --- Hazard Rate Paths (CIR) ---
-    plt.figure(figsize=(10, 5))
+    # --- CIR Hazard Rate Paths ---
+    plt.figure(figsize=(10, 4))
     for i in range(num_paths_plot):
         plt.plot(time_grid, hazards[i, :], alpha=0.3, linewidth=0.8, color='orange')
-    plt.title("Hazard Rate Paths (CIR)")
+    plt.title("Hazard Rate Paths (CIR Model)")
     plt.xlabel("Time (Years)")
     plt.ylabel("Hazard Rate")
     plt.grid(True, linestyle="--", alpha=0.6)
     plt.tight_layout()
     plt.show()
 
-    # --- CET1 Proxy (Equity GBM) ---
-    plt.figure(figsize=(10, 5))
+    # --- CET1 Proxy (Equity GBM) Paths ---
+    plt.figure(figsize=(10, 4))
     for i in range(num_paths_plot):
         plt.plot(time_grid, equities[i, :], alpha=0.3, linewidth=0.8, color='green')
     plt.axhline(EQ_BARRIER, color='red', linestyle='--', label='Conversion Barrier')
     plt.title("Equity CET1 Proxy Paths (GBM)")
     plt.xlabel("Time (Years)")
-    plt.ylabel("Equity Level")
+    plt.ylabel("Equity Level (Normalized)")
     plt.legend()
     plt.grid(True, linestyle="--", alpha=0.6)
     plt.tight_layout()
@@ -358,4 +303,4 @@ def run_simulation(num_paths=N_PATHS, use_antithetic=ANTITHETIC, show_diagnostic
 # ============================================================
 
 if __name__ == "__main__":
-    run_simulation(num_paths=10000, use_antithetic=False, show_diagnostics=True)
+    run_simulation(num_paths=15000, use_antithetic=False, show_diagnostics=True)
