@@ -26,6 +26,9 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+# Noncentral Chi-Squared Distribution for Credit CIR Model
+from scipy.stats import ncx2
+
 # ============================================================
 # DEAL PARAMETERS
 # ============================================================
@@ -58,7 +61,7 @@ EQ_BARRIER = CET1_TRIGGER_PERCENT / CET1_CURRENT_PERCENT  # normalized (~0.583)
 # --- Hull–White Interest Rate Model (Short rate) ---
 # dr = a*(r_mean - r)*dt + sigma*dW_r
 # Captures mean-reverting dynamics of the short-term rate.
-HW_R0 = 0.02       # Starting rate (2%)
+HW_R0 = 0.05       # Starting rate (5%)
 HW_A = 0.03        # Mean reversion speed
 HW_SIGMA = 0.01    # Volatility of the short rate
 
@@ -118,22 +121,43 @@ def simulate_paths(num_paths=N_PATHS, antithetic=ANTITHETIC):
     rates[:, 0] = HW_R0
     hazards[:, 0] = CIR_L0
     equities[:, 0] = EQ_SPOT
+    
     sqrt_dt = np.sqrt(DT)
+    exp_a_dt = np.exp(-HW_A * DT)
 
     for t in range(T_STEPS):
         z = np.random.normal(size=(base_paths, 3))
         dW = z @ CHOLESKY.T
 
         # --- Hull–White (mean-reverting short rate) ---
-        dr = HW_A * (HW_R0 - rates[:, t]) * DT + HW_SIGMA * dW[:, 0] * sqrt_dt
-        rates[:, t + 1] = rates[:, t] + dr
-
+        # ==============================================
+        
+        # --- Euler-Mayurama (Approximate) ---
+        # dr = HW_A * (HW_R0 - rates[:, t]) * DT + HW_SIGMA * dW[:, 0] * sqrt_dt
+        # rates[:, t + 1] = rates[:, t] + dr
+        
+        # --- Exact Discretization ---
+        mean_r = HW_R0 * (1 - exp_a_dt) + rates[:, t] * exp_a_dt
+        var_r = (HW_SIGMA**2) * (1 - np.exp(-2 * HW_A * DT)) / (2 * HW_A)
+        rates[:, t + 1] = mean_r + np.sqrt(var_r) * dW[:, 0]
+        
         # --- CIR (hazard rate, positive process) ---
-        sqrt_h = np.sqrt(np.maximum(hazards[:, t], 0))
-        dh = CIR_K * (CIR_THETA - hazards[:, t]) * DT + CIR_SIGMA * sqrt_h * dW[:, 1] * sqrt_dt
-        hazards[:, t + 1] = np.maximum(hazards[:, t] + dh, 0)
+        # ==============================================
+        
+        # --- Euler-Mayurama (Approximate) ---
+        # sqrt_h = np.sqrt(np.maximum(hazards[:, t], 0))
+        # dh = CIR_K * (CIR_THETA - hazards[:, t]) * DT + CIR_SIGMA * sqrt_h * dW[:, 1] * sqrt_dt
+        # hazards[:, t + 1] = np.maximum(hazards[:, t] + dh, 0)
 
+        # --- Exact discretization using noncentral chi-squared distribution ---
+        c = (CIR_SIGMA**2 * (1 - np.exp(-CIR_K * DT))) / (4 * CIR_K)
+        d = 4 * CIR_K * CIR_THETA / CIR_SIGMA**2
+        λ = (4 * CIR_K * np.exp(-CIR_K * DT) * hazards[:, t]) / (CIR_SIGMA**2 * (1 - np.exp(-CIR_K * DT)))
+        hazards[:, t + 1] = c * ncx2.rvs(d, λ) # noncentral chi-squared (ncx2) random variates (rvs)
+        
         # --- GBM (Equity for CET1 proxy) ---
+        # ==============================================
+        
         dE = (EQ_MU - 0.5 * EQ_SIGMA**2) * DT + EQ_SIGMA * sqrt_dt * dW[:, 2]
         equities[:, t + 1] = equities[:, t] * np.exp(dE)
 
@@ -253,7 +277,7 @@ def plot_curves(rates, hazards, equities, num_paths_plot=30):
     plt.show()
 
 # ============================================================
-# SIMULATION DRIVER
+# # RUNNING MONTE CARLO SIMULAITONS
 # ============================================================
 
 def run_simulation(num_paths=N_PATHS, use_antithetic=ANTITHETIC, show_diagnostics=True, conv_step=1000):
@@ -303,4 +327,4 @@ def run_simulation(num_paths=N_PATHS, use_antithetic=ANTITHETIC, show_diagnostic
 # ============================================================
 
 if __name__ == "__main__":
-    run_simulation(num_paths=15000, use_antithetic=False, show_diagnostics=True)
+    run_simulation(num_paths=30000, use_antithetic=False, show_diagnostics=True)
