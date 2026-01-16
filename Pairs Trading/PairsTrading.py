@@ -32,7 +32,7 @@ def half_life(series):
     phi_hat = 1 + est.params[1]
     if abs(phi_hat) < 1:
         hl = -np.log(2)/np.log(abs(phi_hat))
-        print(f"Estimated phi: {phi_hat:.4f}, Half-life: {hl:.2f} periods")
+        print(f"Estimated phi: {phi_hat:.4f}, Half-life: {hl:.2f} periods (days)")
         return hl
     else:
         print(f"Estimated phi: {phi_hat:.4f}, half-life undefined (non-stationary)")
