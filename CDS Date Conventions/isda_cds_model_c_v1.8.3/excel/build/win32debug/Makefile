@@ -1,0 +1,20 @@
+###########################################################################
+# Makefile for the Excel debug add-in.
+###########################################################################
+#
+#  ISDA CDS Standard Model
+#
+#  Copyright (C) 2009 International Swaps and Derivatives Association, Inc.
+#  Developed and supported in collaboration with Markit
+#
+#  This program is free software: you can redistribute it and/or modify it
+#  under the terms of the ISDA CDS Standard Model Public License.
+#
+###########################################################################
+
+TOP = ../../..
+
+include $(TOP)/makefiles/config.mk
+include $(TOP)/makefiles/win32debug.mk
+include $(TOP)/excel/objects.mk
+include $(TOP)/makefiles/xll.mk

@@ -1,0 +1,98 @@
+
+ISDA CDS STANDARD MODEL PUBLIC LICENSE
+Version 1.0 
+________________________________________
+
+1. Definitions. 
+
+(a) "Licensor" means International Swaps and Derivatives Association, Inc. ("ISDA"). 
+
+(b)  "ISDA CDS Standard Model" means the ISDA CDS Standard Model software code available for download at http://www.cdsmodel.com/ 
+
+(c) "Derivative Work" means a work, including but not limited to Source Code or object code, that includes or is based on ISDA CDS Standard Model, or portions thereof,  together with material not governed by the terms of this License. 
+
+(e) "License" means this document.
+
+(f)  "Source Code" means the preferred form of the ISDA CDS Standard Model for making modifications to it and all available documentation describing how to modify the ISDA CDS Standard Model.
+
+(g)  "You" means an individual or a legal entity exercising rights under, and complying with all of the terms of, this License or a future version of this License issued under Paragraph 7. For legal entities, "You" includes any entity which controls, is controlled by, or is under common control with You. For purposes of this definition, "control" means (a) the power, direct or indirect, to cause the direction or management of such entity, whether by contract or otherwise, or (b) ownership of fifty percent (50%) or more of the outstanding shares or beneficial ownership of such entity. 
+
+2. License.
+Licensor hereby grants You a world-wide, royalty-free, non-exclusive sublicensable license, subject to third party intellectual property claims, 
+ 
+a) to reproduce the ISDA CDS Standard Model in copies;
+
+b) to distribute and publicly display the ISDA CDS Standard Model;
+
+c) to use and authorize the use of the ISDA CDS Standard Model, with the proviso that copies of ISDA CDS Standard Model that you distribute for use by others shall be licensed under this License;
+
+d) to translate, adapt, alter, transform, modify, or arrange the ISDA CDS Standard Model, thereby creating derivative works ("Derivative Works") based upon the ISDA CDS Standard Model; providing that Your Derivative Works shall comply in all respects with the provisions of Section 4 below; and
+
+e)  to distribute or communicate copies of Your Derivative Works to the public under a license of Your choice, which may contain terms different from this License, provided that the license for Your Derivative Works does not attempt to limit the licensee's rights to use the ISDA CDS Standard Model apart from Your Derivative Work.
+
+
+
+3. Exclusions From License Grant. 
+
+Neither the names of Licensor, nor the names of any contributors to the ISDA CDS Standard Model, nor any of their trademarks or service marks, may be used to endorse or promote products derived from the ISDA CDS Standard Model without express prior permission of the Licensor. Except as expressly stated herein, nothing in this License grants any license to Licensor's trademarks, copyrights, patents, trade secrets or any other intellectual property. No patent license is granted to make, use, sell, offer for sale, have made, or import embodiments of any patent claims.
+
+
+4. Attribution Rights. 
+
+(a) You must retain in their original locations, in any copies of the ISDA CDS Standard Model, 
+
+(i) the product name and version number appearing therein (e.g., "ISDA CDS Standard Model Version 1.0"); and
+
+(ii) all copyright, patent, or trademark notices from the Source Code of the ISDA CDS Standard Model, as well as any notices of licensing and any descriptive text identified therein as an "Attribution Notice." 
+
+(b)  For Source Code and executable versions of any Derivative Works that You create for external use to your organization, the following notice must be provided at the top level (e.g. main screen of an application) "This application is based on the ISDA CDS Standard Model (version x.x), developed and supported in collaboration with Markit Group Ltd." where "x.x" refers to the version of the ISDA CDS Standard Model on which Your Derivative Work is based. It is understood that a work that includes data derived from calculations that have been attained by using the ISDA CDS Standard Model, and is not Source Code or an executable version of any Derivative Work that You may create for external use to your organization, shall not be subject to the provisions of this Section.
+
+
+5. Use of Designation "ISDA".
+
+(a) You may use the designation "ISDA": 
+
+(i) to identify the ISDA CDS Standard Model approved by Licensor; and 
+
+(ii) to make the truthful claim that computer software or any other product or service is based on or compliant with a specified version of ISDA CDS Standard Model.
+
+(b) You agree not to use the designation "ISDA" in a misleading or untruthful way, or in a way that falsely suggests endorsement or sponsorship by, or affiliation with, Licensor. Without limiting the generality of the foregoing sentence, You agree not to use the designation "ISDA", or any confusingly similar designation:
+
+(i) to identify any software, algorithm or method other than the ISDA CDS Standard Model approved by Licensor, or any Derivative Works, unless additions or modifications to the ISDA CDS Standard Model are clearly and conspicuously identified as such;
+
+(ii) to advertise or promote any computer software or any other product or service as based on or compliant with ISDA CDS Standard Model, unless You specify the version of ISDA CDS Standard Model; or
+
+(iii) as a trademark or part of a trademark for any software or any other product, or as a service mark or part of a service mark for any service.
+
+ 
+
+
+6. Indemnity for Use of ISDA CDS Standard Model in Derivative Works.
+
+You hereby agree to indemnify Licensor for any liability incurred by the Licensor as a result of the distribution, purchase, sale or use of Your Derivative Work.
+
+
+7. Revisions of the License.
+(a) Licensor may publish revised and/or new versions of the License from time to time. Each version will be given a distinguishing version number.
+
+(b) Once You have used the ISDA CDS Standard Model under a particular version of the License, You may always continue to use the ISDA CDS Standard Model under the terms of that version. You may also choose to use the ISDA CDS Standard Model under the terms of any subsequent version of the License published by Licensor. No one other than Licensor has the right to modify the terms applicable to the ISDA CDS Standard Model under this License. 
+
+8. DISCLAIMER OF WARRANTY.
+THE ISDA CDS STANDARD MODEL IS  PROVIDED UNDER THIS LICENSE ON AN "AS IS" BASIS, WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, WITHOUT LIMITATION, WARRANTIES THAT THE ISDA CDS STANDARD MODEL IS FREE OF DEFECTS, MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE OR NON-INFRINGING. THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE ISDA CDS STANDARD MODEL IS WITH YOU. SHOULD THE ISDA CDS STANDARD MODEL PROVE DEFECTIVE IN ANY RESPECT, YOU (NOT THE LICENSOR) ASSUME THE COST OF ANY NECESSARY SERVICING, REPAIR OR CORRECTION. THIS DISCLAIMER OF WARRANTY CONSTITUTES AN ESSENTIAL PART OF THIS LICENSE. NO USE OF ANY OF THE ISDA CDS STANDARD MODEL IS AUTHORIZED HEREUNDER EXCEPT UNDER THIS DISCLAIMER. 
+
+9. Acceptance and Termination.
+ (a) Except as provided in subparagraph (b) of this Paragraph, this License and the rights granted hereunder will terminate automatically if You fail to comply with terms herein and fail to cure such breach within 30 days of becoming aware of the breach.
+(b)  If, at any time, You expressly assented to this License, that assent indicates your clear and irrevocable acceptance of this License and all of its terms and conditions. If You distribute or communicate copies of the ISDA CDS Standard Model or a Derivative Work, You must make a reasonable effort under the circumstances to obtain the express assent of recipients to the terms of this License. This License conditions your rights to undertake the activities listed in Section 2, including your right to create Derivative Works based upon the ISDA CDS Standard Model, and doing so without honoring these terms and conditions is prohibited by copyright law and international treaty. Nothing in this License is intended to affect copyright exceptions and limitations (including "fair use" or "fair dealing"). This License shall terminate immediately and You may no longer exercise any of the rights granted to You by this License upon your failure to honor the conditions in this License.
+
+10. Termination for Patent Action. 
+This License shall terminate automatically and You may no longer exercise any of the rights granted to You by this License as of the date You commence an action, including a cross-claim or counterclaim, against Licensor or any licensee alleging that the ISDA CDS Standard Model or a Derivative Work infringes a patent. This termination provision shall not apply for an action alleging patent infringement by combinations of the ISDA CDS Standard Model or a Derivative Work with other software or hardware.
+
+11. LIMITATION OF LIABILITY. 
+
+UNDER NO CIRCUMSTANCES AND UNDER NO LEGAL THEORY, WHETHER TORT(INCLUDING NEGLIGENCE), CONTRACT, OR OTHERWISE, SHALL THE LICENSOR, ANY OF ITS MEMBERS, OR ANY DISTRIBUTOR OF DOCUMENTS OR SOFTWARE CONTAINING ANY OF THE ISDA CDS STANDARD MODEL, OR ANY SUPPLIER OF ANY OF SUCH PARTIES, BE LIABLE TO YOU OR ANY OTHER PERSON FOR ANY INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES OF ANY CHARACTER INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF GOODWILL, WORK STOPPAGE, COMPUTER FAILURE OR MALFUNCTION, OR ANY AND ALL OTHER COMMERCIAL DAMAGES OR LOSSES, EVEN IF SUCH PARTY SHALL HAVE BEEN INFORMED OF THE POSSIBILITY OF SUCH DAMAGES. THIS LIMITATION OF LIABILITY SHALL NOT APPLY TO LIABILITY FOR DEATH OR PERSONAL INJURY RESULTING FROM SUCH PARTY'S NEGLIGENCE TO THE EXTENT APPLICABLE LAW PROHIBITS SUCH LIMITATION. SOME JURISDICTIONS DO NOT ALLOW THE EXCLUSION OR LIMITATION OF INCIDENTAL OR CONSEQUENTIAL DAMAGES, SO THAT EXCLUSION AND LIMITATION MAY NOT APPLY TO YOU. 
+
+12. Miscellaneous. 
+
+This License represents the complete agreement concerning subject matter hereof. If any provision of this License is held to be unenforceable, such provision shall be reformed only to the extent necessary to make it enforceable. This License shall be governed by New York law provisions (except to the extent applicable law, if any, provides otherwise), excluding its conflict-of-law provisions. With respect to disputes in which at least one party is a citizen of, or an entity chartered or registered to do business in, the United States of America: (a) unless otherwise agreed in writing, all disputes relating to this License(excepting any dispute relating to intellectual property rights) shall be subject to final and binding arbitration, with the losing party paying all costs of arbitration; (b) any arbitration relating to this Agreement shall be held in New York City, under the auspices of JAMS/End Dispute; and (c) any litigation relating to this agreement shall be subject to the jurisdiction of the Federal Courts of the Southern District of New York, with venue lying in New York County, with the losing party responsible for costs, including without limitation, court costs and reasonable attorneys fees and expenses. The application of the United Nations Convention on Contracts for the International Sale of Goods is expressly excluded. Any law or regulation which provides that the language of a contract shall be construed against the drafter shall not apply to this License.
+
+ 
